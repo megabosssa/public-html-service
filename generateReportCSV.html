@@ -43,16 +43,17 @@
         return nestedObject && nestedObject[propName] != null ? nestedObject[propName] : '';
     }
 
-    function downloadCSV() {
-        const csvText = document.getElementById('csvOutput').value;
-        const element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csvText));
-        element.setAttribute('download', 'output.txt');
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click;
-        document.body.removeChild(element);
-    }
+        function downloadCSV() {
+            const csvText = document.getElementById('csvOutput').value;
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csvText));
+            element.setAttribute('download', 'output.txt');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
 </script>
 </body>
 </html>
