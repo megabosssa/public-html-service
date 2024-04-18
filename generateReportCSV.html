@@ -9,39 +9,46 @@
     </style>
 </head>
 <body>
-    <h1>JSON to CSV Converter with Download</h1>
-    <textarea id="jsonInput" placeholder="Enter list of JSON objects here..."></textarea>
-    <div>
-        <button onclick="convertJsonToCSV()">Convert to CSV</button>
-        <button onclick="downloadCSV()">Download as TXT</button>
-    </div>
-    <textarea id="csvOutput" placeholder="CSV output..." readonly></textarea>
+<h1>JSON to CSV Converter with Download</h1>
+<textarea id="jsonInput" placeholder="Enter list of JSON objects here..."></textarea>
+<div>
+    <button onclick="convertJsonToCSV()">Convert to CSV</button>
+    <button onclick="downloadCSV()">Download as TXT</button>
+</div>
+<textarea id="csvOutput" placeholder="CSV output..." readonly></textarea>
 
-    <script>
-        function convertJsonToCSV() {
-            const jsonInput = document.getElementById('jsonInput').value;
-            try {
-                const jsonArray = JSON.parse(jsonInput);
-                let csvString = jsonArray.map(jsonObject => 
-                    `D|${jsonObject.transactionId}|${jsonObject.sourceSystem}|${jsonObject.serviceCode}|${jsonObject.transactionDateTime}|${jsonObject.paymentPurpose}|${jsonObject.remark}|${jsonObject.typeOfSender}|${jsonObject.transactionAmount}|${jsonObject.fromAccountInstruction.bankCode}|${jsonObject.fromAccountInstruction.accountNumber}|${jsonObject.fromAccountInstruction.isGl}|${jsonObject.fromAccountInstruction.glNumber}|${jsonObject.fromAccountInstruction.accountName}|${jsonObject.fromAccountInstruction.taxId}|${jsonObject.fromAccountInstruction.statementReference}|${jsonObject.toAccountInstruction.proxyInformation.proxyType}|${jsonObject.toAccountInstruction.proxyInformation.proxyValue}|${jsonObject.toAccountInstruction.bankCode}|${jsonObject.toAccountInstruction.accountNumber}|${jsonObject.toAccountInstruction.isGl}|${jsonObject.toAccountInstruction.glNumber}|${jsonObject.toAccountInstruction.accountName}|${jsonObject.toAccountInstruction.statementReference}|${jsonObject.smsInformation.farmerMobileNumber}|${jsonObject.smsInformation.companyName}|${jsonObject.smsInformation.factoryName}|${jsonObject.smsInformation.chequeAmount}|${jsonObject.smsInformation.discountAmount}|${jsonObject.smsInformation.netAmount}|${jsonObject.smsInformation.farmerAccountNumber}|${jsonObject.smsInformation.reference}|${jsonObject.smsInformation.factoryMobileNumber}`).join('\n');
-                // Append summary line
-                csvString += `\nF|CLP202403010000001|${jsonArray.length}`;
-                document.getElementById('csvOutput').value = csvString;
-            } catch (e) {
-                alert('Invalid JSON input');
-            }
+<script>
+    function convertJsonToCSV() {
+        const jsonInput = document.getElementById('jsonInput').value;
+        try {
+            const jsonArray = JSON.parse(jsonInput);
+            let csvString = jsonArray.map(jsonObject =>
+                `D|${formatValue(jsonObject, 'transactionId')}|${formatValue(jsonObject, 'sourceSystem')}|${formatValue(jsonObject, 'serviceCode')}|${formatValue(jsonObject, 'transactionDateTime')}|${formatValue(jsonObject, 'paymentPurpose')}|${formatValue(jsonObject, 'remark')}|${formatValue(jsonObject, 'typeOfSender')}|${formatValue(jsonObject, 'transactionAmount')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'bankCode')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'accountNumber')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'isGl')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'glNumber')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'accountName')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'taxId')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'statementReference')}|${formatNestedValue(jsonObject.toAccountInstruction && jsonObject.toAccountInstruction.proxyInformation, 'proxyType')}|${formatNestedValue(jsonObject.toAccountInstruction && jsonObject.toAccountInstruction.proxyInformation, 'proxyValue')}|${formatNestedValue(jsonObject.toAccountInstruction, 'bankCode')}|${formatNestedValue(jsonObject.toAccountInstruction, 'accountNumber')}|${formatNestedValue(jsonObject.toAccountInstruction, 'isGl')}|${formatNestedValue(jsonObject.toAccountInstruction, 'glNumber')}|${formatNestedValue(jsonObject.toAccountInstruction, 'accountName')}|${formatNestedValue(jsonObject.toAccountInstruction, 'statementReference')}|${formatNestedValue(jsonObject.smsInformation, 'farmerMobileNumber')}|${formatNestedValue(jsonObject.smsInformation, 'companyName')}|${formatNestedValue(jsonObject.smsInformation, 'factoryName')}|${formatNestedValue(jsonObject.smsInformation, 'chequeAmount')}|${formatNestedValue(jsonObject.smsInformation, 'discountAmount')}|${formatNestedValue(jsonObject.smsInformation, 'netAmount')}|${formatNestedValue(jsonObject.smsInformation, 'farmerAccountNumber')}|${formatNestedValue(jsonObject.smsInformation, 'reference')}|${formatNestedValue(jsonObject.smsInformation, 'factoryMobileNumber')}`).join('\n');
+            csvString += `\nF|CLP202403010000001|${jsonArray.length}`;
+            document.getElementById('csvOutput').value = csvString;
+        } catch (e) {
+            alert('Invalid JSON input');
         }
+    }
 
-        function downloadCSV() {
-            const csvText = document.getElementById('csvOutput').value;
-            const element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csvText));
-            element.setAttribute('download', 'output.txt');
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
-        }
-    </script>
+    function formatValue(jsonObject, propName) {
+        return jsonObject && jsonObject[propName] != null ? jsonObject[propName] : '';
+    }
+
+    function formatNestedValue(nestedObject, propName) {
+        return nestedObject && nestedObject[propName] != null ? nestedObject[propName] : '';
+    }
+
+    function downloadCSV() {
+        const csvText = document.getElementById('csvOutput').value;
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csvText));
+        element.setAttribute('download', 'output.txt');
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
+</script>
 </body>
 </html>
