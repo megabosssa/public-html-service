@@ -24,7 +24,11 @@
             const jsonArray = JSON.parse(jsonInput);
             let csvString = jsonArray.map(jsonObject =>
                 `D|${formatValue(jsonObject, 'transactionId')}|${formatValue(jsonObject, 'sourceSystem')}|${formatValue(jsonObject, 'serviceCode')}|${formatValue(jsonObject, 'transactionDateTime')}|${formatValue(jsonObject, 'paymentPurpose')}|${formatValue(jsonObject, 'remark')}|${formatValue(jsonObject, 'typeOfSender')}|${formatValue(jsonObject, 'transactionAmount')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'bankCode')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'accountNumber')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'isGl')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'glNumber')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'accountName')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'taxId')}|${formatNestedValue(jsonObject.fromAccountInstruction, 'statementReference')}|${formatNestedValue(jsonObject.toAccountInstruction && jsonObject.toAccountInstruction.proxyInformation, 'proxyType')}|${formatNestedValue(jsonObject.toAccountInstruction && jsonObject.toAccountInstruction.proxyInformation, 'proxyValue')}|${formatNestedValue(jsonObject.toAccountInstruction, 'bankCode')}|${formatNestedValue(jsonObject.toAccountInstruction, 'accountNumber')}|${formatNestedValue(jsonObject.toAccountInstruction, 'isGl')}|${formatNestedValue(jsonObject.toAccountInstruction, 'glNumber')}|${formatNestedValue(jsonObject.toAccountInstruction, 'accountName')}|${formatNestedValue(jsonObject.toAccountInstruction, 'statementReference')}|${formatNestedValue(jsonObject.smsInformation, 'farmerMobileNumber')}|${formatNestedValue(jsonObject.smsInformation, 'companyName')}|${formatNestedValue(jsonObject.smsInformation, 'factoryName')}|${formatNestedValue(jsonObject.smsInformation, 'chequeAmount')}|${formatNestedValue(jsonObject.smsInformation, 'discountAmount')}|${formatNestedValue(jsonObject.smsInformation, 'netAmount')}|${formatNestedValue(jsonObject.smsInformation, 'farmerAccountNumber')}|${formatNestedValue(jsonObject.smsInformation, 'reference')}|${formatNestedValue(jsonObject.smsInformation, 'factoryMobileNumber')}`).join('\n');
-            csvString += `\nF|CLP202403010000001|${jsonArray.length}`;
+            // Generate footer with current date and random number
+            const currentDate = new Date();
+            const dateString = `${currentDate.getFullYear()}${('0' + (currentDate.getMonth() + 1)).slice(-2)}${('0' + currentDate.getDate()).slice(-2)}`;
+            const randomNum = Math.floor(100000 + Math.random() * 900000); // 6-digit random number
+            csvString += `\nF|CLP${dateString}${randomNum}|${jsonArray.length}`;
             document.getElementById('csvOutput').value = csvString;
         } catch (e) {
             alert('Invalid JSON input');
@@ -46,7 +50,7 @@
         element.setAttribute('download', 'output.txt');
         element.style.display = 'none';
         document.body.appendChild(element);
-        element.click();
+        element.click;
         document.body.removeChild(element);
     }
 </script>
