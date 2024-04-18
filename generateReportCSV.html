@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JSON to CSV Converter with Download</title>
+    <style>
+        textarea { width: 300px; height: 200px; }
+        div { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>JSON to CSV Converter with Download</h1>
+    <textarea id="jsonInput" placeholder="Enter list of JSON objects here..."></textarea>
+    <div>
+        <button onclick="convertJsonToCSV()">Convert to CSV</button>
+        <button onclick="downloadCSV()">Download as TXT</button>
+    </div>
+    <textarea id="csvOutput" placeholder="CSV output..." readonly></textarea>
+
+    <script>
+        function convertJsonToCSV() {
+            const jsonInput = document.getElementById('jsonInput').value;
+            try {
+                const jsonArray = JSON.parse(jsonInput);
+                let csvString = jsonArray.map(jsonObject => 
+                    `D|${jsonObject.transactionId}|${jsonObject.sourceSystem}|${jsonObject.serviceCode}|${jsonObject.transactionDateTime}|${jsonObject.paymentPurpose}|${jsonObject.remark}|${jsonObject.typeOfSender}|${jsonObject.transactionAmount}|${jsonObject.fromAccountInstruction.bankCode}|${jsonObject.fromAccountInstruction.accountNumber}|${jsonObject.fromAccountInstruction.isGl}|${jsonObject.fromAccountInstruction.glNumber}|${jsonObject.fromAccountInstruction.accountName}|${jsonObject.fromAccountInstruction.taxId}|${jsonObject.fromAccountInstruction.statementReference}|${jsonObject.toAccountInstruction.proxyInformation.proxyType}|${jsonObject.toAccountInstruction.proxyInformation.proxyValue}|${jsonObject.toAccountInstruction.bankCode}|${jsonObject.toAccountInstruction.accountNumber}|${jsonObject.toAccountInstruction.isGl}|${jsonObject.toAccountInstruction.glNumber}|${jsonObject.toAccountInstruction.accountName}|${jsonObject.toAccountInstruction.statementReference}|${jsonObject.smsInformation.farmerMobileNumber}|${jsonObject.smsInformation.companyName}|${jsonObject.smsInformation.factoryName}|${jsonObject.smsInformation.chequeAmount}|${jsonObject.smsInformation.discountAmount}|${jsonObject.smsInformation.netAmount}|${jsonObject.smsInformation.farmerAccountNumber}|${jsonObject.smsInformation.reference}|${jsonObject.smsInformation.factoryMobileNumber}`).join('\n');
+                // Append summary line
+                csvString += `\nF|CLP202403010000001|${jsonArray.length}`;
+                document.getElementById('csvOutput').value = csvString;
+            } catch (e) {
+                alert('Invalid JSON input');
+            }
+        }
+
+        function downloadCSV() {
+            const csvText = document.getElementById('csvOutput').value;
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csvText));
+            element.setAttribute('download', 'output.txt');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+    </script>
+</body>
+</html>
