@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWE Encryption/Decryption</title>
+    <script src="https://cdn.jsdelivr.net/npm/jose@3.14.0/dist/browser/jose.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea, input {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>JWE Encryption/Decryption</h1>
+    <label for="payload">Payload:</label>
+    <textarea id="payload" rows="4"></textarea>
+    
+    <button onclick="encrypt()">Encrypt</button>
+    <label for="encrypted">Encrypted JWE Compact:</label>
+    <textarea id="encrypted" rows="4" readonly></textarea>
+    
+    <button onclick="decrypt()">Decrypt</button>
+    <label for="decrypted">Decrypted Payload:</label>
+    <textarea id="decrypted" rows="4" readonly></textarea>
+
+    <script>
+        async function getKey() {
+            const keyMaterial = await crypto.subtle.generateKey(
+                {
+                    name: "AES-GCM",
+                    length: 256
+                },
+                true,
+                ["encrypt", "decrypt"]
+            );
+            return jose.JWK.asKey(keyMaterial);
+        }
+
+        const keyPromise = getKey();
+
+        async function encrypt() {
+            const payload = document.getElementById('payload').value;
+            const key = await keyPromise;
+            const jweCompact = await new jose.JWE.Encrypt(new TextEncoder().encode(payload))
+                .setProtectedHeader({ alg: 'dir', enc: 'A256GCM' })
+                .encrypt(key);
+            document.getElementById('encrypted').value = jweCompact;
+        }
+
+        async function decrypt() {
+            const jweCompact = document.getElementById('encrypted').value;
+            const key = await keyPromise;
+            const { plaintext } = await jose.JWE.decrypt(jweCompact, key);
+            document.getElementById('decrypted').value = new TextDecoder().decode(plaintext);
+        }
+    </script>
+</body>
+</html>

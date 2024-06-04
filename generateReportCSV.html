@@ -48,7 +48,7 @@
         const currentDate = new Date();
         const dateString = `${currentDate.getFullYear()}${('0' + (currentDate.getMonth() + 1)).slice(-2)}${('0' + currentDate.getDate()).slice(-2)}`;
         const timeString = `${('0' + currentDate.getHours()).slice(-2)}${('0' + currentDate.getMinutes()).slice(-2)}${('0' + currentDate.getSeconds()).slice(-2)}_${('00' + currentDate.getMilliseconds()).slice(-3)}`;
-        const fileName = `CLP_disbursement_bulk_${dateString}_${timeString}.txt`;
+        const fileName = `CLP_disbursement-bulk-onus_${dateString}_${timeString}.txt`;
         const element = document.createElement('a');
         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csvText));
         element.setAttribute('download', fileName);
