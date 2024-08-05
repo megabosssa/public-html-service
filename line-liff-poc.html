@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,25 +15,27 @@
                 if (!liff.isLoggedIn()) {
                     // If not logged in, login
                     liff.login();
-                } else {
-                    // If logged in, get the access token and user profile
-                    const accessToken = liff.getAccessToken();
-                    console.log("Access Token:", accessToken);
-
-                    liff.getProfile().then(profile => {
-                        const userId = profile.userId;
-                        console.log("User ID:", userId);
-
-                        // Open the specified URL with accessToken
-                        const url = `https://xxx/line/generateSession?accessToken=${accessToken}`;
-                        liff.openWindow({
-                            url: url,
-                            external: true // Set to true to open the URL in the browser
-                        });
-                    }).catch(err => {
-                        console.error("Error getting profile:", err);
-                    });
                 }
+
+                // If logged in, open the specified URL with accessToken
+                const accessToken = liff.getAccessToken();
+                console.log("Access Token:", accessToken);
+
+
+                liff.getProfile().then(profile => {
+                    const userId = profile.userId;
+                    console.log("User ID:", userId);
+
+                    // Open the specified URL with accessToken
+                    const url = `https://xxx/line/generateSession?accessToken=${accessToken}`;
+                    liff.openWindow({
+                        url: url,
+                        external: true // Set to true to open the URL in the browser
+                    });
+                }).catch(err => {
+                    console.error("Error getting profile:", err);
+                });
+
             }).catch((err) => {
                 console.error('LIFF Initialization failed', err);
             });
@@ -40,12 +43,14 @@
 
         document.addEventListener('DOMContentLoaded', (event) => {
             // Replace with your LIFF ID
-            const myLiffId = "YOUR_LIFF_ID";
+            const myLiffId = "2006017662-35jQJzg2";
             initializeLiff(myLiffId);
         });
     </script>
 </head>
+
 <body>
-    <h1></h1>
+    <h1>LIFF Example</h1>
 </body>
+
 </html>
