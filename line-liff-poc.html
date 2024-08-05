@@ -15,12 +15,22 @@
                     // If not logged in, login
                     liff.login();
                 } else {
-                    // If logged in, open the specified URL with accessToken
+                    // If logged in, get the access token and user profile
                     const accessToken = liff.getAccessToken();
-                    const url = `https://xxx/line/generateSession?accessToken=${accessToken}`;
-                    liff.openWindow({
-                        url: url,
-                        external: true // Set to true to open the URL in the browser
+                    console.log("Access Token:", accessToken);
+
+                    liff.getProfile().then(profile => {
+                        const userId = profile.userId;
+                        console.log("User ID:", userId);
+
+                        // Open the specified URL with accessToken
+                        const url = `https://xxx/line/generateSession?accessToken=${accessToken}`;
+                        liff.openWindow({
+                            url: url,
+                            external: true // Set to true to open the URL in the browser
+                        });
+                    }).catch(err => {
+                        console.error("Error getting profile:", err);
                     });
                 }
             }).catch((err) => {
@@ -30,12 +40,12 @@
 
         document.addEventListener('DOMContentLoaded', (event) => {
             // Replace with your LIFF ID
-            const myLiffId = "2006017662-35jQJzg2";
+            const myLiffId = "YOUR_LIFF_ID";
             initializeLiff(myLiffId);
         });
     </script>
 </head>
 <body>
-    <h1>LIFF Example</h1>
+    <h1></h1>
 </body>
 </html>
