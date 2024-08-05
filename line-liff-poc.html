@@ -1,56 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LIFF Example</title>
-    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
-    <script>
-        function initializeLiff(myLiffId) {
-            liff.init({
-                liffId: myLiffId
-            }).then(() => {
-                // Check if the user is logged in
-                if (!liff.isLoggedIn()) {
-                    // If not logged in, login
-                    liff.login();
-                }
-
-                // If logged in, open the specified URL with accessToken
-                const accessToken = liff.getAccessToken();
-                console.log("Access Token:", accessToken);
-
-
-                liff.getProfile().then(profile => {
-                    const userId = profile.userId;
-                    console.log("User ID:", userId);
-
-                    // Open the specified URL with accessToken
-                    const url = `https://xxx/line/generateSession?accessToken=${accessToken}`;
-                    liff.openWindow({
-                        url: url,
-                        external: true // Set to true to open the URL in the browser
-                    });
-                }).catch(err => {
-                    console.error("Error getting profile:", err);
-                });
-
-            }).catch((err) => {
-                console.error('LIFF Initialization failed', err);
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', (event) => {
-            // Replace with your LIFF ID
-            const myLiffId = "2006017662-35jQJzg2";
-            initializeLiff(myLiffId);
-        });
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My LIFF v2</title>
+  <style>
+    #pictureUrl { display: block; margin: 0 auto }
+  </style>
 </head>
-
 <body>
-    <h1>LIFF Example</h1>
+  <img id="pictureUrl" width="25%">
+  <p id="userId"></p>
+  <p id="displayName"></p>
+  <p id="statusMessage"></p>
+  <p id="getDecodedIDToken"></p>
+  <script src="https://static.line-scdn.net/liff/edge/versions/2.9.0/sdk.js"></script>
+  <script>
+    function runApp() {
+      liff.getProfile().then(profile => {
+        document.getElementById("pictureUrl").src = profile.pictureUrl;
+        document.getElementById("userId").innerHTML = '<b>UserId:</b> ' + profile.userId;
+        document.getElementById("displayName").innerHTML = '<b>DisplayName:</b> ' + profile.displayName;
+        document.getElementById("statusMessage").innerHTML = '<b>StatusMessage:</b> ' + profile.statusMessage;
+        document.getElementById("getDecodedIDToken").innerHTML = '<b>Email:</b> ' + liff.getDecodedIDToken().email;
+      }).catch(err => console.error(err));
+    }
+    liff.init({ liffId: "2006017662-35jQJzg2" }, () => {
+      if (liff.isLoggedIn()) {
+        runApp()
+      } else {
+        liff.login();
+      }
+    }, err => console.error(err.code, error.message));
+  </script>
 </body>
-
 </html>
