@@ -23,6 +23,13 @@
         document.getElementById("statusMessage").innerHTML = '<b>StatusMessage:</b> ' + profile.statusMessage;
         document.getElementById("getDecodedIDToken").innerHTML = '<b>Email:</b> ' + liff.getDecodedIDToken().email;
       }).catch(err => console.error(err));
+
+      const idToken = liff.getIDToken();
+                    const decodedIDToken = liff.getDecodedIDToken();
+                    const userId = decodedIDToken.sub; // Unique to the user and the OA
+                    console.log(decodedIDToken);
+                    alert('User ID: ' + userId);
+          
     }
     liff.init({ liffId: "2006017662-35jQJzg2" }, () => {
       if (liff.isLoggedIn()) {
