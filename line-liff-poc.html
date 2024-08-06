@@ -21,13 +21,13 @@
         document.getElementById("userId").innerHTML = '<b>UserId:</b> ' + profile.userId;
         document.getElementById("displayName").innerHTML = '<b>DisplayName:</b> ' + profile.displayName;
         document.getElementById("statusMessage").innerHTML = '<b>StatusMessage:</b> ' + profile.statusMessage;
-        document.getElementById("getDecodedIDToken").innerHTML = '<b>Email:</b> ' + liff.getDecodedIDToken().email;
+        // document.getElementById("getDecodedIDToken").innerHTML = '<b>Email:</b> ' + liff.getDecodedIDToken().email;
       }).catch(err => console.error(err));
 
       const idToken = liff.getIDToken();
                     const decodedIDToken = liff.getDecodedIDToken();
-                    const userId = decodedIDToken.sub; // Unique to the user and the OA
                     console.log(decodedIDToken);
+                    const userId = decodedIDToken.sub; // Unique to the user and the OA
                     alert('User ID: ' + userId);
           
     }
