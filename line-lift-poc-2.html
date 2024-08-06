@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LIFF App</title>
+    <script src="https://static.line-scdn.net/liff/edge/2.15.1/sdk.js"></script>
+</head>
+<body>
+    <h1>LIFF App</h1>
+    <button id="getUserId">Get User ID</button>
+    <script>
+        document.getElementById('getUserId').addEventListener('click', function () {
+            liff.init({
+                liffId: '2006017662-35jQJzg2' // Replace with your LIFF ID
+            })
+            .then(() => {
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                } else {
+                    const idToken = liff.getIDToken();
+                    const decodedIDToken = liff.getDecodedIDToken();
+                    const userId = decodedIDToken.sub; // Unique to the user and the OA
+                    alert('User ID: ' + userId);
+                }
+            })
+            .catch(err => {
+                console.error('LIFF initialization failed:', err);
+            });
+        });
+    </script>
+</body>
+</html>
