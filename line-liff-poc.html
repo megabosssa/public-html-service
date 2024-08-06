@@ -21,14 +21,10 @@
         document.getElementById("userId").innerHTML = '<b>UserId:</b> ' + profile.userId;
         document.getElementById("displayName").innerHTML = '<b>DisplayName:</b> ' + profile.displayName;
         document.getElementById("statusMessage").innerHTML = '<b>StatusMessage:</b> ' + profile.statusMessage;
-        // document.getElementById("getDecodedIDToken").innerHTML = '<b>Email:</b> ' + liff.getDecodedIDToken().email;
+        document.getElementById("getDecodedIDToken").innerHTML = '<b>Email:</b> ' + liff.getDecodedIDToken();
+        document.getElementById("sub").innerHTML = '<b>Email:</b> ' + liff.getDecodedIDToken().sub;
       }).catch(err => console.error(err));
 
-      const idToken = liff.getIDToken();
-                    const decodedIDToken = liff.getDecodedIDToken();
-                    console.log(decodedIDToken);
-                    const userId = decodedIDToken.sub; // Unique to the user and the OA
-                    alert('User ID: ' + userId);
           
     }
     liff.init({ liffId: "2006017662-35jQJzg2" }, () => {
