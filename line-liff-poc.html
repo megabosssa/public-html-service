@@ -13,9 +13,17 @@
   <p id="displayName"></p>
   <p id="statusMessage"></p>
   <p id="getDecodedIDToken"></p>
+  <p id="userId"></p>
+  <p id="userId"></p>
   <script src="https://static.line-scdn.net/liff/edge/versions/2.9.0/sdk.js"></script>
   <script>
     function runApp() {
+      const context = liff.getContext();
+      console.log(context)
+        if (context.type === 'utou') {
+          document.getElementById("userId").innerHTML = '<b>OA UserId (utou):</b> ' + context.userId;
+        } 
+
       liff.getProfile().then(profile => {
         document.getElementById("pictureUrl").src = profile.pictureUrl;
         document.getElementById("userId").innerHTML = '<b>UserId:</b> ' + profile.userId;
