@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generic Currency Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .converter {
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            width: 300px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .converter h2 {
+            margin-top: 0;
+            text-align: center;
+        }
+        .converter input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+        .converter button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .converter button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="converter">
+    <h2>Generic Currency Converter</h2>
+    <label for="ccyPair">Currency Pair (e.g., USDTHB, EURUSD):</label>
+    <input type="text" id="ccyPair" placeholder="Enter currency pair">
+
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" placeholder="Enter amount">
+
+    <label for="amountCurrency">Amount Currency (e.g., USD, THB):</label>
+    <input type="text" id="amountCurrency" placeholder="Enter currency of amount">
+
+    <label for="rate">Conversion Rate:</label>
+    <input type="number" id="rate" placeholder="Enter rate" step="0.0001">
+
+    <button onclick="convertCurrency()">Convert</button>
+
+    <div id="result" class="result"></div>
+</div>
+
+<script>
+    function convertCurrency() {
+        const ccyPair = document.getElementById("ccyPair").value.toUpperCase();
+        const amount = parseFloat(document.getElementById("amount").value);
+        const amountCurrency = document.getElementById("amountCurrency").value.toUpperCase();
+        const rate = parseFloat(document.getElementById("rate").value);
+        let result = document.getElementById("result");
+
+        if (!ccyPair || isNaN(amount) || isNaN(rate) || !amountCurrency) {
+            result.innerText = "Please fill in all fields correctly.";
+            return;
+        }
+
+        // Extract base and target currencies from the input currency pair
+        const baseCurrency = ccyPair.slice(0, 3);
+        const targetCurrency = ccyPair.slice(3);
+
+        if (ccyPair.length !== 6 || amountCurrency !== baseCurrency && amountCurrency !== targetCurrency) {
+            result.innerText = "Please enter a valid currency pair (e.g., USDTHB) and matching amount currency.";
+            return;
+        }
+
+        // Determine conversion based on input amount currency
+        let convertedAmount;
+        if (amountCurrency === baseCurrency) {
+            // Convert from base to target currency
+            convertedAmount = amount * rate;
+            result.innerText = `Converted Amount: ${convertedAmount.toFixed(2)} ${targetCurrency}`;
+        } else if (amountCurrency === targetCurrency) {
+            // Convert from target to base currency
+            convertedAmount = amount / rate;
+            result.innerText = `Converted Amount: ${convertedAmount.toFixed(2)} ${baseCurrency}`;
+        } else {
+            result.innerText = "Please ensure the amount currency matches the currency pair.";
+        }
+    }
+</script>
+
+</body>
+</html>
