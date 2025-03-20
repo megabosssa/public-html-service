@@ -2,76 +2,146 @@
 <html>
 <head>
     <title>Data Formatter</title>
-	<link rel="icon" type="image/png" href="resources/img/anya_icon.jpg">
+    <link rel="icon" type="image/png" href="resources/img/anya_icon.jpg">
     <style>
-
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #444;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #output {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <h2>Data Formatter</h2>
     <label><input type="radio" name="dataType" value="xml" checked> XML</label>
     <label><input type="radio" name="dataType" value="json"> JSON</label><br>
-    <textarea id="dataInput" rows="10"></textarea><br>
+    <textarea id="dataInput" rows="10" cols="50"></textarea><br>
     <button onclick="formatData()">Format Data</button>
     <div id="output"></div>
 
     <script>
-function formatData() {
-    var dataInput = document.getElementById('dataInput').value;
-    var dataType = document.querySelector('input[name="dataType"]:checked').value;
-    var formattedText = '';
+        function formatData() {
+            var dataInput = document.getElementById('dataInput').value;
+            var dataType = document.querySelector('input[name="dataType"]:checked').value;
+            var fields = [];
+            var outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = ''; // Clear previous output
 
-    if (dataType === 'xml') {
-        formatXML(dataInput);
-    } else if (dataType === 'json') {
-        formatJSON(dataInput);
-    }
-
-    function formatXML(xmlInput) {
-        try {
-            var parser = new DOMParser();
-            var xmlDoc = parser.parseFromString(xmlInput, "text/xml");
-            processNode(xmlDoc.documentElement, '');
-
-            function processNode(node, path) {
-                if (node.nodeType === Node.ELEMENT_NODE) {
-                    var newPath = path + (path ? '.' : '') + node.nodeName;
-                    if (node.childNodes.length === 1 && node.childNodes[0].nodeType === Node.TEXT_NODE) {
-                        formattedText += newPath + ' = ' + node.childNodes[0].nodeValue.trim() + '\n';
-                    } else {
-                        node.childNodes.forEach(childNode => processNode(childNode, newPath));
-                    }
-                }
+            if (dataType === 'xml') {
+                formatXML(dataInput);
+            } else if (dataType === 'json') {
+                formatJSON(dataInput);
             }
-        } catch (e) {
-            formattedText = 'Invalid XML: ' + e.message;
-        }
-        document.getElementById('output').innerText = formattedText;
-    }
 
-    function formatJSON(jsonInput) {
-        try {
-            var jsonObj = JSON.parse(jsonInput);
-            processObject(jsonObj, '');
+            function formatXML(xmlInput) {
+                try {
+                    var parser = new DOMParser();
+                    var xmlDoc = parser.parseFromString(xmlInput, "text/xml");
+                    // Check if parsing error exists by looking for <parsererror>
+                    if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
+                        throw new Error("Invalid XML format");
+                    }
+                    processNode(xmlDoc.documentElement, '');
+                } catch (e) {
+                    outputDiv.textContent = 'Invalid XML: ' + e.message;
+                    return;
+                }
 
-            function processObject(obj, path) {
-                for (var key in obj) {
-                    if (obj.hasOwnProperty(key)) {
-                        var newPath = path + (path ? '.' : '') + key;
-                        if (typeof obj[key] !== 'object' || obj[key] === null) {
-                            formattedText += newPath + ' = ' + obj[key] + '\n';
+                function processNode(node, path) {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        var newPath = path + (path ? '.' : '') + node.nodeName;
+                        if (node.childNodes.length === 1 && node.childNodes[0].nodeType === Node.TEXT_NODE) {
+                            var value = node.childNodes[0].nodeValue.trim();
+                            fields.push({name: newPath, value: value, length: value.length});
                         } else {
-                            processObject(obj[key], newPath);
+                            // Iterate over children
+                            Array.from(node.childNodes).forEach(child => processNode(child, newPath));
                         }
                     }
                 }
+                buildTable();
             }
-        } catch (e) {
-            formattedText = 'Invalid JSON: ' + e.message;
+
+            function formatJSON(jsonInput) {
+                try {
+                    var jsonObj = JSON.parse(jsonInput);
+                    processObject(jsonObj, '');
+                } catch (e) {
+                    outputDiv.textContent = 'Invalid JSON: ' + e.message;
+                    return;
+                }
+
+                function processObject(obj, path) {
+                    for (var key in obj) {
+                        if (obj.hasOwnProperty(key)) {
+                            var newPath = path + (path ? '.' : '') + key;
+                            if (typeof obj[key] !== 'object' || obj[key] === null) {
+                                var value = obj[key];
+                                // Convert value to string if not already so we can compute length
+                                var valueStr = (value !== null && value !== undefined) ? value.toString() : '';
+                                fields.push({name: newPath, value: valueStr, length: valueStr.length});
+                            } else {
+                                processObject(obj[key], newPath);
+                            }
+                        }
+                    }
+                }
+                buildTable();
+            }
+
+            function buildTable() {
+                var table = document.createElement('table');
+
+                // Create table header
+                var headerRow = document.createElement('tr');
+                var headers = ['Field Name', 'Field Value', 'Field Length'];
+                headers.forEach(function(headerText) {
+                    var th = document.createElement('th');
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+                });
+                table.appendChild(headerRow);
+
+                // Populate table rows
+                fields.forEach(function(field) {
+                    var row = document.createElement('tr');
+
+                    var cellName = document.createElement('td');
+                    cellName.textContent = field.name;
+                    row.appendChild(cellName);
+
+                    var cellValue = document.createElement('td');
+                    cellValue.textContent = field.value;
+                    row.appendChild(cellValue);
+
+                    var cellLength = document.createElement('td');
+                    cellLength.textContent = field.length;
+                    row.appendChild(cellLength);
+
+                    table.appendChild(row);
+                });
+
+                // Insert the table into the output div
+                outputDiv.innerHTML = '';
+                outputDiv.appendChild(table);
+            }
         }
-        document.getElementById('output').innerText = formattedText;
-    }
-}
     </script>
 </body>
 </html>
