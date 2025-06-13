@@ -24,9 +24,11 @@ Convert JSON files to CSV format:
 View logs (from the OCP console) in an HTML table format:
 - [Log Formatter](https://megabosssa.github.io/public-html-service/log-formatter-v2.html)
 
-## Endpoint Hold Response
-Test timeout scenarios with this endpoint:
-- [Endpoint Hold Response](https://api-factory-dev.apps.ocp-test.krungsri.net/mock/v1/sleep?time=30000)
+## Timeout Simulator
+Test delayed responses using the public `httpstat.us` service. For example:
+`https://httpstat.us/200?sleep=5000` waits five seconds before replying.
+Use the page below to experiment with different delays:
+- [Timeout Simulator](https://megabosssa.github.io/public-html-service/timeout-simulator.html)
 
 ## Generic Currency Converter
 Another instance of the currency conversion service:
