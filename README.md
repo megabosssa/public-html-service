@@ -10,6 +10,10 @@ Access the currency conversion tool:
 Format your JSON or XML data easily:
 - [Data Formatter](https://megabosssa.github.io/public-html-service/data%20formatter%20v2.html)
 
+## JSON Beautifier
+Pretty-print your JSON data in the browser:
+- [JSON Beautifier](https://megabosssa.github.io/public-html-service/json-beautify.html)
+
 ## Bulk File Conversion – JSON to CSV Converter with Download
 Convert JSON files to CSV format:
 - [JSON to CSV Converter](https://megabosssa.github.io/public-html-service/generateReportCSV.html)
