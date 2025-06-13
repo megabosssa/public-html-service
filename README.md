@@ -11,7 +11,7 @@ Format your JSON or XML data easily:
 - [Data Formatter](https://megabosssa.github.io/public-html-service/data%20formatter%20v2.html)
 
 ## JSON Beautifier
-Pretty-print your JSON data in the browser:
+Pretty-print and explore JSON data with collapsible objects:
 - [JSON Beautifier](https://megabosssa.github.io/public-html-service/json-beautify.html)
 
 ## Bulk File Conversion – JSON to CSV Converter with Download
