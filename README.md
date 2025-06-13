@@ -9,6 +9,7 @@ Access the currency conversion tool:
 ## JSON/XML Formatter – Data Formatter
 Format your JSON or XML data easily:
 - [Data Formatter](https://megabosssa.github.io/public-html-service/data%20formatter%20v2.html)
+- [Data Formatter v3](https://megabosssa.github.io/public-html-service/v3/objectParser.html)
 
 ## JSON Beautifier
 Pretty-print and explore JSON data with collapsible objects:
