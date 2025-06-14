@@ -1,0 +1,25 @@
+.simple-nav {
+    margin-bottom: 20px;
+    background: #f0f0f0;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.simple-nav a {
+    color: #333;
+    text-decoration: none;
+    margin-right: 10px;
+    font-weight: 600;
+}
+
+.simple-nav a:hover {
+    text-decoration: underline;
+}
+
+.dark .simple-nav {
+    background: #2d3748;
+}
+
+.dark .simple-nav a {
+    color: #f8f9fa;
+}
