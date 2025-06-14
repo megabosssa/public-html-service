@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced JSON Tools</title>
     <!-- Tailwind CSS for styling -->
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- jQuery for JSONView plugin -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -248,29 +251,6 @@
                 }
             });
 
-            // --- Dark/Light Mode ---
-            const $themeToggle = $('#theme-toggle');
-            const $html = $('html');
-
-            // Set initial theme based on localStorage or system preference
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                $html.addClass('dark');
-            } else {
-                $html.removeClass('dark');
-            }
-
-            $themeToggle.on('click', function() {
-                // Toggle the 'dark' class on the html element
-                $html.toggleClass('dark');
-                
-                // Update localStorage with the new theme preference
-                if ($html.hasClass('dark')) {
-                    localStorage.theme = 'dark';
-                } else {
-                    localStorage.theme = 'light';
-                }
-            });
-            
             // --- Helper Functions ---
             function showCopyToast() {
                 $copyToast.removeClass('opacity-0 translate-y-20');
@@ -281,6 +261,27 @@
 
             // Initialize Lucide icons
             lucide.createIcons();
+        });
+    </script>
+    <script>
+        // Standalone dark mode toggle for environments without jQuery
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggle = document.getElementById('theme-toggle');
+            const html = document.documentElement;
+
+            const shouldUseDark = localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (shouldUseDark) {
+                html.classList.add('dark');
+            } else {
+                html.classList.remove('dark');
+            }
+
+            if (toggle) {
+                toggle.addEventListener('click', () => {
+                    html.classList.toggle('dark');
+                    localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+                });
+            }
         });
     </script>
 </body>
