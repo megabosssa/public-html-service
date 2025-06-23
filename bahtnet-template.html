@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BAHTNET Template Scenario Viewer</title>
+    <title>BAHTNET Payment Scenario Viewer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -31,7 +31,7 @@
 
     <div class="container mx-auto p-4 md:p-8">
         <div class="bg-white rounded-xl shadow-md p-6 md:p-8">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">BAHTNET Template Scenario Viewer</h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">BAHTNET Payment Scenario Viewer</h1>
             <p class="text-gray-600 mb-6">Select a payment template and enter the amounts to see the calculated results.</p>
 
             <!-- Input Section -->
@@ -44,8 +44,8 @@
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                      <div>
-                        <label for="transferAmount" class="block text-xs font-medium text-gray-500">Transfer Amt</label>
-                        <input type="number" id="transferAmount" class="amount-input mt-1 w-full bg-white border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+                        <label for="inputTransferAmount" class="block text-xs font-medium text-gray-500">Input Transfer Amt</label>
+                        <input type="number" id="inputTransferAmount" class="amount-input mt-1 w-full bg-white border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
                     </div>
                     <div>
                         <label for="eWHT" class="block text-xs font-medium text-gray-500">E-WHT</label>
@@ -219,10 +219,12 @@
                 // Get input values
                 const fullBahtnetFeeValue = parseFloat(document.getElementById('fullBahtnetFee').value) || 0;
                 const shareBahtnetFeeValue = parseFloat(document.getElementById('shareBahtnetFee').value) || 0;
+                const inputTransferAmountValue = parseFloat(document.getElementById('inputTransferAmount').value) || 0;
+                const eWHTValue = parseFloat(document.getElementById('eWHT').value) || 0;
                 
                 const inputs = {
-                    transferAmount: parseFloat(document.getElementById('transferAmount').value) || 0,
-                    eWHT: parseFloat(document.getElementById('eWHT').value) || 0,
+                    transferAmount: inputTransferAmountValue - eWHTValue,
+                    eWHT: eWHTValue,
                     fullBahtnetFee: fullBahtnetFeeValue,
                     interregionFee: parseFloat(document.getElementById('interregionFee').value) || 0,
                     eWHTFee: parseFloat(document.getElementById('eWHTFee').value) || 0,
@@ -237,12 +239,13 @@
                 // Display Fee Charges
                 const chargesHtml = `
                     <div>
-                        <h2 class="text-xl font-semibold text-gray-800 mb-3">Fee Charges</h2>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">Fee Charges & Derived Values</h2>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div class="bg-gray-100 p-3 rounded-lg"><p class="font-medium text-gray-500">Bahtnet Fee</p><p class="font-semibold text-lg text-gray-900">${data.charges.bahtnet}</p></div>
                             <div class="bg-gray-100 p-3 rounded-lg"><p class="font-medium text-gray-500">Interregion Fee</p><p class="font-semibold text-lg text-gray-900">${data.charges.interregion}</p></div>
                             <div class="bg-gray-100 p-3 rounded-lg"><p class="font-medium text-gray-500">E-WHT Fee</p><p class="font-semibold text-lg text-gray-900">${data.charges.ewht}</p></div>
                             <div class="bg-gray-100 p-3 rounded-lg"><p class="font-medium text-gray-500">Advice Fee</p><p class="font-semibold text-lg text-gray-900">${data.charges.advice}</p></div>
+                             <div class="bg-green-100 p-3 rounded-lg border border-green-200"><p class="font-medium text-green-500">Transfer Amt (Calculated)</p><p class="font-semibold text-lg text-green-900">${inputs.transferAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p></div>
                             <div class="bg-blue-100 p-3 rounded-lg border border-blue-200"><p class="font-medium text-blue-500">BAY Bahtnet Fee (Calculated)</p><p class="font-semibold text-lg text-blue-900">${inputs.bayBahtnetFee.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p></div>
                         </div>
                     </div>
