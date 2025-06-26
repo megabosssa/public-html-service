@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Media Clearing Scenario Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        th, td {
+            white-space: nowrap;
+        }
+        /* Hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <div class="bg-white rounded-xl shadow-md p-6 md:p-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Smart Media Clearing Scenario Viewer</h1>
+            <p class="text-gray-600 mb-6">Select a payment template and enter the amounts to see the calculated results.</p>
+
+            <!-- Input Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label for="payment-template-select" class="block text-sm font-medium text-gray-700 mb-2">Payment Template:</label>
+                    <select id="payment-template-select" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
+                        <option selected disabled>Choose a template</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                     <div>
+                        <label for="inputTransferAmount" class="block text-xs font-medium text-gray-500">Input Transfer Amt</label>
+                        <input type="number" id="inputTransferAmount" class="amount-input mt-1 w-full bg-white border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="eWHT" class="block text-xs font-medium text-gray-500">E-WHT</label>
+                        <input type="number" id="eWHT" class="amount-input mt-1 w-full bg-white border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="transferFee" class="block text-xs font-medium text-gray-500">Transfer Fee</label>
+                        <input type="number" id="transferFee" class="amount-input mt-1 w-full bg-white border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="interregionFee" class="block text-xs font-medium text-gray-500">Interregion Fee</label>
+                        <input type="number" id="interregionFee" class="amount-input mt-1 w-full bg-white border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="eWHTFee" class="block text-xs font-medium text-gray-500">E-WHT Fee</label>
+                        <input type="number" id="eWHTFee" class="amount-input mt-1 w-full bg-white border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="adviceFee" class="block text-xs font-medium text-gray-500">Advice Fee</label>
+                        <input type="number" id="adviceFee" class="amount-input mt-1 w-full bg-white border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+                    </div>
+                </div>
+            </div>
+            
+            <div id="output-container" class="space-y-8">
+                <!-- Content will be injected here by JavaScript -->
+            </div>
+             <div id="no-selection" class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No template selected</h3>
+                <p class="mt-1 text-sm text-gray-500">Please select a payment template from the dropdown to see the details.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data extracted and structured from the Smart Media Clearing document.
+        const paymentDataRaw = [
+            // Deduct altogether
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_001"], charges: { transfer: "OUR", interregion: "OUR", ewht: "OUR", advice: "OUR" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", transferFee: "+", interregionFee: "+", eWHTFee: "+", adviceFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_002"], charges: { transfer: "OUR", interregion: "OUR", ewht: "OUR", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", transferFee: "+", interregionFee: "+", eWHTFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", adviceFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_003"], charges: { transfer: "OUR", interregion: "OUR", ewht: "BEN", advice: "OUR" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", transferFee: "+", interregionFee: "+", adviceFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", eWHTFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_004"], charges: { transfer: "OUR", interregion: "OUR", ewht: "BEN", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", transferFee: "+", interregionFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", eWHTFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_005"], charges: { transfer: "OUR", interregion: "BEN", ewht: "OUR", advice: "OUR" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", transferFee: "+", eWHTFee: "+", adviceFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", interregionFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_006"], charges: { transfer: "OUR", interregion: "BEN", ewht: "OUR", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", transferFee: "+", eWHTFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", interregionFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_007"], charges: { transfer: "OUR", interregion: "BEN", ewht: "BEN", advice: "OUR" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", transferFee: "+", adviceFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", interregionFee: "-", eWHTFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_008"], charges: { transfer: "OUR", interregion: "BEN", ewht: "BEN", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", transferFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", interregionFee: "-", eWHTFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_009"], charges: { transfer: "BEN", interregion: "OUR", ewht: "OUR", advice: "OUR" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", interregionFee: "+", eWHTFee: "+", adviceFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_010"], charges: { transfer: "BEN", interregion: "OUR", ewht: "OUR", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", interregionFee: "+", eWHTFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_011"], charges: { transfer: "BEN", interregion: "OUR", ewht: "BEN", advice: "OUR" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", interregionFee: "+", adviceFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", eWHTFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_012"], charges: { transfer: "BEN", interregion: "OUR", ewht: "BEN", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", interregionFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", eWHTFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_013"], charges: { transfer: "BEN", interregion: "BEN", ewht: "OUR", advice: "OUR" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", eWHTFee: "+", adviceFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", interregionFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_014"], charges: { transfer: "BEN", interregion: "BEN", ewht: "OUR", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", eWHTFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", interregionFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_015"], charges: { transfer: "BEN", interregion: "BEN", ewht: "BEN", advice: "OUR" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+", adviceFee: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", interregionFee: "-", eWHTFee: "-" } ] },
+            { group: "Deduct altogether", templates: ["MEDIA_CLEARING_RETURN_FEE_016"], charges: { transfer: "BEN", interregion: "BEN", ewht: "BEN", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "2", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", interregionFee: "-", eWHTFee: "-", adviceFee: "-" } ] },
+            
+            // Deduct by feature
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_017"], charges: { transfer: "OUR", interregion: "OUR/OTH", ewht: "OUR/OTH", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender", interregionFee: "+" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+", eWHTFee: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+", transferFee: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_018"], charges: { transfer: "OUR", interregion: "OUR/OTH", ewht: "OUR/OTH", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender" }, { step: "2", type: "Debit", account: "Sender", interregionFee: "+" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+", eWHTFee: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+", transferFee: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", adviceFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_019"], charges: { transfer: "OUR", interregion: "OUR/OTH", ewht: "BEN", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender", interregionFee: "+" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+", transferFee: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", eWHTFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_020"], charges: { transfer: "OUR", interregion: "OUR/OTH", ewht: "BEN", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender" }, { step: "2", type: "Debit", account: "Sender", interregionFee: "+" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+", transferFee: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", eWHTFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_021"], charges: { transfer: "OUR", interregion: "BEN", ewht: "OUR/OTH", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+", eWHTFee: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+", transferFee: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", interregionFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_022"], charges: { transfer: "OUR", interregion: "BEN", ewht: "OUR/OTH", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender" }, { step: "2", type: "Debit", account: "Sender" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+", eWHTFee: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+", transferFee: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", interregionFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_023"], charges: { transfer: "OUR", interregion: "BEN", ewht: "BEN", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+", transferFee: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", interregionFee: "-", eWHTFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_024"], charges: { transfer: "OUR", interregion: "BEN", ewht: "BEN", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender" }, { step: "2", type: "Debit", account: "Sender" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+", transferFee: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", interregionFee: "-", eWHTFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_025"], charges: { transfer: "BEN", interregion: "OUR/OTH", ewht: "OUR/OTH", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender", interregionFee: "+" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+", eWHTFee: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_026"], charges: { transfer: "BEN", interregion: "OUR/OTH", ewht: "OUR/OTH", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender" }, { step: "2", type: "Debit", account: "Sender", interregionFee: "+" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+", eWHTFee: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_027"], charges: { transfer: "BEN", interregion: "OUR/OTH", ewht: "BEN", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender", interregionFee: "+" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", eWHTFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_028"], charges: { transfer: "BEN", interregion: "OUR/OTH", ewht: "BEN", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender" }, { step: "2", type: "Debit", account: "Sender", interregionFee: "+" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", eWHTFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_029"], charges: { transfer: "BEN", interregion: "BEN", ewht: "OUR/OTH", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+", eWHTFee: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", interregionFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_030"], charges: { transfer: "BEN", interregion: "BEN", ewht: "OUR/OTH", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender" }, { step: "2", type: "Debit", account: "Sender" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+", eWHTFee: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", interregionFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_031"], charges: { transfer: "BEN", interregion: "BEN", ewht: "BEN", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", interregionFee: "-", eWHTFee: "-" } ] },
+            { group: "Deduct by feature", templates: ["MEDIA_CLEARING_RETURN_FEE_032"], charges: { transfer: "BEN", interregion: "BEN", ewht: "BEN", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender" }, { step: "2", type: "Debit", account: "Sender" }, { step: "3", type: "Debit", account: "Sender", eWHT: "+" }, { step: "4", type: "Debit", account: "Sender", transferAmount: "+" }, { step: "5", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", interregionFee: "-", eWHTFee: "-", adviceFee: "-" } ] },
+            
+            // Deduct fee separately
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_033"], charges: { transfer: "OUR/OTH", interregion: "OUR/OTH", ewht: "OUR/OTH", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferFee: "+", interregionFee: "+", eWHTFee: "+", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_034"], charges: { transfer: "OUR/OTH", interregion: "OUR/OTH", ewht: "OUR/OTH", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferFee: "+", interregionFee: "+", eWHTFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", adviceFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_035"], charges: { transfer: "OUR/OTH", interregion: "OUR/OTH", ewht: "BEN", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferFee: "+", interregionFee: "+", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", eWHTFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_036"], charges: { transfer: "OUR/OTH", interregion: "OUR/OTH", ewht: "BEN", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferFee: "+", interregionFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", eWHTFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_037"], charges: { transfer: "OUR/OTH", interregion: "BEN", ewht: "OUR/OTH", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferFee: "+", eWHTFee: "+", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", interregionFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_038"], charges: { transfer: "OUR/OTH", interregion: "BEN", ewht: "OUR/OTH", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferFee: "+", eWHTFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", interregionFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_039"], charges: { transfer: "OUR/OTH", interregion: "BEN", ewht: "BEN", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferFee: "+", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", interregionFee: "-", eWHTFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_040"], charges: { transfer: "OUR/OTH", interregion: "BEN", ewht: "BEN", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", transferFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", interregionFee: "-", eWHTFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_041"], charges: { transfer: "BEN", interregion: "OUR/OTH", ewht: "OUR/OTH", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", interregionFee: "+", eWHTFee: "+", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_042"], charges: { transfer: "BEN", interregion: "OUR/OTH", ewht: "OUR/OTH", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", interregionFee: "+", eWHTFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_043"], charges: { transfer: "BEN", interregion: "OUR/OTH", ewht: "BEN", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", interregionFee: "+", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", eWHTFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_044"], charges: { transfer: "BEN", interregion: "OUR/OTH", ewht: "BEN", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", interregionFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", eWHTFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_045"], charges: { transfer: "BEN", interregion: "BEN", ewht: "OUR/OTH", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", eWHTFee: "+", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", interregionFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_046"], charges: { transfer: "BEN", interregion: "BEN", ewht: "OUR/OTH", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", eWHTFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", interregionFee: "-", adviceFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_047"], charges: { transfer: "BEN", interregion: "BEN", ewht: "BEN", advice: "OUR/OTH" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender", adviceFee: "+" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", interregionFee: "-", eWHTFee: "-" } ] },
+            { group: "Deduct fee separately", templates: ["MEDIA_CLEARING_RETURN_FEE_048"], charges: { transfer: "BEN", interregion: "BEN", ewht: "BEN", advice: "BEN" }, processingSteps: [ { step: "1", type: "Debit", account: "Sender" }, { step: "2", type: "Debit", account: "Sender", transferAmount: "+", eWHT: "+" }, { step: "3", type: "Credit / Submit to PMCS", account: "Beneficiary", transferAmount: "+", transferFee: "-", interregionFee: "-", eWHTFee: "-", adviceFee: "-" } ] }
+        ];
+
+        const paymentData = paymentDataRaw.flatMap(item => {
+            const originalTemplate = item.templates[0];
+            const notReturnTemplate = originalTemplate.replace('_RETURN_', '_NOT_RETURN_');
+            const newItem = JSON.parse(JSON.stringify(item));
+            newItem.templates = [notReturnTemplate];
+            return [item, newItem];
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectElement = document.getElementById('payment-template-select');
+            const outputContainer = document.getElementById('output-container');
+            const noSelectionDiv = document.getElementById('no-selection');
+            const amountInputs = document.querySelectorAll('.amount-input');
+
+            // Populate the dropdown
+            const groupedData = paymentData.reduce((acc, item) => {
+                (acc[item.group] = acc[item.group] || []).push(item);
+                return acc;
+            }, {});
+
+            for (const group in groupedData) {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = group;
+                // Sort templates within the group to ensure proper ordering
+                const sortedItems = groupedData[group].sort((a, b) => {
+                    const numA = parseInt(a.templates[0].match(/\d+$/)[0], 10);
+                    const numB = parseInt(b.templates[0].match(/\d+$/)[0], 10);
+                    if (numA !== numB) {
+                        return numA - numB;
+                    }
+                    return a.templates[0].includes('_NOT_RETURN_') ? 1 : -1;
+                });
+                
+                sortedItems.forEach(item => {
+                     item.templates.forEach(templateName => {
+                        const option = document.createElement('option');
+                        option.value = templateName;
+                        option.textContent = templateName;
+                        optgroup.appendChild(option);
+                    });
+                });
+                selectElement.appendChild(optgroup);
+            }
+
+            function updateDisplay() {
+                const selectedTemplateName = selectElement.value;
+                if (!selectedTemplateName || selectedTemplateName === "Choose a template") {
+                    noSelectionDiv.style.display = 'block';
+                    outputContainer.innerHTML = '';
+                    return;
+                }
+                
+                const selectedData = paymentData.find(d => d.templates.includes(selectedTemplateName));
+                
+                if (selectedData) {
+                    noSelectionDiv.style.display = 'none';
+                    displayTemplateDetails(selectedData);
+                }
+            }
+            
+            selectElement.addEventListener('change', updateDisplay);
+            amountInputs.forEach(input => input.addEventListener('input', updateDisplay));
+
+            function displayTemplateDetails(data) {
+                // Get input values
+                const inputTransferAmountValue = parseFloat(document.getElementById('inputTransferAmount').value) || 0;
+                const eWHTValue = parseFloat(document.getElementById('eWHT').value) || 0;
+                
+                const inputs = {
+                    transferAmount: inputTransferAmountValue - eWHTValue,
+                    eWHT: eWHTValue,
+                    transferFee: parseFloat(document.getElementById('transferFee').value) || 0,
+                    interregionFee: parseFloat(document.getElementById('interregionFee').value) || 0,
+                    eWHTFee: parseFloat(document.getElementById('eWHTFee').value) || 0,
+                    adviceFee: parseFloat(document.getElementById('adviceFee').value) || 0,
+                };
+                
+                // Clear previous output
+                outputContainer.innerHTML = '';
+
+                // Display Fee Charges
+                const chargesHtml = `
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">Fee Charges & Derived Values</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div class="bg-gray-100 p-3 rounded-lg"><p class="font-medium text-gray-500">Transfer Fee Charge</p><p class="font-semibold text-lg text-gray-900">${data.charges.transfer}</p></div>
+                            <div class="bg-gray-100 p-3 rounded-lg"><p class="font-medium text-gray-500">Interregion Fee Charge</p><p class="font-semibold text-lg text-gray-900">${data.charges.interregion}</p></div>
+                            <div class="bg-gray-100 p-3 rounded-lg"><p class="font-medium text-gray-500">E-WHT Fee Charge</p><p class="font-semibold text-lg text-gray-900">${data.charges.ewht}</p></div>
+                            <div class="bg-gray-100 p-3 rounded-lg"><p class="font-medium text-gray-500">Advice Fee Charge</p><p class="font-semibold text-lg text-gray-900">${data.charges.advice}</p></div>
+                             <div class="bg-green-100 p-3 rounded-lg border border-green-200"><p class="font-medium text-green-500">Transfer Amt (Calculated)</p><p class="font-semibold text-lg text-green-900">${inputs.transferAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p></div>
+                        </div>
+                    </div>
+                `;
+                outputContainer.insertAdjacentHTML('beforeend', chargesHtml);
+
+                // Display Processing Steps
+                let stepsHtml = `
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">Processing Steps & Calculation</h2>
+                        <div class="table-container border border-gray-200 rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Step</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Transfer Amt</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">E-WHT</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Transfer Fee</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Interregion Fee</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">E-WHT Fee</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Advice Fee</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                `;
+                
+                data.processingSteps.forEach(step => {
+                    let total = 0;
+                    if (step.transferAmount === '+') total += inputs.transferAmount; else if (step.transferAmount === '-') total -= inputs.transferAmount;
+                    if (step.eWHT === '+') total += inputs.eWHT; else if (step.eWHT === '-') total -= inputs.eWHT;
+                    if (step.transferFee === '+') total += inputs.transferFee; else if (step.transferFee === '-') total -= inputs.transferFee;
+                    if (step.interregionFee === '+') total += inputs.interregionFee; else if (step.interregionFee === '-') total -= inputs.interregionFee;
+                    if (step.eWHTFee === '+') total += inputs.eWHTFee; else if (step.eWHTFee === '-') total -= inputs.eWHTFee;
+                    if (step.adviceFee === '+') total += inputs.adviceFee; else if (step.adviceFee === '-') total -= inputs.adviceFee;
+                    
+                    stepsHtml += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 text-sm font-medium text-gray-900">${step.step}</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">${step.type}</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">${step.account}</td>
+                            <td class="px-4 py-3 text-sm text-center font-mono">${step.transferAmount || ''}</td>
+                            <td class="px-4 py-3 text-sm text-center font-mono">${step.eWHT || ''}</td>
+                            <td class="px-4 py-3 text-sm text-center font-mono">${step.transferFee || ''}</td>
+                            <td class="px-4 py-3 text-sm text-center font-mono">${step.interregionFee || ''}</td>
+                            <td class="px-4 py-3 text-sm text-center font-mono">${step.eWHTFee || ''}</td>
+                            <td class="px-4 py-3 text-sm text-center font-mono">${step.adviceFee || ''}</td>
+                            <td class="px-4 py-3 text-sm text-right font-semibold text-blue-600">${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        </tr>
+                    `;
+                });
+
+                stepsHtml += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                outputContainer.insertAdjacentHTML('beforeend', stepsHtml);
+            }
+        });
+    </script>
+
+</body>
+</html>
