@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,17 +10,24 @@
     <style>
         /* Custom styles to enhance Tailwind or add specific adjustments */
         body {
-            font-family: 'Inter', sans-serif; /* Using Inter font */
-            background-color: #f0f2f5; /* Light grey background */
+            font-family: 'Inter', sans-serif;
+            /* Using Inter font */
+            background-color: #f0f2f5;
+            /* Light grey background */
         }
+
         .section-header {
-            border-bottom: 2px solid #e2e8f0; /* Light border for sections */
+            border-bottom: 2px solid #e2e8f0;
+            /* Light border for sections */
             padding-bottom: 8px;
             margin-bottom: 16px;
         }
+
         .experience-bullet-point::before {
-            content: '• '; /* Custom bullet point for lists */
-            color: #4f46e5; /* A primary color */
+            content: '• ';
+            /* Custom bullet point for lists */
+            color: #4f46e5;
+            /* A primary color */
             font-weight: bold;
             display: inline-block;
             width: 1em;
@@ -27,40 +35,55 @@
         }
     </style>
 </head>
+
 <body class="p-4 sm:p-6 md:p-8 lg:p-12">
     <div class="container mx-auto bg-white p-6 sm:p-8 md:p-10 lg:p-12 rounded-xl shadow-lg border border-gray-200">
         <!-- Header Section -->
-        <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-800 mb-2">WIRAWAN NANTI</h1>
-            <p class="text-md sm:text-lg text-gray-600">Bangkok, Thailand | choichommi@gmail.com | 0646566969</p>
+        <header class="flex flex-col items-center text-center mb-10 md:flex-row md:items-start md:text-left">
+            <img src="asset/1751119051400.jpg" alt="Profile picture of Wirawan Nanti"
+                class="w-32 h-32 rounded-full object-cover border-4 border-gray-200 shadow-md mb-4 md:mb-0 md:mr-8">
+
+            <div>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-800 mb-2">WIRAWAN NANTI</h1>
+                <p class="text-md sm:text-lg text-gray-600">Bangkok, Thailand | choichommi@gmail.com | 0646566969</p>
+            </div>
         </header>
 
         <!-- Summary Section -->
         <section class="mb-8">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-700 section-header">SUMMARY</h2>
-            <p class="text-base sm:text-lg text-gray-700 leading-relaxed">Test Specialist with extensive experience in manual/automated testing, APIs, performance testing, and non-functional QA. Adept at leading teams, crafting test frameworks, and collaborating across cross-functional groups to deliver high-quality solutions in the IT, digital asset, and banking domains.</p>
+            <p class="text-base sm:text-lg text-gray-700 leading-relaxed">Test Specialist with extensive experience in
+                manual/automated testing, APIs, performance testing, and non-functional QA. Adept at leading teams,
+                crafting test frameworks, and collaborating across cross-functional groups to deliver high-quality
+                solutions in the IT, digital asset, and banking domains.</p>
         </section>
 
         <!-- Experience Section -->
         <section class="mb-8">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-700 section-header">EXPERIENCE</h2>
-            
+
             <div class="mb-6 last:mb-0 p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-100">
                 <h3 class="text-xl sm:text-2xl font-semibold text-indigo-700 mb-1">IBM - Test Specialist</h3>
                 <p class="text-gray-600 text-sm sm:text-base mb-2">Apr 2023-Present, Thailand/Remote</p>
                 <ul class="list-none pl-5 space-y-1">
-                    <li class="text-gray-700 experience-bullet-point">Validate backend processes (deposits, withdrawals, real-time vs. async).</li>
-                    <li class="text-gray-700 experience-bullet-point">Conduct API testing with Postman/Swagger; manage performance testing via JMeter/K6.</li>
-                    <li class="text-gray-700 experience-bullet-point">Develop HTML/JS tools to streamline manual testing tasks.</li>
+                    <li class="text-gray-700 experience-bullet-point">Validate backend processes (deposits, withdrawals,
+                        real-time vs. async).</li>
+                    <li class="text-gray-700 experience-bullet-point">Conduct API testing with Postman/Swagger; manage
+                        performance testing via JMeter/K6.</li>
+                    <li class="text-gray-700 experience-bullet-point">Develop HTML/JS tools to streamline manual testing
+                        tasks.</li>
                 </ul>
             </div>
 
             <div class="mb-6 last:mb-0 p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-100">
-                <h3 class="text-xl sm:text-2xl font-semibold text-indigo-700 mb-1">InnovestX - Senior Quality Assurance Engineer</h3>
+                <h3 class="text-xl sm:text-2xl font-semibold text-indigo-700 mb-1">InnovestX - Senior Quality Assurance
+                    Engineer</h3>
                 <p class="text-gray-600 text-sm sm:text-base mb-2">Feb 2022-Mar 2023, Thailand/Hybrid</p>
                 <ul class="list-none pl-5 space-y-1">
-                    <li class="text-gray-700 experience-bullet-point">Led QA for a digital asset platform; established testing frameworks and methodologies.</li>
-                    <li class="text-gray-700 experience-bullet-point">Oversaw test planning, defect tracking, security assessments, and mentored junior testers.</li>
+                    <li class="text-gray-700 experience-bullet-point">Led QA for a digital asset platform; established
+                        testing frameworks and methodologies.</li>
+                    <li class="text-gray-700 experience-bullet-point">Oversaw test planning, defect tracking, security
+                        assessments, and mentored junior testers.</li>
                 </ul>
             </div>
 
@@ -68,8 +91,10 @@
                 <h3 class="text-xl sm:text-2xl font-semibold text-indigo-700 mb-1">SCB 10X - Automation Tester</h3>
                 <p class="text-gray-600 text-sm sm:text-base mb-2">Jul 2021-Feb 2022, Thailand</p>
                 <ul class="list-none pl-5 space-y-1">
-                    <li class="text-gray-700 experience-bullet-point">Executed manual/automated tests for a digital asset platform; built regression suites.</li>
-                    <li class="text-gray-700 experience-bullet-point">Performed security testing, risk analysis, and collaborated in agile processes.</li>
+                    <li class="text-gray-700 experience-bullet-point">Executed manual/automated tests for a digital
+                        asset platform; built regression suites.</li>
+                    <li class="text-gray-700 experience-bullet-point">Performed security testing, risk analysis, and
+                        collaborated in agile processes.</li>
                 </ul>
             </div>
 
@@ -77,17 +102,22 @@
                 <h3 class="text-xl sm:text-2xl font-semibold text-indigo-700 mb-1">IBM - Test Specialist</h3>
                 <p class="text-gray-600 text-sm sm:text-base mb-2">Mar 2020-Jun 2021, Thailand</p>
                 <ul class="list-none pl-5 space-y-1">
-                    <li class="text-gray-700 experience-bullet-point">Tested APIs for Krungsri Open API and integrated downstream reports; used Postman & DBeaver.</li>
-                    <li class="text-gray-700 experience-bullet-point">Reviewed requirements, prepared test scenarios, and managed defects via Jira.</li>
+                    <li class="text-gray-700 experience-bullet-point">Tested APIs for Krungsri Open API and integrated
+                        downstream reports; used Postman & DBeaver.</li>
+                    <li class="text-gray-700 experience-bullet-point">Reviewed requirements, prepared test scenarios,
+                        and managed defects via Jira.</li>
                 </ul>
             </div>
 
             <div class="mb-6 last:mb-0 p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-100">
-                <h3 class="text-xl sm:text-2xl font-semibold text-indigo-700 mb-1">Ascend Group - Senior QA Engineer</h3>
+                <h3 class="text-xl sm:text-2xl font-semibold text-indigo-700 mb-1">Ascend Group - Senior QA Engineer
+                </h3>
                 <p class="text-gray-600 text-sm sm:text-base mb-2">Aug 2018-Feb 2020, Bangkok</p>
                 <ul class="list-none pl-5 space-y-1">
-                    <li class="text-gray-700 experience-bullet-point">Created and maintained automated API testing (Robot Framework) for TrueMoney Wallet.</li>
-                    <li class="text-gray-700 experience-bullet-point">Led UI automation (Appium), built CI/CD pipelines (Jenkins), and managed defects in Jira.</li>
+                    <li class="text-gray-700 experience-bullet-point">Created and maintained automated API testing
+                        (Robot Framework) for TrueMoney Wallet.</li>
+                    <li class="text-gray-700 experience-bullet-point">Led UI automation (Appium), built CI/CD pipelines
+                        (Jenkins), and managed defects in Jira.</li>
                 </ul>
             </div>
         </section>
@@ -96,7 +126,8 @@
         <section class="mb-8">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-700 section-header">EDUCATION</h2>
             <div class="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-100">
-                <p class="text-lg sm:text-xl font-semibold text-indigo-700 mb-1"><strong>Mae Fah Luang University</strong></p>
+                <p class="text-lg sm:text-xl font-semibold text-indigo-700 mb-1"><strong>Mae Fah Luang
+                        University</strong></p>
                 <p class="text-gray-600 text-sm sm:text-base mb-1">2014-2018</p>
                 <p class="text-gray-700 text-base sm:text-lg">Bachelor's in Software Engineering</p>
             </div>
@@ -150,4 +181,5 @@
         </section>
     </div>
 </body>
+
 </html>
