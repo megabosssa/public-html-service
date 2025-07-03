@@ -23,6 +23,7 @@ Convert JSON files to CSV format:
 ## Log Viewer – JSON Log to HTML Table
 View logs (from the OCP console) in an HTML table format:
 - [Log Formatter](https://megabosssa.github.io/public-html-service/log-formatter-v2.html)
+- [Dynatrace Log Viewer](https://megabosssa.github.io/public-html-service/Dynatrace%20JSON%20Log%20Viewer%20with%20Summary%20View.html)
 
 ## Timeout Simulator
 Test delayed responses using the public `httpstat.us` service. For example:
