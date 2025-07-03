@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive JSON Log Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+            color: #d1d5db; /* text-gray-300 */
+        }
+        .json-viewer, .table-viewer {
+            font-family: 'Fira Code', monospace;
+            white-space: pre-wrap;
+        }
+        .json-key { color: #93c5fd; }
+        .json-string { color: #a5f3fc; }
+        .json-number { color: #fca5a5; }
+        .json-boolean { color: #fde047; }
+        .json-null { color: #9ca3af; }
+
+        .collapsible {
+            cursor: pointer;
+            position: relative;
+            padding-left: 20px;
+        }
+        .collapsible::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            top: 1px;
+            font-size: 0.8em;
+            transition: transform 0.1s ease-in-out;
+        }
+        .collapsible.expanded::before { transform: rotate(90deg); }
+        .collapsible-content {
+            display: none;
+            padding-left: 20px;
+            border-left: 1px solid #374151;
+            margin-left: 6px;
+        }
+        .collapsible.expanded + .collapsible-content { display: block; }
+        
+        /* Table Styles */
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .log-table th, .log-table td {
+            border: 1px solid #374151; /* border-gray-700 */
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .log-table th {
+            background-color: #1f2937; /* bg-gray-800 */
+            color: #d1d5db; /* text-gray-300 */
+            font-weight: 600;
+        }
+        .log-table .key-cell {
+            color: #93c5fd; /* text-blue-300 */
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .log-table .value-cell {
+            color: #d1d5db; /* text-gray-300 */
+            word-break: break-all;
+            cursor: pointer;
+        }
+        .log-table .value-cell:hover, .log-table .key-cell:hover {
+            background-color: #374151;
+        }
+        .log-table pre {
+            margin: 0;
+            white-space: pre-wrap;
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Toast Notification for Copy */
+        #copy-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #22c55e; /* bg-green-500 */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+            pointer-events: none;
+        }
+        #copy-toast.show {
+            opacity: 1;
+            bottom: 30px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-white">Interactive JSON Log Viewer</h1>
+            <p class="text-gray-400 mt-2">Paste your JSON log below to parse and explore it.</p>
+        </header>
+
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+            <label for="logInput" class="block text-lg font-medium text-gray-200 mb-2">Log Input</label>
+            <textarea id="logInput" class="w-full h-48 p-3 bg-gray-900 border border-gray-700 rounded-md text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm" placeholder="Paste your raw log here..."></textarea>
+            <button id="parseBtn" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105">
+                Parse Log
+            </button>
+        </div>
+
+        <div id="error-container" class="mt-6 hidden bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-lg" role="alert">
+            <strong class="font-bold">Error:</strong>
+            <span id="error-message" class="block sm:inline"></span>
+        </div>
+
+        <div class="mt-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-semibold text-white">Formatted Log Output</h2>
+                <div id="view-switcher" class="flex space-x-1 p-1 bg-gray-700 rounded-lg">
+                    <button id="summary-view-btn" class="px-4 py-1 text-sm font-medium rounded-md transition">Summary</button>
+                    <button id="tree-view-btn" class="px-4 py-1 text-sm font-medium rounded-md transition">Tree View</button>
+                    <button id="table-view-btn" class="px-4 py-1 text-sm font-medium rounded-md transition">Table View</button>
+                </div>
+            </div>
+            <div id="output" class="bg-gray-800 p-6 rounded-lg shadow-lg text-sm">
+                <p class="text-gray-500">Output will appear here...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="copy-toast">Copied to clipboard!</div>
+
+    <script>
+        // --- DOM Elements ---
+        const logInput = document.getElementById('logInput');
+        const parseBtn = document.getElementById('parseBtn');
+        const outputDiv = document.getElementById('output');
+        const errorContainer = document.getElementById('error-container');
+        const errorMessage = document.getElementById('error-message');
+        const summaryViewBtn = document.getElementById('summary-view-btn');
+        const treeViewBtn = document.getElementById('tree-view-btn');
+        const tableViewBtn = document.getElementById('table-view-btn');
+        const copyToast = document.getElementById('copy-toast');
+
+        // --- State ---
+        let currentView = 'summary'; // 'summary', 'tree', or 'table'
+        let parsedLogObject = null;
+
+        // --- Initial Log Data ---
+        const initialLog = `{ "@timestamp": "2025-07-03T16:36:12.257+07:00", "@version": "1", "message": "{\\"serviceType\\":\\"Feign\\",\\"serviceName\\":\\"http://pmh-bahtnet-payment-api-service:8080/rest/api/v1/transfer/bahtnet/update/status/PMH003250703000000007390300004\\",\\"httpRequestHeader\\":{\\"Accept\\":\\"application/json\\",\\"Authorization\\":\\"Bearer eyJraWQiOiJhYmNmMjVjODk0NGFmOTMxMWZhMzM3ZjE4YTM5MmE2MWFiOGFlMTk3ZjgzNDk4ZjNiMjNkMDc5MzE2ODQ2NGE5IiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJwbWgiLCJpc3MiOiJwbWgtaW50ZXJuYWwiLCJpYXQiOjE3NTE1MzUzNzEsImV4cCI6MTc1MTUzODk3MX0.bRGvsk-l5-py4BrYrDPCcXcPhwgoou64w6hKKc3cToKG7jdRXSoaCgpErfGmZw_ZPjyDSVSe5DZKzT1lk0fKNJ4SfUnDkb-9VPt4z3l8i75bwaoRwpYRU0osYgGT-UstkQWpEItXVwFNPmjhKp8A4k78OQQ0-LF0cMzs2flGHDDh3BDHcqpG6S3SPunpRhGzGkMYbUuqq8bA201a0K_XTNQfW8VU8STkEKdtrrwyfcNEmejEKrekufLAe-K7bvXV9uRQ8UiIASjb-g2TfKhDIS9XYeC7WTlNxWoEIv28vgwIJIhsW_L9Z3gID29N98Jkr6DA4FQF_7kiJTIqaJJssw\\",\\"Content-Length\\":\\"759\\",\\"Content-Type\\":\\"application/json\\",\\"traceparent\\":\\"00-c250649769558e5da5a792c6f19f0737-33fcc702db850992-01\\",\\"X-Client-Transaction-ID\\":\\"95d33a15-4b33-49b1-8632-94c6d64b342d\\",\\"X-Gateway-Transaction-ID\\":\\"f538a92a-09ae-4faf-beda-fe3d32daf191\\"},\\"httpRequestMethod\\":\\"POST\\",\\"httpRequestUri\\":\\"/rest/api/v1/transfer/bahtnet/update/status/PMH003250703000000007390300004\\",\\"requestData\\":\\"{\\\\\\"refundResult\\\\\\":{\\\\\\"transactionReferenceId\\\\\\":\\\\\\"PMH003250703000000007390300004\\\\\\",\\\\\\"originalTransactionid\\\\\\":\\\\\\"16361103071929T6A00021593\\\\\\",\\\\\\"status\\\\\\":\\\\\\"SUCCESS\\\\\\"}\\\\",\\\\\\"additionalData\\\\\\":{\\\\\\"whtsId\\\\\\":[\\\\\\"d84f5520-1a46-48ad-81ed-a88e2da587c7\\\\\\"],\\\\\\"feesId\\\\\\":[\\\\\\"d983ff24-63a6-43fa-884d-9ed5ce3b2f14\\\\\\"]},\\\\\\"debitCreditResponse\\\\\\":{\\\\\\"transactionId\\\\\\":\\\\\\"APF4009420431109750300002\\\\\\",\\\\\\"transactionUniqueId\\\\\\":\\\\\\"PMH003250703000000007390300004\\\\\\",\\\\\\"transactionChannelInfo\\\\\\":\\\\\\"PMH_TRFBHTNTOF\\\\\\",\\\\\\"originalTransactionId\\\\\\":\\\\\\"16361103071929T6A00021593\\\\\\",\\\\\\"tellerIdentification\\\\\\":\\\\\\"1929T6A\\\\\\",\\\\\\"accountName\\\\\\":\\\\\\"นาย วิจิตร อร่อย\\\\\\",\\\\\\"accountShortName\\\\\\":\\\\\\"WIJIT AROI\\\\\\",\\\\\\"extendedAccountName\\\\\\":\\\\\\"\\\\\\",\\\\\\"accountStatusCode\\\\\\":\\\\\\"00\\\\\\",\\\\\\"accountStatusDescription\\\\\\":\\\\\\"ACTIVE\\\\\\",\\\\\\"balanceAvailable\\\\\\":1857408332.35,\\\\\\"balanceCurrent\\\\\\":1857408332.35}}\\",\\"responseData\\":\\"{\\\\\\"error\\\\\\":{\\\\\\"code\\\\\\":\\\\\\"F99999\\\\\\",\\\\\\"message\\\\\\":\\\\\\"GENERAL API ERROR\\\\\\",\\\\\\"detailedErrors\\\\\\":[{\\\\\\"message\\\\\\":\\\\\\"Please contact support team for investigation.\\\\\\"}]}}\\",\\"statusCode\\":\\"500\\",\\"processStartTime\\":\\"2025-07-03T09:36:11.446Z\\",\\"processingTime\\":811}"}`;
+        logInput.value = initialLog;
+
+        // --- Event Listeners ---
+        parseBtn.addEventListener('click', parseAndRender);
+        summaryViewBtn.addEventListener('click', () => setView('summary'));
+        treeViewBtn.addEventListener('click', () => setView('tree'));
+        tableViewBtn.addEventListener('click', () => setView('table'));
+
+        outputDiv.addEventListener('click', function(e) {
+            if (e.target.classList.contains('collapsible')) {
+                e.target.classList.toggle('expanded');
+            }
+            if (e.target.classList.contains('key-cell') || e.target.classList.contains('value-cell')) {
+                const textToCopy = e.target.dataset.copyValue || e.target.innerText;
+                copyToClipboard(textToCopy);
+            }
+        });
+
+        // --- Core Functions ---
+        function parseAndRender() {
+            hideError();
+            const logText = logInput.value.trim();
+            if (!logText) {
+                showError("Input is empty.");
+                parsedLogObject = null;
+                render();
+                return;
+            }
+
+            try {
+                let logObject = JSON.parse(logText);
+                parsedLogObject = deepParseJsonStrings(logObject);
+                render();
+            } catch (e) {
+                showError(`Invalid JSON format: ${e.message}`);
+                parsedLogObject = null;
+                outputDiv.innerHTML = '<p class="text-gray-500">Failed to parse log.</p>';
+            }
+        }
+
+        function render() {
+            if (!parsedLogObject) {
+                outputDiv.innerHTML = '<p class="text-gray-500">Output will appear here...</p>';
+                return;
+            }
+
+            outputDiv.innerHTML = ''; // Clear previous output
+            outputDiv.className = 'bg-gray-800 p-6 rounded-lg shadow-lg text-sm'; // Reset class
+
+            if (currentView === 'tree') {
+                outputDiv.classList.add('json-viewer');
+                outputDiv.appendChild(createTreeView(parsedLogObject));
+            } else if (currentView === 'table') {
+                outputDiv.classList.add('table-viewer');
+                outputDiv.appendChild(createTableView(parsedLogObject));
+            } else if (currentView === 'summary') {
+                outputDiv.classList.add('table-viewer');
+                outputDiv.appendChild(createSummaryView(parsedLogObject));
+            }
+        }
+
+        function setView(view) {
+            currentView = view;
+            updateViewSwitcherUI();
+            render();
+        }
+        
+        function updateViewSwitcherUI() {
+            const buttons = {
+                summary: summaryViewBtn,
+                tree: treeViewBtn,
+                table: tableViewBtn
+            };
+            for (const view in buttons) {
+                if (view === currentView) {
+                    buttons[view].classList.add('bg-blue-600', 'text-white');
+                } else {
+                    buttons[view].classList.remove('bg-blue-600', 'text-white');
+                }
+            }
+        }
+
+        function deepParseJsonStrings(obj) {
+            if (typeof obj === 'string') {
+                try {
+                    return deepParseJsonStrings(JSON.parse(obj));
+                } catch (e) { return obj; }
+            } else if (Array.isArray(obj)) {
+                return obj.map(item => deepParseJsonStrings(item));
+            } else if (typeof obj === 'object' && obj !== null) {
+                const newObj = {};
+                for (const key in obj) {
+                    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                        newObj[key] = deepParseJsonStrings(obj[key]);
+                    }
+                }
+                return newObj;
+            }
+            return obj;
+        }
+
+        // --- View Creation ---
+        function createSummaryView(data) {
+            const fieldsToShow = [
+                'message.serviceName',
+                'message.serviceType',
+                'message.statusCode',
+                'message.requestData',
+                'message.responseData'
+            ];
+            
+            const table = document.createElement('table');
+            table.className = 'log-table';
+            table.innerHTML = `<thead><tr><th>Field</th><th>Value</th></tr></thead>`;
+            const tbody = document.createElement('tbody');
+
+            fieldsToShow.forEach(path => {
+                const row = tbody.insertRow();
+                const keyCell = row.insertCell();
+                const valueCell = row.insertCell();
+                
+                keyCell.textContent = path;
+                keyCell.className = 'key-cell';
+                keyCell.title = 'Click to copy key';
+
+                valueCell.className = 'value-cell';
+                valueCell.title = 'Click to copy value';
+
+                const value = getNestedValue(data, path);
+
+                if (value === undefined) {
+                    valueCell.textContent = 'Not found';
+                    valueCell.classList.add('text-gray-500');
+                } else if (typeof value === 'object' && value !== null) {
+                    const formattedJson = JSON.stringify(value, null, 2);
+                    valueCell.innerHTML = `<pre>${formattedJson}</pre>`;
+                    valueCell.dataset.copyValue = formattedJson;
+                } else {
+                    valueCell.textContent = value;
+                    valueCell.dataset.copyValue = value;
+                }
+            });
+
+            table.appendChild(tbody);
+            return table;
+        }
+
+        function createTreeView(data) {
+            if (data === null || data === undefined) return createValueElement('null', 'null');
+            const container = document.createElement('div');
+            if (Array.isArray(data)) {
+                const header = document.createElement('div');
+                header.className = 'collapsible';
+                header.textContent = `[...] (${data.length} items)`;
+                container.appendChild(header);
+                const content = document.createElement('div');
+                content.className = 'collapsible-content';
+                data.forEach((item, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.innerHTML = `<span class="json-key">${index}: </span>`;
+                    itemDiv.appendChild(createTreeView(item));
+                    content.appendChild(itemDiv);
+                });
+                container.appendChild(content);
+            } else if (typeof data === 'object') {
+                const keys = Object.keys(data);
+                const header = document.createElement('div');
+                header.className = 'collapsible expanded';
+                header.textContent = `{...} (${keys.length} keys)`;
+                container.appendChild(header);
+                const content = document.createElement('div');
+                content.className = 'collapsible-content';
+                keys.forEach(key => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.innerHTML = `<span class="json-key">"${key}": </span>`;
+                    itemDiv.appendChild(createTreeView(data[key]));
+                    content.appendChild(itemDiv);
+                });
+                container.appendChild(content);
+            } else {
+                return createValueElement(data, typeof data);
+            }
+            return container;
+        }
+
+        function createTableView(data) {
+            const table = document.createElement('table');
+            table.className = 'log-table';
+            table.innerHTML = `<thead><tr><th>Key</th><th>Value</th></tr></thead>`;
+            const tbody = document.createElement('tbody');
+
+            for (const key in data) {
+                if (Object.prototype.hasOwnProperty.call(data, key)) {
+                    const row = tbody.insertRow();
+                    const keyCell = row.insertCell();
+                    const valueCell = row.insertCell();
+
+                    keyCell.textContent = key;
+                    keyCell.className = 'key-cell';
+                    keyCell.title = 'Click to copy key';
+
+                    valueCell.className = 'value-cell';
+                    valueCell.title = 'Click to copy value';
+
+                    const value = data[key];
+                    if (typeof value === 'object' && value !== null) {
+                        const formattedJson = JSON.stringify(value, null, 2);
+                        valueCell.innerHTML = `<pre>${formattedJson}</pre>`;
+                        valueCell.dataset.copyValue = formattedJson;
+                    } else {
+                        valueCell.textContent = value;
+                        valueCell.dataset.copyValue = value;
+                    }
+                }
+            }
+            table.appendChild(tbody);
+            return table;
+        }
+
+        function createValueElement(value, type) {
+            const span = document.createElement('span');
+            span.textContent = type === 'string' ? `"${value}"` : String(value);
+            span.className = `json-${type}`;
+            return span;
+        }
+
+        // --- Utility Functions ---
+        function getNestedValue(obj, path) {
+            return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast();
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast();
+                } catch (err) {
+                    console.error('Fallback copy failed: ', err);
+                }
+                document.body.removeChild(textArea);
+            });
+        }
+
+        let toastTimeout;
+        function showToast() {
+            clearTimeout(toastTimeout);
+            copyToast.classList.add('show');
+            toastTimeout = setTimeout(() => {
+                copyToast.classList.remove('show');
+            }, 2000);
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorContainer.classList.remove('hidden');
+        }
+
+        function hideError() {
+            errorContainer.classList.add('hidden');
+        }
+        
+        // --- Initial Load ---
+        window.onload = () => {
+            updateViewSwitcherUI();
+            parseAndRender();
+        };
+
+    </script>
+</body>
+</html>
