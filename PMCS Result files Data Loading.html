@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMCS Result files Data Loading</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .container {
+            max-width: 960px;
+        }
+        textarea {
+            font-family: monospace;
+            white-space: pre;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+
+<div class="container mx-auto bg-white rounded-xl shadow-lg p-8">
+    <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">PMCS Result files Data Loading</h1>
+
+    <div class="instructions bg-blue-50 p-6 rounded-lg mb-6 border border-blue-200">
+        <h3 class="text-xl font-semibold mb-2 text-blue-800">Instructions</h3>
+        <p class="text-gray-700">
+            Paste a single JSON object into the input box. This object must contain two keys: a <strong class="font-bold">`header`</strong> object and a <strong class="font-bold">`details`</strong> array. The tool will automatically calculate the total transaction count, total amount, and the total number of records in the file. It will then generate a fixed-length header line, the detail lines, and a footer line.
+        </p>
+        <p class="text-gray-700 mt-2">
+            Numeric fields are right-aligned and left-padded with zeros. Alphanumeric fields are left-aligned and right-padded with spaces.
+        </p>
+        <p class="text-gray-700 mt-2">
+            <strong class="font-bold">Example JSON Input:</strong>
+        </p>
+        <div class="relative">
+            <pre id="example-json" class="bg-gray-100 p-4 rounded-lg text-sm overflow-x-auto text-gray-800 mt-4">
+    {
+        "header": {
+            "FileType": "12",
+            "RecordType": "1",
+            "BatchNumber": "000001",
+            "SendingBank": "025",
+            "BatchEffectiveDate": "05082025",
+            "KindOfTransaction": "C",
+            "Reserve": ""
+        },
+        "details": [
+            {
+                "FileType": "12",
+                "RecordType": "3",
+                "BatchNumber": "000001",
+                "ReceivingBank": "111",
+                "ReceivingBranch": "1111",
+                "ReceivingAccount": "11111111111",
+                "SendingBank": "025",
+                "SendingBranch": "0700",
+                "SendingAccount": "07000117001",
+                "DetailEffectiveDate": "05082025",
+                "ServiceType": "02",
+                "ClearingHouseCode": "00",
+                "TransactionAmount": "000000150000",
+                "ReceivingName": "lisa pmh20250528164137S",
+                "SendingName": "7770094842WIJIT AROI6616534036731  ",
+                "SendingReference": "1000000002",
+                "ReceivingReference": "FPI025A1000000000002",
+                "ReceivingReferenceDate": "05082025",
+                "ReferenceTransaction": "20250805000000000346",
+                "OtherInformation": "M0961529599",
+                "InformationOfBAY": "",
+                "RunningReferenceNumber": "",
+                "RunningReferenceNumberByBank": "",
+                "ReasonForReturn": "00",
+                "AuthenCode": "",
+                "Reserve": ""
+            },
+            {
+                "FileType": "12",
+                "RecordType": "3",
+                "BatchNumber": "000001",
+                "ReceivingBank": "014",
+                "ReceivingBranch": "0585",
+                "ReceivingAccount": "05852331275",
+                "SendingBank": "025",
+                "SendingBranch": "0700",
+                "SendingAccount": "07000117001",
+                "DetailEffectiveDate": "05082025",
+                "ServiceType": "01",
+                "ClearingHouseCode": "00",
+                "TransactionAmount": "00000515001",
+                "ReceivingName": "Sunanta Trajittri20250528164137S",
+                "SendingName": "7770094842WIJIT AROI6616534036731  ",
+                "SendingReference": "1000000001",
+                "ReceivingReference": "FPI025A1000000000001",
+                "ReceivingReferenceDate": "05082025",
+                "ReferenceTransaction": "20250805000000000345",
+                "OtherInformation": "                   ",
+                "InformationOfBAY": "",
+                "RunningReferenceNumber": "",
+                "RunningReferenceNumberByBank": "",
+                "ReasonForReturn": "00",
+                "AuthenCode": "",
+                "Reserve": ""
+            }
+        ]
+    }
+</pre>
+            <button id="copy-example-btn" class="absolute top-2 right-2 bg-gray-300 text-gray-800 font-semibold py-1 px-3 rounded-lg hover:bg-gray-400 transition duration-300 text-sm">
+                Copy
+            </button>
+        </div>
+    </div>
+
+    <label for="json-input" class="block text-gray-700 font-semibold mb-2">JSON Input:</label>
+    <textarea id="json-input" rows="10" placeholder="Paste your JSON object here..." class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"></textarea>
+    <button id="generate-btn" class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+        Generate Fixed Length File
+    </button>
+
+    <label for="output-area" class="block text-gray-700 font-semibold mt-6 mb-2">Generated Output:</label>
+    <div class="relative">
+        <textarea id="output-area" rows="10" readonly class="w-full p-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-800"></textarea>
+        <button id="copy-output-btn" class="absolute top-2 right-2 bg-gray-300 text-gray-800 font-semibold py-1 px-3 rounded-lg hover:bg-gray-400 transition duration-300 text-sm">
+            Copy
+        </button>
+    </div>
+    
+    <div class="mt-6 flex flex-col md:flex-row items-center gap-4">
+        <label for="file-type" class="block text-gray-700 font-semibold whitespace-nowrap">Download File:</label>
+        <select id="file-type" class="flex-grow w-full md:w-auto p-2 border border-gray-300 rounded-lg bg-white">
+            <option value="DC2">Same day (DC2) result file</option>
+            <option value="DC3">Next day (DC3) result file</option>
+        </select>
+        <button id="download-btn" class="w-full md:w-auto bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300">
+            Download .txt
+        </button>
+    </div>
+</div>
+
+<script>
+document.getElementById('generate-btn').addEventListener('click', generateFile);
+document.getElementById('copy-example-btn').addEventListener('click', copyExample);
+document.getElementById('copy-output-btn').addEventListener('click', copyOutput);
+document.getElementById('download-btn').addEventListener('click', downloadFile);
+
+/**
+ * Handles the click event to parse JSON and generate the fixed-length file.
+ */
+function generateFile() {
+    const jsonInput = document.getElementById('json-input').value;
+    const outputArea = document.getElementById('output-area');
+    outputArea.value = '';
+    outputArea.classList.remove('text-red-600', 'font-bold');
+
+    try {
+        const data = JSON.parse(jsonInput);
+        if (!data.header || !Array.isArray(data.details)) {
+            throw new Error('Input must be a JSON object with "header" and "details" fields.');
+        }
+
+        // Calculate totals from the detail records
+        const totalTransactions = data.details.length;
+        let totalAmount = 0;
+        data.details.forEach(record => {
+            const amountStr = record.TransactionAmount;
+            if (amountStr) {
+                // The amount is a 12-digit number where the last two are decimals.
+                // We parse it as a whole number (e.g., 1234567812) to sum it up correctly.
+                totalAmount += parseInt(amountStr, 10);
+            }
+        });
+        
+        // Calculate total number of records for the footer (header + details + footer)
+        const totalRecords = totalTransactions + 2;
+        const batchNumber = data.header.BatchNumber;
+
+        // Generate the header line
+        const headerLine = generateHeaderLine(data.header, totalTransactions, totalAmount);
+        
+        // Generate the detail lines
+        const detailLines = data.details.map(record => generateDetailLine(record));
+        
+        // Generate the footer line
+        const footerLine = generateFooterLine(batchNumber, totalRecords);
+
+        // Combine and display the output
+        outputArea.value = [headerLine, ...detailLines, footerLine].join('\n');
+
+    } catch (e) {
+        outputArea.value = `Error: ${e.message}\n\nPlease check your JSON syntax and data structure.`;
+        outputArea.classList.add('text-red-600', 'font-bold');
+    }
+}
+
+/**
+ * Handles the click event to copy the example JSON to the clipboard.
+ */
+function copyExample() {
+    const examplePre = document.getElementById('example-json');
+    const range = document.createRange();
+    range.selectNode(examplePre);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    
+    try {
+        document.execCommand('copy');
+        // Do not use alert(), use a custom message box instead
+        // For simplicity in this context, we will use a console log.
+        console.log('Example JSON copied to clipboard!');
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+    }
+    
+    window.getSelection().removeAllRanges();
+}
+
+/**
+ * Handles the click event to copy the generated output to the clipboard.
+ */
+function copyOutput() {
+    const outputArea = document.getElementById('output-area');
+    outputArea.select();
+    try {
+        document.execCommand('copy');
+        console.log('Output copied to clipboard!');
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+    }
+}
+
+/**
+ * Handles the click event to download the generated output as a .txt file.
+ */
+function downloadFile() {
+    const outputText = document.getElementById('output-area').value;
+    if (!outputText) {
+        // Do not use alert(), use a custom message box instead
+        // For simplicity in this context, we will use a console log.
+        console.log('No content to download.');
+        return;
+    }
+    
+    const fileType = document.getElementById('file-type').value;
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const formattedDate = `${year}${month}${day}`;
+
+    const filename = `EOD.${fileType}.TRANS.IR.${formattedDate}.txt`;
+    
+    const blob = new Blob([outputText], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+}
+
+
+/**
+ * Pads a string or number to a fixed length.
+ * @param {string|number} value - The value to pad.
+ * @param {number} length - The desired length of the padded string.
+ * @param {string} paddingChar - The character to use for padding.
+ * @param {boolean} alignRight - True to align right (left-pad), false to align left (right-pad).
+ * @returns {string} The padded string.
+ */
+function pad(value, length, paddingChar, alignRight) {
+    let str = String(value);
+    if (str.length > length) {
+        str = str.substring(0, length);
+    }
+    if (alignRight) {
+        return str.padStart(length, paddingChar);
+    } else {
+        return str.padEnd(length, paddingChar);
+    }
+}
+
+/**
+ * Generates the fixed-length header line string.
+ * @param {object} headerData - The header data from the JSON input.
+ * @param {number} totalTransactions - The calculated number of detail records.
+ * @param {number} totalAmount - The calculated total amount from all detail records.
+ * @returns {string} The formatted header line.
+ */
+function generateHeaderLine(headerData, totalTransactions, totalAmount) {
+    const fields = [
+        { name: "FileType", len: 2, type: "char" },
+        { name: "RecordType", len: 1, type: "num" },
+        { name: "BatchNumber", len: 6, type: "num" },
+        { name: "SendingBank", len: 3, type: "num" },
+        { name: "TotalTransaction", len: 10, type: "num", value: totalTransactions },
+        { name: "TotalAmount", len: 15, type: "num", value: totalAmount },
+        { name: "BatchEffectiveDate", len: 8, type: "num" },
+        { name: "KindOfTransaction", len: 1, type: "char" },
+        { name: "Reserve", len: 274, type: "char" }
+    ];
+
+    let line = "";
+    fields.forEach(field => {
+        const value = field.value !== undefined ? field.value : (headerData[field.name] !== undefined ? headerData[field.name] : "");
+        const paddingChar = (field.type === "num") ? "0" : " ";
+        const alignRight = (field.type === "num");
+        line += pad(value, field.len, paddingChar, alignRight);
+    });
+
+    return line;
+}
+
+/**
+ * Generates a single fixed-length detail line string from a record.
+ * @param {object} record - A single detail record object.
+ * @returns {string} The formatted detail line.
+ */
+function generateDetailLine(record) {
+    const fields = [
+        { name: "FileType", len: 2, type: "char" },
+        { name: "RecordType", len: 1, type: "num" },
+        { name: "BatchNumber", len: 6, type: "num" },
+        { name: "ReceivingBank", len: 3, type: "num" },
+        { name: "ReceivingBranch", len: 4, type: "num" },
+        { name: "ReceivingAccount", len: 11, type: "num" },
+        { name: "SendingBank", len: 3, type: "num" },
+        { name: "SendingBranch", len: 4, type: "num" },
+        { name: "SendingAccount", len: 11, type: "num" },
+        { name: "DetailEffectiveDate", len: 8, type: "num" },
+        { name: "ServiceType", len: 2, type: "char" },
+        { name: "ClearingHouseCode", len: 2, type: "char" },
+        { name: "TransactionAmount", len: 12, type: "num" },
+        { name: "ReceivingName", len: 60, type: "char" },
+        { name: "SendingName", len: 60, type: "char" },
+        { name: "SendingReference", len: 10, type: "char" },
+        { name: "ReceivingReference", len: 20, type: "char" },
+        { name: "ReceivingReferenceDate", len: 8, type: "char" },
+        { name: "ReferenceTransaction", len: 20, type: "char" },
+        { name: "OtherInformation", len: 20, type: "char" },
+        { name: "InformationOfBAY", len: 22, type: "char" },
+        { name: "RunningReferenceNumber", len: 6, type: "char" },
+        { name: "RunningReferenceNumberByBank", len: 6, type: "char" },
+        { name: "ReasonForReturn", len: 2, type: "num" },
+        { name: "AuthenCode", len: 8, type: "char" },
+        { name: "Reserve", len: 9, type: "char" }
+    ];
+
+    let line = "";
+    fields.forEach(field => {
+        const value = record[field.name] !== undefined ? record[field.name] : "";
+        const paddingChar = (field.type === "num") ? "0" : " ";
+        const alignRight = (field.type === "num");
+        line += pad(value, field.len, paddingChar, alignRight);
+    });
+
+    return line;
+}
+
+/**
+ * Generates the fixed-length footer line string.
+ * @param {string} batchNumber - The batch number from the header.
+ * @param {number} totalRecords - The total number of lines in the file (header + details + footer).
+ * @returns {string} The formatted footer line.
+ */
+function generateFooterLine(batchNumber, totalRecords) {
+    const fields = [
+        { name: "FileType", len: 2, type: "char", value: "34" },
+        { name: "RecordType", len: 1, type: "num", value: "3" },
+        { name: "BatchNumber", len: 6, type: "num", value: batchNumber },
+        { name: "TotalRecord", len: 11, type: "num", value: totalRecords },
+        { name: "Reserve", len: 300, type: "char", value: "" }
+    ];
+
+    let line = "";
+    fields.forEach(field => {
+        const value = field.value !== undefined ? field.value : "";
+        const paddingChar = (field.type === "num") ? "0" : " ";
+        const alignRight = (field.type === "num");
+        line += pad(value, field.len, paddingChar, alignRight);
+    });
+
+    return line;
+}
+</script>
+
+</body>
+</html>
