@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Comparison Tool</title>
+    <!-- We'll use Tailwind CSS for easy and clean styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        /* Custom style for a consistent textarea height */
+        textarea {
+            min-height: 350px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Set Comparison Tool</h1>
+            <p class="text-lg text-gray-600 mt-2">
+                Paste your lists below. The tool will find differences regardless of order or duplicates.
+            </p>
+        </header>
+
+        <!-- Input Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-semibold mb-3 text-blue-700">Set 1</h2>
+                <textarea id="set1" 
+                          class="w-full h-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm" 
+                          placeholder="Paste Set 1 here (one item per line)..."></textarea>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-semibold mb-3 text-indigo-700">Set 2</h2>
+                <textarea id="set2" 
+                          class="w-full h-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm" 
+                          placeholder="Paste Set 2 here (one item per line)..."></textarea>
+            </div>
+        </div>
+
+        <!-- Control Button -->
+        <button id="compareButton" 
+                class="w-full bg-blue-600 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-md hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 ease-in-out transform hover:-translate-y-0.5 mb-8">
+            Compare Sets
+        </button>
+
+        <!-- Output Section -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Column 1: Only in Set 1 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-semibold mb-3 text-center text-red-700">
+                    Only in Set 1 (<span id="countOnly1" class="font-bold">0</span>)
+                </h3>
+                <textarea id="onlyIn1" 
+                          readonly 
+                          class="w-full h-full p-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 font-mono text-sm shadow-inner" 
+                          placeholder="Items unique to Set 1..."></textarea>
+            </div>
+            
+            <!-- Column 2: Only in Set 2 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-semibold mb-3 text-center text-yellow-700">
+                    Only in Set 2 (<span id="countOnly2" class="font-bold">0</span>)
+                </h3>
+                <textarea id="onlyIn2" 
+                          readonly 
+                          class="w-full h-full p-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 font-mono text-sm shadow-inner" 
+                          placeholder="Items unique to Set 2..."></textarea>
+            </div>
+            
+            <!-- Column 3: Common to Both -->
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-semibold mb-3 text-center text-green-700">
+                    Common to Both (<span id="countCommon" class="font-bold">0</span>)
+                </h3>
+                <textarea id="common" 
+                          readonly 
+                          class="w-full h-full p-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 font-mono text-sm shadow-inner" 
+                          placeholder="Items found in both sets..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Attach event listener to the button
+        document.getElementById('compareButton').addEventListener('click', compareSets);
+
+        /**
+         * Takes text from a textarea, splits it by newline,
+         * trims whitespace, and filters out empty lines.
+         * Returns a Set of unique items.
+         */
+        function processInput(text) {
+            // Split by newline, trim whitespace from each line,
+            // and filter out any empty lines that result.
+            const items = text.split('\n')
+                               .map(item => item.trim())
+                               .filter(item => item.length > 0);
+            return new Set(items);
+        }
+
+        /**
+         * Main function to run the comparison
+         */
+        function compareSets() {
+            // 1. Get text from both textareas
+            const text1 = document.getElementById('set1').value;
+            const text2 = document.getElementById('set2').value;
+
+            // 2. Process text into Sets for efficient comparison
+            const s1 = processInput(text1);
+            const s2 = processInput(text2);
+
+            // 3. Calculate differences using Set logic
+            // Use spread operator [...] to convert Set back to Array for filtering
+            const onlyIn1 = [...s1].filter(item => !s2.has(item));
+            const onlyIn2 = [...s2].filter(item => !s1.has(item));
+            const common = [...s1].filter(item => s2.has(item));
+            
+            // 4. Sort results alphabetically for consistent output
+            onlyIn1.sort();
+            onlyIn2.sort();
+            common.sort();
+
+            // 5. Display results in the output textareas
+            // Use join('\n') to put one item per line
+            document.getElementById('onlyIn1').value = onlyIn1.join('\n');
+            document.getElementById('onlyIn2').value = onlyIn2.join('\n');
+            document.getElementById('common').value = common.join('\n');
+
+            // 6. Update counts in the headers
+            document.getElementById('countOnly1').textContent = onlyIn1.length;
+            document.getElementById('countOnly2').textContent = onlyIn2.length;
+            document.getElementById('countCommon').textContent = common.length;
+        }
+    </script>
+
+</body>
+</html>
