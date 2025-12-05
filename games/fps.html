@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Browser City: GTA Style Prototype</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #87CEEB; }
+        #instructions {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            font-size: 18px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="instructions">
+        <h2>BROWSER CITY</h2>
+        <p><b>WASD / Arrows</b> to Drive</p>
+        <p>Explore the procedural city.</p>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.126.0/build/three.module.js';
+
+        // --- 1. SETUP THE SCENE ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87CEEB); // Sky Blue
+        scene.fog = new THREE.Fog(0x87CEEB, 10, 500);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.body.appendChild(renderer.domElement);
+
+        // --- 2. LIGHTING ---
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6); // Soft white light
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1); // The Sun
+        dirLight.position.set(100, 200, 100);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        dirLight.shadow.camera.near = 0.5;
+        dirLight.shadow.camera.far = 500;
+        dirLight.shadow.camera.left = -100;
+        dirLight.shadow.camera.right = 100;
+        dirLight.shadow.camera.top = 100;
+        dirLight.shadow.camera.bottom = -100;
+        scene.add(dirLight);
+
+        // --- 3. THE ENVIRONMENT (CITY GENERATION) ---
+        
+        // Ground
+        const groundGeo = new THREE.PlaneGeometry(2000, 2000);
+        const groundMat = new THREE.MeshLambertMaterial({ color: 0x333333 }); // Asphalt color
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        // Buildings
+        const cityGroup = new THREE.Group();
+        const buildingGeo = new THREE.BoxGeometry(1, 1, 1);
+        const buildingMat = new THREE.MeshPhongMaterial({ color: 0x888888 });
+
+        function createBuilding(x, z) {
+            const height = Math.random() * 20 + 5;
+            const width = Math.random() * 5 + 5;
+            const depth = Math.random() * 5 + 5;
+            
+            const building = new THREE.Mesh(buildingGeo, buildingMat);
+            building.position.set(x, height / 2, z);
+            building.scale.set(width, height, depth);
+            building.castShadow = true;
+            building.receiveShadow = true;
+            cityGroup.add(building);
+        }
+
+        // Generate a Grid City
+        for(let x = -200; x <= 200; x += 25) {
+            for(let z = -200; z <= 200; z += 25) {
+                // Leave space for roads
+                if(Math.random() > 0.1) { 
+                    createBuilding(x, z);
+                }
+            }
+        }
+        scene.add(cityGroup);
+
+        // --- 4. THE PLAYER (THE CAR) ---
+        const carGroup = new THREE.Group();
+
+        // Car Body
+        const bodyGeo = new THREE.BoxGeometry(2, 1, 4);
+        const bodyMat = new THREE.MeshPhongMaterial({ color: 0xff0000 }); // Red Car
+        const carBody = new THREE.Mesh(bodyGeo, bodyMat);
+        carBody.position.y = 0.75;
+        carBody.castShadow = true;
+        carGroup.add(carBody);
+
+        // Car Roof
+        const roofGeo = new THREE.BoxGeometry(1.8, 0.6, 2);
+        const roofMat = new THREE.MeshPhongMaterial({ color: 0xffffff }); 
+        const carRoof = new THREE.Mesh(roofGeo, roofMat);
+        carRoof.position.y = 1.5;
+        carRoof.position.z = -0.5;
+        carGroup.add(carRoof);
+
+        scene.add(carGroup);
+
+        // --- 5. GAME LOGIC & PHYSICS ---
+        let speed = 0;
+        let steering = 0;
+        const maxSpeed = 1.5;
+        const acceleration = 0.02;
+        const friction = 0.98;
+        const turnSpeed = 0.05;
+
+        const keys = { w: false, a: false, s: false, d: false };
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (keys.hasOwnProperty(key)) keys[key] = true;
+            if (e.key === "ArrowUp") keys.w = true;
+            if (e.key === "ArrowDown") keys.s = true;
+            if (e.key === "ArrowLeft") keys.a = true;
+            if (e.key === "ArrowRight") keys.d = true;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (keys.hasOwnProperty(key)) keys[key] = false;
+            if (e.key === "ArrowUp") keys.w = false;
+            if (e.key === "ArrowDown") keys.s = false;
+            if (e.key === "ArrowLeft") keys.a = false;
+            if (e.key === "ArrowRight") keys.d = false;
+        });
+
+        function updatePhysics() {
+            // Acceleration
+            if (keys.w) speed += acceleration;
+            if (keys.s) speed -= acceleration;
+
+            // Friction/Decay
+            speed *= friction;
+
+            // Steering (only when moving)
+            if (Math.abs(speed) > 0.01) {
+                if (keys.a) steering += turnSpeed;
+                if (keys.d) steering -= turnSpeed;
+            }
+
+            // Apply Movement
+            carGroup.rotation.y = steering;
+            carGroup.position.x += Math.sin(steering) * speed;
+            carGroup.position.z += Math.cos(steering) * speed;
+
+            // Camera Follow Logic (Third Person)
+            const relativeCameraOffset = new THREE.Vector3(0, 5, 10);
+            const cameraOffset = relativeCameraOffset.applyMatrix4(carGroup.matrixWorld);
+            
+            // Smooth camera
+            camera.position.lerp(cameraOffset, 0.1);
+            camera.lookAt(carGroup.position);
+        }
+
+        // --- 6. RENDER LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+            updatePhysics();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+    </script>
+</body>
+</html>
