@@ -3,454 +3,615 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Browser City: GTA V Style V3</title>
+    <title>Browser City: Chaos Edition V6</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #000; touch-action: none; font-family: sans-serif; }
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Segoe UI', sans-serif; user-select: none; }
         
-        /* UI OVERLAY */
-        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        
+        /* DASHBOARD UI */
+        #dashboard {
+            position: absolute; bottom: 20px; left: 20px;
+            display: flex; gap: 20px; pointer-events: none;
+        }
+        .gauge {
+            background: rgba(0,0,0,0.8); border: 2px solid #555;
+            color: #00ffcc; padding: 15px; border-radius: 10px;
+            text-align: center; min-width: 80px;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+            transition: border-color 0.2s;
+        }
+        .gauge.nitro-active { border-color: #0088ff; box-shadow: 0 0 20px #0088ff; color: #fff; }
+        .gauge h3 { margin: 0; font-size: 24px; }
+        .gauge span { font-size: 12px; color: #aaa; text-transform: uppercase; }
+
         /* START SCREEN */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            pointer-events: auto; z-index: 10; color: white;
+            z-index: 100; color: white;
         }
         button.start-btn {
-            padding: 15px 40px; font-size: 24px; background: #ff9800; border: none; 
-            color: black; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 20px;
+            padding: 15px 50px; font-size: 20px; background: white; border: none; 
+            color: #333; font-weight: bold; cursor: pointer; border-radius: 30px; margin-top: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s;
         }
+        button.start-btn:active { transform: scale(0.95); }
 
         /* MOBILE CONTROLS */
-        .control-btn {
-            position: absolute; width: 80px; height: 80px; background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 50%;
-            pointer-events: auto; display: none; /* Hidden on desktop by default, shown via JS if needed */
-        }
-        .control-btn:active { background: rgba(255, 255, 255, 0.5); }
-
-        /* D-PAD (Left/Right) */
-        #btn-left { bottom: 30px; left: 20px; }
-        #btn-right { bottom: 30px; left: 120px; }
-        
-        /* PEDALS (Gas/Brake) */
-        #btn-gas { bottom: 60px; right: 20px; border-radius: 10px; height: 100px; background: rgba(0, 255, 0, 0.2); }
-        #btn-brake { bottom: 30px; right: 120px; border-radius: 10px; height: 60px; width: 60px; background: rgba(255, 0, 0, 0.2); }
-
-        /* DESKTOP HINT */
-        #controls-hint {
-            position: absolute; top: 20px; left: 20px; color: white; 
-            text-shadow: 1px 1px 2px black; pointer-events: none;
-        }
-
+        .controls-mobile { display: none; }
         @media (hover: none) and (pointer: coarse) {
-            .control-btn { display: block; }
-            #controls-hint { display: none; }
+            .controls-mobile { display: block; position: absolute; width: 100%; height: 100%; pointer-events: none; }
+            .touch-btn {
+                position: absolute; width: 70px; height: 70px; background: rgba(255,255,255,0.15);
+                border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; pointer-events: auto;
+            }
+            .touch-btn:active { background: rgba(255,255,255,0.4); }
+            #t-up { bottom: 90px; right: 30px; }
+            #t-down { bottom: 20px; right: 30px; }
+            #t-left { bottom: 20px; left: 20px; }
+            #t-right { bottom: 20px; left: 100px; }
+            
+            /* Nitro Button for Mobile */
+            #t-nitro { bottom: 180px; right: 30px; background: rgba(0, 136, 255, 0.3); border-color: #0088ff; }
+            #t-nitro:active { background: #0088ff; }
         }
     </style>
 </head>
 <body>
 
     <div id="start-screen">
-        <h1>NEON CITY V3</h1>
-        <p>Turn up your volume</p>
+        <h1 style="font-size: 4rem; margin-bottom: 0; text-shadow: 0 5px 15px rgba(0,0,0,0.5);">CHAOS CITY</h1>
+        <p>Destructible World • Nitro Boost (Shift)</p>
         <button class="start-btn" onclick="startGame()">START ENGINE</button>
     </div>
 
-    <div id="ui-layer">
-        <div id="controls-hint">
-            <h3>WASD / ARROWS to Drive</h3>
-            <p>Space to Drift</p>
+    <div id="dashboard">
+        <div class="gauge" id="speed-gauge">
+            <h3 id="speed-display">0</h3>
+            <span>KM/H</span>
         </div>
+        <div class="gauge">
+            <h3 id="time-display">12:00</h3>
+            <span>TIME</span>
+        </div>
+    </div>
 
-        <div id="btn-left" class="control-btn"></div>
-        <div id="btn-right" class="control-btn"></div>
-        <div id="btn-brake" class="control-btn"></div>
-        <div id="btn-gas" class="control-btn"></div>
+    <div class="controls-mobile">
+        <div id="t-up" class="touch-btn"></div>
+        <div id="t-down" class="touch-btn"></div>
+        <div id="t-left" class="touch-btn"></div>
+        <div id="t-right" class="touch-btn"></div>
+        <div id="t-nitro" class="touch-btn" style="display:flex; justify-content:center; align-items:center; font-weight:bold; color:white; font-family:sans-serif;">N2O</div>
     </div>
 
     <script type="module">
         import * as THREE from 'https://unpkg.com/three@0.126.0/build/three.module.js';
 
+        // --- GLOBALS ---
+        let scene, camera, renderer;
+        let player, cityGroup, trafficGroup, debrisGroup;
+        let sunLight, ambientLight;
         let gameActive = false;
-        let audioCtx, osc, gainNode;
+        
+        // Game State
+        const worldSize = 400;
+        // Collision objects now store { mesh: Mesh, box: Box3, type: String }
+        let destructibles = []; 
+        let streetLights = [];
+        let particles = [];
+        
+        // Time
+        let gameTime = 12.0; 
+        const timeSpeed = 2.0;
 
-        // --- AUDIO ENGINE (Synthesizer) ---
+        // Audio
+        let audioCtx, engineOsc, engineFilter, engineGain;
+
+        // --- 1. IMPROVED AUDIO ENGINE ---
         function initAudio() {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             audioCtx = new AudioContext();
             
-            // Engine Sound (Sawtooth wave)
-            osc = audioCtx.createOscillator();
+            // Engine Tone
+            engineOsc = audioCtx.createOscillator();
+            engineOsc.type = 'triangle'; // Smoother than sawtooth
+            engineOsc.frequency.value = 60;
+
+            // Filter (Muffles the sound)
+            engineFilter = audioCtx.createBiquadFilter();
+            engineFilter.type = 'lowpass';
+            engineFilter.frequency.value = 400;
+
+            // Volume
+            engineGain = audioCtx.createGain();
+            engineGain.gain.value = 0.1;
+
+            engineOsc.connect(engineFilter);
+            engineFilter.connect(engineGain);
+            engineGain.connect(audioCtx.destination);
+            engineOsc.start();
+        }
+
+        function updateAudio(speed, isNitro) {
+            if(!audioCtx) return;
+            const absSpeed = Math.abs(speed);
+            
+            // Pitch goes up with speed
+            const pitch = 60 + (absSpeed * 200) + (isNitro ? 50 : 0);
+            engineOsc.frequency.setTargetAtTime(pitch, audioCtx.currentTime, 0.1);
+
+            // Filter opens up (sound gets brighter) as you go faster
+            const freq = 400 + (absSpeed * 1500) + (isNitro ? 1000 : 0);
+            engineFilter.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.1);
+        }
+
+        function playExplosionSound() {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
             osc.type = 'sawtooth';
-            osc.frequency.value = 50; // Idle RPM
-
-            gainNode = audioCtx.createGain();
-            gainNode.gain.value = 0.1;
-
-            osc.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
             osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
         }
 
-        function updateEngineSound(speed) {
-            if(!audioCtx) return;
-            const pitch = 50 + (Math.abs(speed) * 200);
-            osc.frequency.setTargetAtTime(pitch, audioCtx.currentTime, 0.1);
-        }
-
-        function playCrashSound() {
-            if(!audioCtx) return;
-            const crashOsc = audioCtx.createOscillator();
-            const crashGain = audioCtx.createGain();
-            crashOsc.type = 'square';
-            crashOsc.frequency.setValueAtTime(100, audioCtx.currentTime);
-            crashOsc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.5);
-            crashGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-            crashGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            
-            crashOsc.connect(crashGain);
-            crashGain.connect(audioCtx.destination);
-            crashOsc.start();
-            crashOsc.stop(audioCtx.currentTime + 0.5);
-        }
-
-
-        // --- SCENE SETUP ---
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x202025); // Dark Blueish Night
-        scene.fog = new THREE.Fog(0x202025, 20, 120);
-
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 500);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        document.body.appendChild(renderer.domElement);
-
-        // --- ASSETS GENERATION ---
-        
-        // Road Texture
-        function createRoadTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512; canvas.height = 512;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#1a1a1a'; // Asphalt
-            ctx.fillRect(0,0,512,512);
-            
-            // White Dashes
-            ctx.fillStyle = '#555'; 
-            ctx.fillRect(250, 0, 12, 512); // Center line
-            
-            const tex = new THREE.CanvasTexture(canvas);
-            tex.wrapS = THREE.RepeatWrapping;
-            tex.wrapT = THREE.RepeatWrapping;
-            tex.repeat.set(40, 40);
-            return tex;
-        }
-
-        // Building Texture
-        function createBuildingTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 64; canvas.height = 128;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#222';
-            ctx.fillRect(0,0,64,128);
-            ctx.fillStyle = '#ffcc00'; // Lit Window
-            // Draw random windows
-            for(let i=0; i<10; i++) {
-                if(Math.random()>0.3) ctx.fillRect(Math.random()*50, Math.random()*110, 8, 12);
+        // --- 2. ASSETS & TEXTURES ---
+        function getAsphaltTexture() {
+            const c = document.createElement('canvas'); c.width=512; c.height=512;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#222'; ctx.fillRect(0,0,512,512);
+            for(let i=0; i<5000; i++) {
+                ctx.fillStyle = Math.random()>0.5 ? '#333' : '#111';
+                ctx.fillRect(Math.random()*512, Math.random()*512, 2, 2);
             }
-            return new THREE.CanvasTexture(canvas);
+            return new THREE.CanvasTexture(c);
         }
 
+        function getBuildingTexture() {
+            const c = document.createElement('canvas'); c.width=128; c.height=256;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#444'; ctx.fillRect(0,0,128,256);
+            ctx.fillStyle = '#111'; 
+            for(let y=10; y<240; y+=30) {
+                for(let x=10; x<110; x+=25) {
+                    if(Math.random()>0.4) ctx.fillStyle = `rgb(${200+Math.random()*55}, ${200+Math.random()*55}, 100)`;
+                    else ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(x, y, 15, 20);
+                }
+            }
+            return new THREE.CanvasTexture(c);
+        }
 
-        // --- WORLD ---
-        
-        // Ground with Road
-        const groundGeo = new THREE.PlaneGeometry(800, 800);
-        const groundMat = new THREE.MeshStandardMaterial({ map: createRoadTexture() });
-        const ground = new THREE.Mesh(groundGeo, groundMat);
-        ground.rotation.x = -Math.PI / 2;
-        ground.receiveShadow = true;
-        scene.add(ground);
+        // --- 3. SCENE SETUP ---
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB);
+            scene.fog = new THREE.FogExp2(0x87CEEB, 0.008);
 
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-        scene.add(ambientLight);
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 600);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.body.appendChild(renderer.domElement);
 
-        // Moon/Street Light
-        const dirLight = new THREE.DirectionalLight(0xaaccff, 0.5);
-        dirLight.position.set(-50, 100, -50);
-        dirLight.castShadow = true;
-        dirLight.shadow.mapSize.width = 2048;
-        dirLight.shadow.mapSize.height = 2048;
-        dirLight.shadow.camera.left = -100;
-        dirLight.shadow.camera.right = 100;
-        dirLight.shadow.camera.top = 100;
-        dirLight.shadow.camera.bottom = -100;
-        scene.add(dirLight);
+            // Lighting
+            ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
 
-        // Physics Lists
-        const colliders = [];
-        const trafficCars = [];
+            sunLight = new THREE.DirectionalLight(0xffddaa, 1.5);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.set(2048, 2048);
+            sunLight.shadow.camera.left = -200; sunLight.shadow.camera.right = 200;
+            sunLight.shadow.camera.top = 200; sunLight.shadow.camera.bottom = -200;
+            scene.add(sunLight);
 
-        // City Generation (Grid based for roads)
-        const buildingGeo = new THREE.BoxGeometry(1,1,1);
-        const buildingMat = new THREE.MeshStandardMaterial({ map: createBuildingTexture(), color: 0x888888 });
+            // Ground
+            const ground = new THREE.Mesh(
+                new THREE.PlaneGeometry(worldSize*3, worldSize*3),
+                new THREE.MeshStandardMaterial({ color: 0x1a1a1a })
+            );
+            ground.rotation.x = -Math.PI/2;
+            ground.position.y = -0.1;
+            scene.add(ground);
 
-        const blockSize = 30; // Space between roads
-        const streetWidth = 10;
+            debrisGroup = new THREE.Group();
+            scene.add(debrisGroup);
 
-        for(let x = -200; x <= 200; x += blockSize) {
-            for(let z = -200; z <= 200; z += blockSize) {
-                // Don't build on 0,0 (Player spawn)
-                if(Math.abs(x) < 20 && Math.abs(z) < 20) continue;
+            buildCity();
+            createPlayer();
+            spawnTraffic(25);
 
-                // 80% chance of building
-                if(Math.random() > 0.2) {
-                    const h = 10 + Math.random() * 30;
-                    const w = blockSize - streetWidth;
-                    
-                    const building = new THREE.Mesh(buildingGeo, buildingMat);
-                    building.position.set(x, h/2, z);
-                    building.scale.set(w, h, w);
-                    building.castShadow = true;
-                    building.receiveShadow = true;
-                    scene.add(building);
+            window.addEventListener('resize', onWindowResize, false);
+        }
 
-                    // Collider
-                    const box = new THREE.Box3().setFromObject(building);
-                    colliders.push(box);
+        function registerDestructible(mesh, type) {
+            const box = new THREE.Box3().setFromObject(mesh);
+            destructibles.push({ mesh: mesh, box: box, type: type, active: true });
+        }
+
+        function buildCity() {
+            cityGroup = new THREE.Group();
+            const blockSize = 50;
+            const roadMat = new THREE.MeshStandardMaterial({ map: getAsphaltTexture(), roughness: 0.8 });
+            const buildingMat = new THREE.MeshStandardMaterial({ map: getBuildingTexture() });
+
+            // Grid
+            for(let x = -200; x <= 200; x += blockSize) {
+                // Roads
+                const roadZ = new THREE.Mesh(new THREE.PlaneGeometry(14, worldSize*2), roadMat);
+                roadZ.rotation.x = -Math.PI/2; roadZ.position.set(x, 0.01, 0); roadZ.receiveShadow=true;
+                cityGroup.add(roadZ);
+                
+                const roadX = new THREE.Mesh(new THREE.PlaneGeometry(worldSize*2, 14), roadMat);
+                roadX.rotation.x = -Math.PI/2; roadX.position.set(0, 0.01, x); roadX.receiveShadow=true;
+                cityGroup.add(roadX);
+
+                for(let z = -200; z <= 200; z += blockSize) {
+                    const bx = x + (blockSize/2);
+                    const bz = z + (blockSize/2);
+                    if(Math.abs(bx) < 40 && Math.abs(bz) < 40) continue;
+
+                    // Sidewalk (Indestructible base)
+                    const sw = new THREE.Mesh(new THREE.BoxGeometry(36, 0.5, 36), new THREE.MeshStandardMaterial({color:0x555}));
+                    sw.position.set(bx, 0.25, bz); sw.receiveShadow=true;
+                    cityGroup.add(sw);
+                    // Add sidewalk to collision (but tag as indestructible)
+                    registerDestructible(sw, 'sidewalk');
+
+                    // Contents
+                    if(Math.random() > 0.2) {
+                        // Building
+                        const h = 10 + Math.random() * 40;
+                        const building = new THREE.Mesh(
+                            new THREE.BoxGeometry(34, h, 34),
+                            buildingMat
+                        );
+                        building.position.set(bx, 0.5 + h/2, bz);
+                        building.castShadow = true; building.receiveShadow = true;
+                        cityGroup.add(building);
+                        registerDestructible(building, 'building');
+                        
+                        // Streetlight
+                        createStreetLight(bx - 18, bz - 18);
+                    } else {
+                        // Tree
+                        const tree = new THREE.Mesh(
+                            new THREE.ConeGeometry(3, 8, 8),
+                            new THREE.MeshStandardMaterial({color: 0x004400})
+                        );
+                        tree.position.set(bx, 4, bz);
+                        tree.castShadow = true;
+                        cityGroup.add(tree);
+                        registerDestructible(tree, 'tree');
+                    }
+                }
+            }
+            scene.add(cityGroup);
+        }
+
+        function createStreetLight(x, z) {
+            const pole = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.2, 0.2, 8),
+                new THREE.MeshStandardMaterial({color: 0x111})
+            );
+            pole.position.set(x, 4, z);
+            cityGroup.add(pole);
+            registerDestructible(pole, 'pole');
+
+            const spot = new THREE.SpotLight(0xffaa00, 0, 40, 0.6, 0.5, 1);
+            spot.position.set(x, 8, z);
+            spot.target.position.set(x + 5, 0, z + 5);
+            cityGroup.add(spot);
+            cityGroup.add(spot.target);
+            streetLights.push(spot);
+        }
+
+        // --- 4. PLAYER & NITRO ---
+        function createCarMesh(color, isPlayer = false) {
+            const group = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.BoxGeometry(2, 0.8, 4), new THREE.MeshStandardMaterial({ color: color, metalness: 0.6 }));
+            body.position.y = 0.8; body.castShadow = true; group.add(body);
+            
+            const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.7, 2.2), new THREE.MeshStandardMaterial({ color: 0x333 }));
+            cabin.position.set(0, 1.5, -0.2); group.add(cabin);
+            
+            // Wheels
+            const wGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 12);
+            const wMat = new THREE.MeshStandardMaterial({ color: 0x111 });
+            [[1,1.2],[-1,1.2],[1,-1.2],[-1,-1.2]].forEach(p=>{
+                const w = new THREE.Mesh(wGeo, wMat);
+                w.rotation.z = Math.PI/2; w.position.set(p[0], 0.4, p[1]); group.add(w);
+            });
+
+            if(isPlayer) {
+                // Headlights
+                const hl = new THREE.SpotLight(0xffffff, 0, 60, 0.5, 0.5, 1);
+                hl.position.set(0, 1, 2); hl.target.position.set(0, 0.5, 15);
+                group.add(hl); group.add(hl.target);
+                group.userData.headlight = hl;
+                
+                // Nitro Flames (Hidden by default)
+                const flameGeo = new THREE.ConeGeometry(0.3, 1, 6);
+                const flameMat = new THREE.MeshBasicMaterial({ color: 0x00aaff });
+                const f1 = new THREE.Mesh(flameGeo, flameMat);
+                f1.rotation.x = Math.PI/2; f1.position.set(0.5, 0.5, -2.5); f1.visible = false;
+                const f2 = f1.clone();
+                f2.position.set(-0.5, 0.5, -2.5);
+                group.add(f1); group.add(f2);
+                group.userData.flames = [f1, f2];
+            }
+            return group;
+        }
+
+        function createPlayer() {
+            player = createCarMesh(0x0088ff, true);
+            scene.add(player);
+        }
+
+        function spawnTraffic(count) {
+            trafficGroup = new THREE.Group();
+            const colors = [0xff0000, 0xffaa00, 0xcccccc, 0x222222];
+            for(let i=0; i<count; i++) {
+                const car = createCarMesh(colors[Math.floor(Math.random()*colors.length)]);
+                const isX = Math.random() > 0.5;
+                const laneOffset = 3.5;
+                const gridLine = Math.floor((Math.random() * 8) - 4) * 50; 
+                const dir = Math.random() > 0.5 ? 1 : -1;
+
+                if(isX) {
+                    car.position.set( (Math.random()*400)-200, 0, gridLine + (laneOffset * dir) );
+                    car.rotation.y = dir === 1 ? Math.PI/2 : -Math.PI/2;
                 } else {
-                    // It's a park/empty lot - add a tree
-                    const treeGeo = new THREE.ConeGeometry(2, 6, 6);
-                    const treeMat = new THREE.MeshStandardMaterial({color: 0x006400});
-                    const tree = new THREE.Mesh(treeGeo, treeMat);
-                    tree.position.set(x, 3, z);
-                    scene.add(tree);
-                    const box = new THREE.Box3().setFromObject(tree);
-                    colliders.push(box);
+                    car.position.set( gridLine - (laneOffset * dir), 0, (Math.random()*400)-200 );
+                    car.rotation.y = dir === 1 ? 0 : Math.PI;
+                }
+                car.userData = { speed: 0.4 + Math.random()*0.4, dir: dir, axis: isX?'x':'z', type: 'traffic' };
+                trafficGroup.add(car);
+                
+                // Register traffic collision
+                registerDestructible(car, 'traffic');
+            }
+            scene.add(trafficGroup);
+        }
+
+        // --- 5. DESTRUCTION SYSTEM ---
+        function createExplosion(position, color) {
+            const particleCount = 8;
+            const geo = new THREE.BoxGeometry(1,1,1); // Debris chunks
+            const mat = new THREE.MeshBasicMaterial({ color: color });
+            
+            for(let i=0; i<particleCount; i++) {
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.copy(position);
+                
+                // Random spread
+                mesh.position.x += (Math.random() - 0.5) * 3;
+                mesh.position.y += Math.random() * 5;
+                mesh.position.z += (Math.random() - 0.5) * 3;
+                
+                // Velocity data
+                mesh.userData.vel = new THREE.Vector3(
+                    (Math.random()-0.5),
+                    Math.random() * 0.5 + 0.2, // Upward pop
+                    (Math.random()-0.5)
+                );
+                
+                debrisGroup.add(mesh);
+                particles.push(mesh);
+            }
+            playExplosionSound();
+        }
+
+        function updateParticles() {
+            for(let i=particles.length-1; i>=0; i--) {
+                const p = particles[i];
+                p.position.add(p.userData.vel);
+                p.userData.vel.y -= 0.02; // Gravity
+                p.rotation.x += 0.1; p.rotation.z += 0.1;
+                
+                // Floor check
+                if(p.position.y < -5) {
+                    debrisGroup.remove(p);
+                    particles.splice(i, 1);
                 }
             }
         }
 
-
-        // --- PLAYER CAR ---
-        const carContainer = new THREE.Group();
-        
-        // Body
-        const chassis = new THREE.Mesh(
-            new THREE.BoxGeometry(2, 0.8, 4),
-            new THREE.MeshStandardMaterial({ color: 0x0077ff, metalness: 0.7, roughness: 0.2 })
-        );
-        chassis.position.y = 0.9;
-        chassis.castShadow = true;
-        carContainer.add(chassis);
-
-        // Roof
-        const roof = new THREE.Mesh(
-            new THREE.BoxGeometry(1.7, 0.6, 2),
-            new THREE.MeshStandardMaterial({ color: 0x111 })
-        );
-        roof.position.set(0, 1.6, -0.2);
-        carContainer.add(roof);
-
-        // Tail Lights (Emissive)
-        const tailLightGeo = new THREE.BoxGeometry(0.4, 0.2, 0.1);
-        const tailLightMat = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 2 });
-        const tl1 = new THREE.Mesh(tailLightGeo, tailLightMat);
-        tl1.position.set(0.6, 1, 2.0);
-        carContainer.add(tl1);
-        const tl2 = new THREE.Mesh(tailLightGeo, tailLightMat);
-        tl2.position.set(-0.6, 1, 2.0);
-        carContainer.add(tl2);
-
-        // Headlights
-        const headLightSpot = new THREE.SpotLight(0xffffff, 4, 60, 0.6, 0.5, 1);
-        headLightSpot.position.set(0, 1, -1.8);
-        headLightSpot.target.position.set(0, 0, -20);
-        carContainer.add(headLightSpot);
-        carContainer.add(headLightSpot.target);
-
-        scene.add(carContainer);
-
-
-        // --- TRAFFIC SYSTEM ---
-        const npcGeo = new THREE.BoxGeometry(2, 1, 4);
-        const npcMat = new THREE.MeshStandardMaterial({ color: 0xffaa00 }); // Yellow Taxi
-
-        function spawnTraffic(count) {
-            for(let i=0; i<count; i++) {
-                const npc = new THREE.Mesh(npcGeo, npcMat);
-                // Pick random road line
-                const isX = Math.random() > 0.5;
-                const lane = (Math.floor(Math.random() * 10) - 5) * blockSize;
-                
-                npc.position.set(
-                    isX ? (Math.random()*400 - 200) : lane, 
-                    0.5, 
-                    isX ? lane : (Math.random()*400 - 200)
-                );
-                
-                // Store direction and axis
-                npc.userData = { 
-                    axis: isX ? 'x' : 'z', 
-                    speed: (Math.random() * 0.3) + 0.1,
-                    direction: Math.random() > 0.5 ? 1 : -1 
-                };
-                
-                if(npc.userData.axis === 'z') npc.rotation.y = npc.userData.direction === 1 ? 0 : Math.PI;
-                if(npc.userData.axis === 'x') npc.rotation.y = npc.userData.direction === 1 ? Math.PI/2 : -Math.PI/2;
-
-                scene.add(npc);
-                trafficCars.push(npc);
-            }
-        }
-        spawnTraffic(15);
-
-
-        // --- INPUT HANDLING ---
-        // State
-        const input = { 
-            up: false, down: false, left: false, right: false, drift: false 
-        };
-
-        // Keyboard
-        document.addEventListener('keydown', (e) => {
-            const k = e.key.toLowerCase();
-            const code = e.code;
-            
-            if (code === 'KeyW' || k === 'arrowup') input.up = true;
-            if (code === 'KeyS' || k === 'arrowdown') input.down = true;
-            if (code === 'KeyA' || k === 'arrowleft') input.left = true;
-            if (code === 'KeyD' || k === 'arrowright') input.right = true;
-            if (code === 'Space') input.drift = true;
-        });
-
-        document.addEventListener('keyup', (e) => {
-            const k = e.key.toLowerCase();
-            const code = e.code;
-
-            if (code === 'KeyW' || k === 'arrowup') input.up = false;
-            if (code === 'KeyS' || k === 'arrowdown') input.down = false;
-            if (code === 'KeyA' || k === 'arrowleft') input.left = false;
-            if (code === 'KeyD' || k === 'arrowright') input.right = false;
-            if (code === 'Space') input.drift = false;
-        });
-
-        // Touch (Mobile)
-        function setupTouch(id, key) {
-            const btn = document.getElementById(id);
-            btn.addEventListener('touchstart', (e) => { e.preventDefault(); input[key] = true; });
-            btn.addEventListener('touchend', (e) => { e.preventDefault(); input[key] = false; });
-        }
-        setupTouch('btn-gas', 'up');
-        setupTouch('btn-brake', 'down');
-        setupTouch('btn-left', 'left');
-        setupTouch('btn-right', 'right');
-
-
-        // --- GAME LOOP ---
+        // --- 6. GAME LOGIC ---
         let speed = 0;
         let steering = 0;
-        const maxSpeed = 1.2;
-        const acceleration = 0.02;
-        const friction = 0.97;
-        const turnSpeed = 0.04;
-        const playerBox = new THREE.Box3();
+        const keys = { w:0, a:0, s:0, d:0, drift:0, nitro:0 };
 
-        // Make start function global
-        window.startGame = function() {
-            document.getElementById('start-screen').style.display = 'none';
-            initAudio();
-            gameActive = true;
-            animate();
-        };
+        function updateDayNightCycle() {
+            gameTime += 0.005 * timeSpeed;
+            if(gameTime >= 24) gameTime = 0;
+            const h = Math.floor(gameTime);
+            const m = Math.floor((gameTime - h) * 60);
+            document.getElementById('time-display').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
 
-        function checkCollisions() {
-            // Player vs Buildings
-            playerBox.setFromObject(chassis);
-            
-            for(let box of colliders) {
-                if(playerBox.intersectsBox(box)) return true;
+            const isNight = (gameTime > 19 || gameTime < 6);
+            let skyColor;
+            if (gameTime > 6 && gameTime < 18) skyColor = new THREE.Color(0x87CEEB); 
+            else if (gameTime >= 18 && gameTime < 20) skyColor = new THREE.Color(0xff8c00); 
+            else skyColor = new THREE.Color(0x050510); 
+
+            scene.background.lerp(skyColor, 0.05);
+            scene.fog.color.copy(scene.background);
+
+            const angle = (gameTime / 24) * Math.PI * 2;
+            sunLight.position.set(Math.sin(angle)*200, Math.cos(angle)*200, 50);
+
+            if(isNight) {
+                sunLight.intensity = Math.max(0, sunLight.intensity - 0.05);
+                ambientLight.intensity = 0.1;
+                streetLights.forEach(l => l.intensity = 2);
+                if(player.userData.headlight) player.userData.headlight.intensity = 3;
+            } else {
+                sunLight.intensity = Math.min(1.5, sunLight.intensity + 0.05);
+                ambientLight.intensity = 0.5;
+                streetLights.forEach(l => l.intensity = 0);
+                if(player.userData.headlight) player.userData.headlight.intensity = 0;
             }
-
-            // Player vs Traffic
-            for(let npc of trafficCars) {
-                const npcBox = new THREE.Box3().setFromObject(npc);
-                if(playerBox.intersectsBox(npcBox)) return true;
-            }
-            return false;
         }
 
-        function updateTraffic() {
-            trafficCars.forEach(npc => {
-                const move = npc.userData.speed * npc.userData.direction;
-                if(npc.userData.axis === 'x') npc.position.x += move;
-                else npc.position.z += move;
+        function checkCollision() {
+            // Update player box
+            const pBox = new THREE.Box3().setFromObject(player);
+            pBox.expandByScalar(-0.5); // make hitbox slightly smaller than car
 
-                // Loop around world
-                if(npc.position.x > 220) npc.position.x = -220;
-                if(npc.position.x < -220) npc.position.x = 220;
-                if(npc.position.z > 220) npc.position.z = -220;
-                if(npc.position.z < -220) npc.position.z = 220;
-            });
+            // Check dynamic traffic first
+            for(let i=destructibles.length-1; i>=0; i--) {
+                const item = destructibles[i];
+                if(!item.active) continue;
+
+                // Update box if it's a moving traffic car
+                if(item.type === 'traffic') item.box.setFromObject(item.mesh);
+
+                if(pBox.intersectsBox(item.box)) {
+                    
+                    if(item.type === 'sidewalk') {
+                        // Indestructible - just bounce
+                        return true; 
+                    } 
+                    else {
+                        // DESTROY IT
+                        item.active = false;
+                        item.mesh.visible = false;
+                        
+                        // Move it far away (hacky delete)
+                        item.mesh.position.y = -1000;
+                        
+                        let color = 0x888888;
+                        if(item.type === 'traffic') color = 0xffaa00;
+                        if(item.type === 'tree') color = 0x006400;
+                        if(item.type === 'pole') color = 0x222222;
+                        
+                        createExplosion(player.position.clone().add(new THREE.Vector3(0,2,5)), color);
+                        
+                        // Don't bounce off destroyed items, just slow down slightly
+                        speed *= 0.8;
+                        return false; 
+                    }
+                }
+            }
+            return false;
         }
 
         function animate() {
             if(!gameActive) return;
             requestAnimationFrame(animate);
 
-            // 1. Controls
-            if (input.up) speed -= acceleration; // -Z is forward in this model rotation
-            if (input.down) speed += acceleration;
-            speed *= friction;
+            updateDayNightCycle();
+            updateParticles();
+
+            // NITRO LOGIC
+            const isNitro = keys.nitro && speed > 0.2;
+            const topSpeed = isNitro ? 2.5 : 1.2;
+            const accel = isNitro ? 0.06 : 0.03;
             
-            // Audio Pitch
-            updateEngineSound(speed);
+            // Visual FX for Nitro
+            if(isNitro) {
+                camera.fov = THREE.MathUtils.lerp(camera.fov, 85, 0.1);
+                player.userData.flames.forEach(f => f.visible = true);
+                document.getElementById('speed-gauge').classList.add('nitro-active');
+            } else {
+                camera.fov = THREE.MathUtils.lerp(camera.fov, 60, 0.1);
+                player.userData.flames.forEach(f => f.visible = false);
+                document.getElementById('speed-gauge').classList.remove('nitro-active');
+            }
+            camera.updateProjectionMatrix();
 
-            if (Math.abs(speed) > 0.01) {
-                const dir = speed > 0 ? -1 : 1;
-                if (input.left) steering += turnSpeed * dir;
-                if (input.right) steering -= turnSpeed * dir;
+            // Physics
+            if(keys.w) speed += accel;
+            if(keys.s) speed -= 0.02;
+            speed *= 0.97; // Drag
+
+            if(Math.abs(speed) > 0.01) {
+                const dir = speed > 0 ? 1 : -1;
+                if(keys.a) steering += 0.04 * dir;
+                if(keys.d) steering -= 0.04 * dir;
+            }
+            
+            const prevPos = player.position.clone();
+            player.rotation.y = steering;
+            player.translateZ(speed);
+
+            if(checkCollision()) {
+                player.position.copy(prevPos);
+                speed = -speed * 0.5;
             }
 
-            // 2. Physics Movement
-            const prevX = carContainer.position.x;
-            const prevZ = carContainer.position.z;
-
-            carContainer.rotation.y = steering;
-            carContainer.position.x += Math.sin(steering) * speed;
-            carContainer.position.z += Math.cos(steering) * speed;
-
-            // 3. Collision Check
-            if(checkCollisions()) {
-                playCrashSound();
-                carContainer.position.x = prevX;
-                carContainer.position.z = prevZ;
-                speed = -speed * 0.5; // Bounce
-            }
-
-            // 4. Update NPC
-            updateTraffic();
-
-            // 5. Camera Follow
-            const camOffset = new THREE.Vector3(0, 8, 15); // Behind and up
-            camOffset.applyMatrix4(carContainer.matrixWorld);
+            // Camera Follow
+            const camOffset = new THREE.Vector3(0, 5, -10);
+            camOffset.applyMatrix4(player.matrixWorld);
             camera.position.lerp(camOffset, 0.1);
-            camera.lookAt(carContainer.position);
+            camera.lookAt(player.position);
 
+            // Traffic Movement
+            trafficGroup.children.forEach(car => {
+                if(car.position.y < -500) return; // Destroyed
+                const move = car.userData.speed;
+                car.translateZ(move);
+                // Wrap
+                if(Math.abs(car.position.x) > 250 || Math.abs(car.position.z) > 250) {
+                    car.position.negate();
+                    car.position.y = 0;
+                }
+            });
+
+            updateAudio(speed, isNitro);
+            document.getElementById('speed-display').innerText = Math.floor(Math.abs(speed)*100);
             renderer.render(scene, camera);
         }
 
-        // Resize handler
-        window.addEventListener('resize', () => {
+        // --- INPUTS ---
+        window.addEventListener('keydown', e => {
+            const k = e.key.toLowerCase();
+            if(k==='w' || k==='arrowup') keys.w = 1;
+            if(k==='s' || k==='arrowdown') keys.s = 1;
+            if(k==='a' || k==='arrowleft') keys.a = 1;
+            if(k==='d' || k==='arrowright') keys.d = 1;
+            if(e.key === 'Shift') keys.nitro = 1;
+        });
+        window.addEventListener('keyup', e => {
+            const k = e.key.toLowerCase();
+            if(k==='w' || k==='arrowup') keys.w = 0;
+            if(k==='s' || k==='arrowdown') keys.s = 0;
+            if(k==='a' || k==='arrowleft') keys.a = 0;
+            if(k==='d' || k==='arrowright') keys.d = 0;
+            if(e.key === 'Shift') keys.nitro = 0;
+        });
+
+        function bindTouch(id, key) {
+            const el = document.getElementById(id);
+            if(!el) return;
+            el.addEventListener('touchstart', e=>{ e.preventDefault(); keys[key]=1; });
+            el.addEventListener('touchend', e=>{ e.preventDefault(); keys[key]=0; });
+        }
+        bindTouch('t-up', 'w'); bindTouch('t-down', 's');
+        bindTouch('t-left', 'a'); bindTouch('t-right', 'd');
+        bindTouch('t-nitro', 'nitro');
+
+        function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        }
 
+        window.startGame = function() {
+            document.getElementById('start-screen').style.display = 'none';
+            gameActive = true;
+            initAudio();
+            init();
+            animate();
+        };
     </script>
 </body>
 </html>
