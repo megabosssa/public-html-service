@@ -31,6 +31,10 @@ Test delayed responses using the public `httpstat.us` service. For example:
 Use the page below to experiment with different delays:
 - [Timeout Simulator](https://megabosssa.github.io/public-html-service/timeout-simulator.html)
 
+## JWT Debugger
+Decode and inspect JSON Web Tokens (JWTs) without sending them to a server:
+- [JWT Debugger](https://megabosssa.github.io/public-html-service/jwt-debugger.html)
+
 ## Generic Currency Converter
 Another instance of the currency conversion service:
 - [Generic Currency Converter](https://megabosssa.github.io/public-html-service/rate-conversion.html)
