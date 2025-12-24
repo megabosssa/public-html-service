@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Snake</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'VT323', monospace;
+            user-select: none;
+        }
+
+        .phone {
+            background-color: #333;
+            width: 320px;
+            height: 600px;
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3), inset 0 0 10px rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .phone::before {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 10px;
+            background: #222;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .screen-container {
+            background-color: #9fac93; /* Nokia greenish background */
+            width: 260px;
+            height: 260px;
+            border: 8px solid #222;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        canvas {
+            image-rendering: pixelated;
+            width: 240px;
+            height: 240px;
+        }
+
+        .controls {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        .btn {
+            background: linear-gradient(145deg, #444, #333);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #111, 0 8px 10px rgba(0,0,0,0.3);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #111, inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .btn-menu {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .btn-small {
+            width: 80px;
+            height: 40px;
+            border-radius: 20px;
+            font-size: 16px;
+        }
+
+        .d-pad-row {
+            display: flex;
+            justify-content: center;
+            grid-column: 1 / -1;
+        }
+
+        .score-board {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            font-size: 20px;
+            color: #333;
+            z-index: 10;
+        }
+
+        .game-over-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(159, 172, 147, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            display: none;
+        }
+
+        .game-over-overlay h2 {
+            margin: 0;
+            font-size: 40px;
+            color: #333;
+        }
+
+        .game-over-overlay p {
+            margin: 10px 0;
+            font-size: 24px;
+            color: #333;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="phone">
+    <div class="screen-container">
+        <div class="score-board">Score: <span id="score">0</span></div>
+        <canvas id="gameCanvas" width="240" height="240"></canvas>
+        <div id="gameOver" class="game-over-overlay">
+            <h2>GAME OVER</h2>
+            <p>Score: <span id="finalScore">0</span></p>
+            <p style="font-size: 18px; margin-top: 20px;">Press Start</p>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="btn-menu">
+            <button class="btn btn-small" id="btnStart" onclick="startGame()">START</button>
+            <button class="btn btn-small" id="btnReset" onclick="resetGame()">RESET</button>
+        </div>
+
+        <div class="d-pad-row">
+            <button class="btn" id="btnUp" onclick="changeDirection('UP')">▲</button>
+        </div>
+        <div class="d-pad-row" style="gap: 60px;">
+            <button class="btn" id="btnLeft" onclick="changeDirection('LEFT')">◀</button>
+            <button class="btn" id="btnRight" onclick="changeDirection('RIGHT')">▶</button>
+        </div>
+        <div class="d-pad-row">
+            <button class="btn" id="btnDown" onclick="changeDirection('DOWN')">▼</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreElement = document.getElementById('score');
+    const finalScoreElement = document.getElementById('finalScore');
+    const gameOverOverlay = document.getElementById('gameOver');
+
+    const gridSize = 12; // Size of each square (pixelated look)
+    const tileCount = canvas.width / gridSize;
+
+    let score = 0;
+    let velocityX = 0;
+    let velocityY = 0;
+    let playerX = 10;
+    let playerY = 10;
+    let appleX = 15;
+    let appleY = 15;
+    let trail = [];
+    let tail = 5;
+    let gameInterval;
+    let isGameRunning = false;
+    let isGameOver = false;
+
+    // Load high score from local storage
+    let highScore = localStorage.getItem('snakeHighScore') || 0;
+
+    function gameLoop() {
+        if (!isGameRunning) return;
+
+        playerX += velocityX;
+        playerY += velocityY;
+
+        // Wrap around logic (classic Nokia style often had walls, but wrap is also fun.
+        // Let's stick to walls = death for authentic feel, or wrap?
+        // Nokia Snake II had wrap walls option. Original Snake had walls.
+        // Let's go with Walls = Death for challenge.)
+        if (playerX < 0 || playerX >= tileCount || playerY < 0 || playerY >= tileCount) {
+            endGame();
+            return;
+        }
+
+        // Background
+        ctx.fillStyle = '#9fac93';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Apple
+        ctx.fillStyle = '#333';
+        // Draw apple as a pixelated circle/box
+        ctx.fillRect(appleX * gridSize, appleY * gridSize, gridSize - 2, gridSize - 2);
+
+        // Snake
+        ctx.fillStyle = '#000';
+        for (let i = 0; i < trail.length; i++) {
+            ctx.fillRect(trail[i].x * gridSize, trail[i].y * gridSize, gridSize - 2, gridSize - 2);
+
+            // Self collision
+            if (trail[i].x === playerX && trail[i].y === playerY && tail > 5) { // tail check prevents instant death on start
+                 endGame();
+                 return;
+            }
+        }
+
+        trail.push({ x: playerX, y: playerY });
+        while (trail.length > tail) {
+            trail.shift();
+        }
+
+        // Eat Apple
+        if (appleX === playerX && appleY === playerY) {
+            tail++;
+            score += 10;
+            scoreElement.innerText = score;
+            placeApple();
+        }
+    }
+
+    function placeApple() {
+        appleX = Math.floor(Math.random() * tileCount);
+        appleY = Math.floor(Math.random() * tileCount);
+
+        // Ensure apple doesn't spawn on snake body
+        for (let t of trail) {
+            if (t.x === appleX && t.y === appleY) {
+                placeApple();
+                break;
+            }
+        }
+    }
+
+    function changeDirection(dir) {
+        if (!isGameRunning && !isGameOver && dir !== '') {
+             // Start game on first move if not running
+             startGame();
+        }
+
+        switch(dir) {
+            case 'LEFT':
+                if (velocityX !== 1) { velocityX = -1; velocityY = 0; }
+                break;
+            case 'UP':
+                if (velocityY !== 1) { velocityX = 0; velocityY = -1; }
+                break;
+            case 'RIGHT':
+                if (velocityX !== -1) { velocityX = 1; velocityY = 0; }
+                break;
+            case 'DOWN':
+                if (velocityY !== -1) { velocityX = 0; velocityY = 1; }
+                break;
+        }
+    }
+
+    function startGame() {
+        if (isGameRunning) return;
+
+        isGameRunning = true;
+        isGameOver = false;
+        gameOverOverlay.style.display = 'none';
+
+        // Reset state if coming from game over
+        if (tail === 5 && score === 0 && playerX === 10) {
+             // initial state, do nothing specific
+        } else {
+             // reset
+             resetGameVariables();
+        }
+
+        // Start moving right by default if stationary
+        if (velocityX === 0 && velocityY === 0) {
+            velocityX = 1;
+            velocityY = 0;
+        }
+
+        if (gameInterval) clearInterval(gameInterval);
+        gameInterval = setInterval(gameLoop, 1000 / 10); // 10 FPS (Classic feel)
+    }
+
+    function resetGameVariables() {
+        playerX = 10;
+        playerY = 10;
+        velocityX = 0;
+        velocityY = 0;
+        trail = [];
+        tail = 5;
+        score = 0;
+        scoreElement.innerText = score;
+        placeApple();
+    }
+
+    function resetGame() {
+        isGameRunning = false;
+        isGameOver = false;
+        clearInterval(gameInterval);
+        resetGameVariables();
+        gameOverOverlay.style.display = 'none';
+
+        // Clear screen
+        ctx.fillStyle = '#9fac93';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw initial snake
+        ctx.fillStyle = '#000';
+        ctx.fillRect(playerX * gridSize, playerY * gridSize, gridSize - 2, gridSize - 2);
+    }
+
+    function endGame() {
+        isGameRunning = false;
+        isGameOver = true;
+        clearInterval(gameInterval);
+        finalScoreElement.innerText = score;
+        gameOverOverlay.style.display = 'flex';
+
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('snakeHighScore', highScore);
+        }
+    }
+
+    // Keyboard controls
+    document.addEventListener('keydown', keyPush);
+    function keyPush(evt) {
+        switch(evt.key) {
+            case 'ArrowLeft': changeDirection('LEFT'); break;
+            case 'ArrowUp': changeDirection('UP'); break;
+            case 'ArrowRight': changeDirection('RIGHT'); break;
+            case 'ArrowDown': changeDirection('DOWN'); break;
+        }
+    }
+
+    // Initial draw
+    resetGame();
+
+</script>
+
+</body>
+</html>
