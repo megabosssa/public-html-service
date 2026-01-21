@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Link Tester</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 20px; text-align: center; background-color: #f4f4f9; }
+        .container { background: white; max-width: 500px; margin: 0 auto; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; }
+        button { background-color: #007bff; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; }
+        button:active { background-color: #0056b3; }
+        .log-box { margin-top: 20px; text-align: left; background: #333; color: #0f0; padding: 10px; border-radius: 6px; height: 150px; overflow-y: scroll; font-family: monospace; font-size: 12px; }
+        label { font-weight: bold; display: block; text-align: left; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Deep Link Logic Tester</h2>
+    
+    <label for="deeplink">Deep Link (App Scheme)</label>
+    <input type="text" id="deeplink" value="youtube://">
+
+    <label for="store">Fallback Store URL</label>
+    <input type="text" id="store" value="https://www.youtube.com">
+
+    <label for="timeout">Timeout (ms)</label>
+    <input type="number" id="timeout" value="2000">
+
+    <button onclick="tryDeepLink()">🚀 Launch App</button>
+
+    <div class="log-box" id="logger">
+        > Ready to test...<br>
+    </div>
+</div>
+
+<script>
+    function log(message) {
+        const logger = document.getElementById('logger');
+        const time = new Date().toLocaleTimeString();
+        logger.innerHTML += `[${time}] ${message}<br>`;
+        logger.scrollTop = logger.scrollHeight;
+        console.log(message);
+    }
+
+    function tryDeepLink() {
+        const deeplinkUrl = document.getElementById('deeplink').value;
+        const storeUrl = document.getElementById('store').value;
+        const timeoutMs = parseInt(document.getElementById('timeout').value);
+
+        log(`--- Starting Test ---`);
+        log(`Trying to open: ${deeplinkUrl}`);
+        
+        const start = Date.now();
+        let appOpened = false;
+
+        // 1. Event Listeners to detect if user left the browser (App opened)
+        // 'visibilitychange' is generally more reliable on modern mobile browsers
+        const onVisibilityChange = () => {
+            if (document.hidden) {
+                appOpened = true;
+                log(`Event: Visibility changed to hidden (App likely opened)`);
+            }
+        };
+
+        // 'blur' is a backup for older browsers
+        const onBlur = () => {
+            appOpened = true;
+            log(`Event: Window blurred (App likely opened)`);
+        };
+
+        document.addEventListener("visibilitychange", onVisibilityChange);
+        window.addEventListener("blur", onBlur);
+
+        // 2. Attempt to open the Deep Link
+        window.location.href = deeplinkUrl;
+
+        // 3. Set the Fallback Timer
+        setTimeout(() => {
+            // Clean up listeners so they don't fire later unexpectedly
+            document.removeEventListener("visibilitychange", onVisibilityChange);
+            window.removeEventListener("blur", onBlur);
+
+            // Calculate exact time elapsed (to detect if thread froze)
+            const elapsed = Date.now() - start;
+            log(`Timer fired after ${elapsed}ms`);
+
+            // Logic:
+            // If appOpened is true, the user left the browser -> Do nothing.
+            // If the thread was frozen (elapsed time >> timeout + buffer), it implies app opened -> Do nothing.
+            // Otherwise -> Redirect to Store.
+            
+            if (appOpened || document.hidden) {
+                log(`SUCCESS: App seems to have opened. Staying on page.`);
+            } else if (elapsed > timeoutMs + 1000) {
+                 // If the browser froze for a long time (e.g., iOS confirmation dialog), 
+                 // we assume the user was interacting with the OS.
+                 log(`WARNING: Browser thread froze for ${elapsed}ms. Assuming App opened or dialog shown.`);
+            } else {
+                log(`FAILURE: App did not open. Redirecting to Store...`);
+                log(`Redirecting to: ${storeUrl}`);
+                
+                // Use .replace() so the user can't hit "Back" and immediately trigger the logic again
+                window.location.replace(storeUrl);
+            }
+
+        }, timeoutMs);
+    }
+</script>
+
+</body>
+</html>
