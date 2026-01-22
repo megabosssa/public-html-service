@@ -270,13 +270,14 @@
             
             const table = document.createElement('table');
             table.className = 'log-table';
-            table.innerHTML = `<thead><tr><th>Field</th><th>Value</th></tr></thead>`;
+            table.innerHTML = `<thead><tr><th>Field</th><th>Value</th><th>Action</th></tr></thead>`;
             const tbody = document.createElement('tbody');
 
             fieldsToShow.forEach(path => {
                 const row = tbody.insertRow();
                 const keyCell = row.insertCell();
                 const valueCell = row.insertCell();
+                const actionCell = row.insertCell();
                 
                 keyCell.textContent = path;
                 keyCell.className = 'key-cell';
@@ -286,18 +287,32 @@
                 valueCell.title = 'Click to copy value';
 
                 const value = getNestedValue(data, path);
+                let copyValue = '';
 
                 if (value === undefined) {
                     valueCell.textContent = 'Not found';
                     valueCell.classList.add('text-gray-500');
+                    copyValue = 'Not found';
                 } else if (typeof value === 'object' && value !== null) {
                     const formattedJson = JSON.stringify(value, null, 2);
                     valueCell.innerHTML = `<pre>${formattedJson}</pre>`;
                     valueCell.dataset.copyValue = formattedJson;
+                    copyValue = formattedJson;
                 } else {
                     valueCell.textContent = value;
                     valueCell.dataset.copyValue = value;
+                    copyValue = value;
                 }
+
+                // Action Button
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = 'Copy';
+                copyBtn.className = 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-xs transition';
+                copyBtn.onclick = (e) => {
+                    e.stopPropagation(); // Prevent row click events if any
+                    copyToClipboard(copyValue);
+                };
+                actionCell.appendChild(copyBtn);
             });
 
             table.appendChild(tbody);
@@ -345,7 +360,7 @@
         function createTableView(data) {
             const table = document.createElement('table');
             table.className = 'log-table';
-            table.innerHTML = `<thead><tr><th>Key</th><th>Value</th></tr></thead>`;
+            table.innerHTML = `<thead><tr><th>Key</th><th>Value</th><th>Action</th></tr></thead>`;
             const tbody = document.createElement('tbody');
 
             for (const key in data) {
@@ -353,6 +368,7 @@
                     const row = tbody.insertRow();
                     const keyCell = row.insertCell();
                     const valueCell = row.insertCell();
+                    const actionCell = row.insertCell();
 
                     keyCell.textContent = key;
                     keyCell.className = 'key-cell';
@@ -362,14 +378,27 @@
                     valueCell.title = 'Click to copy value';
 
                     const value = data[key];
+                    let copyValue = '';
                     if (typeof value === 'object' && value !== null) {
                         const formattedJson = JSON.stringify(value, null, 2);
                         valueCell.innerHTML = `<pre>${formattedJson}</pre>`;
                         valueCell.dataset.copyValue = formattedJson;
+                        copyValue = formattedJson;
                     } else {
                         valueCell.textContent = value;
                         valueCell.dataset.copyValue = value;
+                        copyValue = value;
                     }
+
+                    // Action Button
+                    const copyBtn = document.createElement('button');
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.className = 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-xs transition';
+                    copyBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        copyToClipboard(copyValue);
+                    };
+                    actionCell.appendChild(copyBtn);
                 }
             }
             table.appendChild(tbody);
