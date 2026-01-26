@@ -7,7 +7,7 @@ def run():
         page = browser.new_page()
 
         cwd = os.getcwd()
-        file_path = f'file://{cwd}/payment-template-config.html'
+        file_path = f'file://{cwd}/billpayment-template.html'
 
         print(f'Navigating to {file_path}')
         page.goto(file_path)
@@ -43,7 +43,7 @@ def run():
              print("Grand Total correct.")
 
         # Take a screenshot
-        screenshot_path = 'verification/payment_template_tool.png'
+        screenshot_path = 'verification/billpayment_template_tool.png'
         page.screenshot(path=screenshot_path)
         print(f'Screenshot taken: {screenshot_path}')
 
