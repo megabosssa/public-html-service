@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thymeleaf Renderer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="global.css">
+    <style>
+        .editor-box {
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 300px;
+            font-size: 14px;
+        }
+        #preview-container {
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            background: #ffffff;
+            min-height: 600px;
+            border-radius: 4px;
+            overflow: auto;
+        }
+        #error-message {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<nav class="simple-nav container mt-3">
+ <a href="index.html">Home</a>
+</nav>
+
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h2><i class="bi bi-code-slash text-primary"></i> Thymeleaf Renderer</h2>
+        <p class="text-muted">Client-side rendering of Thymeleaf-style templates.</p>
+    </div>
+
+    <div class="alert alert-danger" id="error-message" role="alert"></div>
+
+    <div class="row g-4">
+        <!-- Input Section -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><i class="bi bi-pencil-square"></i> Input</span>
+                    <button class="btn btn-sm btn-outline-primary" onclick="loadSample()">
+                        <i class="bi bi-magic"></i> Load Sample
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="template-input" class="form-label fw-bold">Template (HTML)</label>
+                        <textarea id="template-input" class="form-control editor-box" placeholder="<div><span th:text='${message}'>Default</span></div>" spellcheck="false"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="data-input" class="form-label fw-bold">Data (JSON)</label>
+                        <textarea id="data-input" class="form-control editor-box" style="min-height: 200px;" placeholder='{ "message": "Hello World" }' spellcheck="false"></textarea>
+                    </div>
+                    <button class="btn btn-primary w-100 py-2" onclick="render()">
+                        <i class="bi bi-play-fill"></i> Render Result
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Output Section -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white">
+                    <span class="fw-bold"><i class="bi bi-eye"></i> Live Preview</span>
+                </div>
+                <div class="card-body p-0">
+                    <div id="preview-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadSample() {
+        const sampleTemplate = `
+<div class="container">
+    <h3 class="mb-3" th:text="\${pageTitle}">Page Title</h3>
+
+    <div class="row">
+        <div class="col-md-6 mb-3" th:each="user : \${users}">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="\${user.name}">User Name</h5>
+                    <h6 class="card-subtitle mb-2 text-muted" th:text="\${user.role}">Role</h6>
+
+                    <p class="card-text">
+                        Status:
+                        <span class="badge bg-success" th:if="\${user.active}">Active</span>
+                        <span class="badge bg-danger" th:unless="\${user.active}">Inactive</span>
+                    </p>
+
+                    <a href="#" class="card-link" th:href="\${user.profileUrl}">View Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3 alert alert-info" th:if="\${showFooter}">
+        <span th:text="\${footerMessage}">Footer</span>
+    </div>
+</div>`;
+
+        const sampleData = {
+            "pageTitle": "User Directory",
+            "users": [
+                { "name": "Alice Smith", "role": "Administrator", "active": true, "profileUrl": "#alice" },
+                { "name": "Bob Jones", "role": "Editor", "active": false, "profileUrl": "#bob" },
+                { "name": "Charlie Day", "role": "Viewer", "active": true, "profileUrl": "#charlie" }
+            ],
+            "showFooter": true,
+            "footerMessage": "Generated by Thymeleaf Renderer Tool"
+        };
+
+        document.getElementById('template-input').value = sampleTemplate.trim();
+        document.getElementById('data-input').value = JSON.stringify(sampleData, null, 2);
+
+        // Auto render on load
+        render();
+    }
+
+    function render() {
+        const templateInput = document.getElementById('template-input').value;
+        const dataInput = document.getElementById('data-input').value;
+        const previewContainer = document.getElementById('preview-container');
+        const errorMessage = document.getElementById('error-message');
+
+        errorMessage.style.display = 'none';
+        errorMessage.textContent = '';
+        previewContainer.innerHTML = '';
+
+        if (!templateInput.trim()) {
+            return;
+        }
+
+        let context;
+        try {
+            context = dataInput.trim() ? JSON.parse(dataInput) : {};
+        } catch (e) {
+            showError("Invalid JSON Data: " + e.message);
+            return;
+        }
+
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(templateInput, 'text/html');
+
+            // Process the body children
+            // We clone the body content to a fragment to process
+            const fragment = document.createDocumentFragment();
+            Array.from(doc.body.childNodes).forEach(node => fragment.appendChild(node.cloneNode(true)));
+
+            processNode(fragment, context);
+
+            // Append processed result to preview
+            previewContainer.appendChild(fragment);
+
+        } catch (e) {
+            console.error(e);
+            showError("Rendering Error: " + e.message);
+        }
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('error-message');
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+
+    // --- Core Engine Logic ---
+
+    function processNode(node, context) {
+        if (!node) return;
+
+        // Handle DocumentFragment
+        if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+             Array.from(node.childNodes).forEach(child => processNode(child, context));
+             return;
+        }
+
+        // Handle Text Nodes (optional: inline expressions [[...]])
+        if (node.nodeType === Node.TEXT_NODE) {
+            // Future enhancement: support [[${...}]]
+            return;
+        }
+
+        if (node.nodeType !== Node.ELEMENT_NODE) {
+            return;
+        }
+
+        const el = node;
+
+        // 1. th:each (High priority: alters structure)
+        if (el.hasAttribute('th:each')) {
+            const eachAttr = el.getAttribute('th:each');
+            el.removeAttribute('th:each');
+
+            // Syntax: item : ${items}
+            const parts = eachAttr.split(':');
+            if (parts.length < 2) return; // Invalid syntax
+
+            const iterVar = parts[0].trim();
+            const listExpr = parts.slice(1).join(':').trim(); // Join back in case of other colons? usually not needed
+
+            const list = evaluateExpression(listExpr, context);
+
+            if (Array.isArray(list)) {
+                const fragment = document.createDocumentFragment();
+                list.forEach((item, index) => {
+                    const clone = el.cloneNode(true);
+                    // Create new context with iteration variable
+                    const newContext = { ...context, [iterVar]: item };
+                    // Recurse on clone
+                    processNode(clone, newContext);
+                    fragment.appendChild(clone);
+                });
+                el.replaceWith(fragment);
+                return; // Stop processing original node
+            } else {
+                // If not a list, maybe remove or render once? Thymeleaf usually iterates iterables.
+                // If null, it renders nothing.
+                el.remove();
+                return;
+            }
+        }
+
+        // 2. th:if
+        if (el.hasAttribute('th:if')) {
+            const expr = el.getAttribute('th:if');
+            el.removeAttribute('th:if');
+            const val = evaluateExpression(expr, context);
+            if (!val) {
+                el.remove();
+                return;
+            }
+        }
+
+        // 3. th:unless
+        if (el.hasAttribute('th:unless')) {
+            const expr = el.getAttribute('th:unless');
+            el.removeAttribute('th:unless');
+            const val = evaluateExpression(expr, context);
+            if (val) {
+                el.remove();
+                return;
+            }
+        }
+
+        // 4. th:text
+        if (el.hasAttribute('th:text')) {
+            const expr = el.getAttribute('th:text');
+            el.removeAttribute('th:text');
+            const val = evaluateExpression(expr, context);
+            el.textContent = val !== undefined && val !== null ? String(val) : '';
+        }
+
+        // 5. th:utext
+        if (el.hasAttribute('th:utext')) {
+            const expr = el.getAttribute('th:utext');
+            el.removeAttribute('th:utext');
+            const val = evaluateExpression(expr, context);
+            el.innerHTML = val !== undefined && val !== null ? String(val) : '';
+        }
+
+        // 6. th:href
+        if (el.hasAttribute('th:href')) {
+            const expr = el.getAttribute('th:href');
+            el.removeAttribute('th:href');
+            const val = evaluateExpression(expr, context);
+            if (val) el.setAttribute('href', val);
+        }
+
+        // 7. th:src
+        if (el.hasAttribute('th:src')) {
+            const expr = el.getAttribute('th:src');
+            el.removeAttribute('th:src');
+            const val = evaluateExpression(expr, context);
+            if (val) el.setAttribute('src', val);
+        }
+
+        // 8. th:value
+        if (el.hasAttribute('th:value')) {
+            const expr = el.getAttribute('th:value');
+            el.removeAttribute('th:value');
+            const val = evaluateExpression(expr, context);
+            if (val !== undefined && val !== null) el.value = val;
+        }
+
+        // Recurse for children
+        // Use Array.from because childNodes list might change if we modify DOM
+        Array.from(el.childNodes).forEach(child => processNode(child, context));
+    }
+
+    function evaluateExpression(expr, context) {
+        if (!expr) return null;
+        expr = expr.trim();
+
+        // Simple variable: ${user.name}
+        if (expr.startsWith('${') && expr.endsWith('}')) {
+            const path = expr.substring(2, expr.length - 1).trim();
+            return getDeepValue(context, path);
+        }
+
+        // Simple string literal check (very basic)
+        if (expr.startsWith("'") && expr.endsWith("'")) {
+            return expr.substring(1, expr.length - 1);
+        }
+
+        // Fallback: return as is or handle complex expressions?
+        // For this utility, we treat it as a literal if it doesn't match ${}
+        return expr;
+    }
+
+    function getDeepValue(obj, path) {
+        if (!obj) return undefined;
+        const parts = path.split('.');
+        let current = obj;
+
+        for (const part of parts) {
+            if (current === null || current === undefined) return undefined;
+            // Handle array access like users[0] - simplistic regex
+            if (part.includes('[')) {
+                // Not supported in this basic version, but typical JS split won't handle it cleanly without regex
+                // Let's rely on standard object property access for now.
+                // If user really needs array access, they can usually do it via property names in JS,
+                // but standard dot notation in JS doesn't support 'list[0]' directly as a property name.
+                // However, Thymeleaf usually treats dot as property access.
+                // We'll stick to simple property traversal.
+                current = current[part];
+            } else {
+                current = current[part];
+            }
+        }
+        return current;
+    }
+
+    // Initialize with empty state
+    document.addEventListener('DOMContentLoaded', () => {
+        // Optional: loadSample();
+    });
+
+</script>
+
+</body>
+</html>
