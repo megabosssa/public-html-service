@@ -20,6 +20,7 @@
             min-height: 600px;
             border-radius: 4px;
             overflow: auto;
+            white-space: pre-wrap; /* Preserves whitespace for text templates */
         }
         #error-message {
             display: none;
@@ -35,7 +36,7 @@
 <div class="container py-4">
     <div class="text-center mb-4">
         <h2><i class="bi bi-code-slash text-primary"></i> Thymeleaf Renderer</h2>
-        <p class="text-muted">Client-side rendering of Thymeleaf-style templates.</p>
+        <p class="text-muted">Client-side rendering of Thymeleaf-style templates with support for basic Java utilities.</p>
     </div>
 
     <div class="alert alert-danger" id="error-message" role="alert"></div>
@@ -44,15 +45,17 @@
         <!-- Input Section -->
         <div class="col-lg-6">
             <div class="card h-100 shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <span class="fw-bold"><i class="bi bi-pencil-square"></i> Input</span>
-                    <button class="btn btn-sm btn-outline-primary" onclick="loadSample()">
-                        <i class="bi bi-magic"></i> Load Sample
-                    </button>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="loadSample('basic')">Basic Sample</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="loadSample('json')">JSON Template</button>
+                        <button class="btn btn-sm btn-outline-success" onclick="loadSample('report')">Report Template</button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label for="template-input" class="form-label fw-bold">Template (HTML)</label>
+                        <label for="template-input" class="form-label fw-bold">Template (HTML/Text)</label>
                         <textarea id="template-input" class="form-control editor-box" placeholder="<div><span th:text='${message}'>Default</span></div>" spellcheck="false"></textarea>
                     </div>
                     <div class="mb-3">
@@ -81,52 +84,67 @@
 </div>
 
 <script>
-    function loadSample() {
-        const sampleTemplate = `
-<div class="container">
-    <h3 class="mb-3" th:text="\${pageTitle}">Page Title</h3>
+    // --- Samples ---
 
+    const SAMPLES = {
+        basic: {
+            template: `<div class="container">
+    <h3 class="mb-3" th:text="\${pageTitle}">Page Title</h3>
     <div class="row">
         <div class="col-md-6 mb-3" th:each="user : \${users}">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title" th:text="\${user.name}">User Name</h5>
-                    <h6 class="card-subtitle mb-2 text-muted" th:text="\${user.role}">Role</h6>
-
                     <p class="card-text">
-                        Status:
-                        <span class="badge bg-success" th:if="\${user.active}">Active</span>
+                        Status: <span class="badge bg-success" th:if="\${user.active}">Active</span>
                         <span class="badge bg-danger" th:unless="\${user.active}">Inactive</span>
                     </p>
-
-                    <a href="#" class="card-link" th:href="\${user.profileUrl}">View Profile</a>
                 </div>
             </div>
         </div>
     </div>
+</div>`,
+            data: {
+                "pageTitle": "User Directory",
+                "users": [
+                    { "name": "Alice Smith", "active": true },
+                    { "name": "Bob Jones", "active": false }
+                ]
+            }
+        },
+        json: {
+            template: `<th:block>{"identification":{"typeOfIdentification":"","identificationValue":""},"notificationType":"ALL","notificationTitleTH":"จ่ายบิลสำเร็จ","notificationTitleEN":"Successful Payment","notificationMessageTH":"จ่ายบิลสำหรับ เครดิตการ์ด/สินเชื่อ [[\${creditCardMask}]] จำนวน [[\${amountWithComma}]] [[\${currencyTH}]].","notificationMessageEN":"Bill payment for credit/loan card [[\${creditCardMask}]] amount [[\${amountWithComma}]] [[\${currencyEN}]].","notificationImageURL":"https://sit.baas.krungsri.com/mock/image/notificationImage","notificationInboxAmount":[[\${new java.math.BigDecimal(amount)}]],"notificationInboxCurrencyTH":"[[\${currencyTH}]]","notificationInboxCurrencyEN":"[[\${currencyEN}]]"}</th:block>`,
+            data: {
+                "creditCardMask": "1234-56xx-xxxx-7890",
+                "amountWithComma": "1,500.00",
+                "amount": 1500,
+                "currencyTH": "บาท",
+                "currencyEN": "THB"
+            }
+        },
+        report: {
+            template: `<th:block>[[\${#temporals.format(completionDateTime,'dd/MM/yyyy@HH:mm')}]] รายการรับเงินเกี๊ยวของคุณไม่สำเร็จ โรงงาน[[\${factoryName}]] จำนวน [[\${#numbers.formatDecimal(chequeAmount, 1, 'COMMA', 2, 'POINT')}]] หักส่วนลด [[\${#numbers.formatDecimal(discountAmount, 1, 'COMMA', 2, 'POINT')}]] คงเหลือ [[\${#numbers.formatDecimal(netAmount, 1, 'COMMA', 2, 'POINT')}]] บาท รหัสอ้างอิง [[\${reference}]]</th:block>`,
+            data: {
+                "completionDateTime": "2023-10-25T14:30:00",
+                "factoryName": "A",
+                "chequeAmount": 50000.5,
+                "discountAmount": 1000.0,
+                "netAmount": 49000.5,
+                "reference": "REF12345"
+            }
+        }
+    };
 
-    <div class="mt-3 alert alert-info" th:if="\${showFooter}">
-        <span th:text="\${footerMessage}">Footer</span>
-    </div>
-</div>`;
-
-        const sampleData = {
-            "pageTitle": "User Directory",
-            "users": [
-                { "name": "Alice Smith", "role": "Administrator", "active": true, "profileUrl": "#alice" },
-                { "name": "Bob Jones", "role": "Editor", "active": false, "profileUrl": "#bob" },
-                { "name": "Charlie Day", "role": "Viewer", "active": true, "profileUrl": "#charlie" }
-            ],
-            "showFooter": true,
-            "footerMessage": "Generated by Thymeleaf Renderer Tool"
-        };
-
-        document.getElementById('template-input').value = sampleTemplate.trim();
-        document.getElementById('data-input').value = JSON.stringify(sampleData, null, 2);
-
-        // Auto render on load
-        render();
+    function loadSample(type) {
+        const sample = SAMPLES[type];
+        if (sample) {
+            document.getElementById('template-input').value = sample.template;
+            document.getElementById('data-input').value = JSON.stringify(sample.data, null, 2);
+            render();
+        }
     }
+
+    // --- Core Logic ---
 
     function render() {
         const templateInput = document.getElementById('template-input').value;
@@ -138,9 +156,7 @@
         errorMessage.textContent = '';
         previewContainer.innerHTML = '';
 
-        if (!templateInput.trim()) {
-            return;
-        }
+        if (!templateInput.trim()) return;
 
         let context;
         try {
@@ -151,18 +167,23 @@
         }
 
         try {
+            // Check if it's a full HTML doc or just a fragment/text
             const parser = new DOMParser();
-            const doc = parser.parseFromString(templateInput, 'text/html');
 
-            // Process the body children
-            // We clone the body content to a fragment to process
-            const fragment = document.createDocumentFragment();
-            Array.from(doc.body.childNodes).forEach(node => fragment.appendChild(node.cloneNode(true)));
+            // Wrap in a fake root to handle text-only templates or th:blocks at root
+            const root = document.createElement('div');
+            root.innerHTML = templateInput;
 
-            processNode(fragment, context);
+            // Process
+            processNode(root, context);
 
-            // Append processed result to preview
-            previewContainer.appendChild(fragment);
+            // Output - if content is text-only (JSON/Report), we might want textContent?
+            // But HTML preview is safer.
+            // If the user wants raw text output for JSON, they can copy it.
+            // We append the processed children.
+            while (root.firstChild) {
+                previewContainer.appendChild(root.firstChild);
+            }
 
         } catch (e) {
             console.error(e);
@@ -176,177 +197,228 @@
         el.style.display = 'block';
     }
 
-    // --- Core Engine Logic ---
-
     function processNode(node, context) {
         if (!node) return;
 
-        // Handle DocumentFragment
+        // Handle DocumentFragment (if applicable)
         if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
              Array.from(node.childNodes).forEach(child => processNode(child, context));
              return;
         }
 
-        // Handle Text Nodes (optional: inline expressions [[...]])
+        // Handle Text Nodes: Inline Expressions [[...]]
         if (node.nodeType === Node.TEXT_NODE) {
-            // Future enhancement: support [[${...}]]
+            const text = node.textContent;
+            // Regex for [[${...}]]
+            const regex = /\[\[\$\{(.*?)\}\]\]/g;
+            if (regex.test(text)) {
+                const replaced = text.replace(regex, (match, expr) => {
+                    const val = evaluateExpression(expr, context);
+                    return val !== undefined && val !== null ? String(val) : '';
+                });
+                node.textContent = replaced;
+            }
             return;
         }
 
-        if (node.nodeType !== Node.ELEMENT_NODE) {
-            return;
-        }
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
 
         const el = node;
+        const tagName = el.tagName.toLowerCase();
 
-        // 1. th:each (High priority: alters structure)
+        // 1. th:each
         if (el.hasAttribute('th:each')) {
             const eachAttr = el.getAttribute('th:each');
             el.removeAttribute('th:each');
 
-            // Syntax: item : ${items}
             const parts = eachAttr.split(':');
-            if (parts.length < 2) return; // Invalid syntax
+            if (parts.length >= 2) {
+                const iterVar = parts[0].trim();
+                const listExpr = parts.slice(1).join(':').trim();
+                const list = evaluateExpression(listExpr, context);
 
-            const iterVar = parts[0].trim();
-            const listExpr = parts.slice(1).join(':').trim(); // Join back in case of other colons? usually not needed
-
-            const list = evaluateExpression(listExpr, context);
-
-            if (Array.isArray(list)) {
-                const fragment = document.createDocumentFragment();
-                list.forEach((item, index) => {
-                    const clone = el.cloneNode(true);
-                    // Create new context with iteration variable
-                    const newContext = { ...context, [iterVar]: item };
-                    // Recurse on clone
-                    processNode(clone, newContext);
-                    fragment.appendChild(clone);
-                });
-                el.replaceWith(fragment);
-                return; // Stop processing original node
-            } else {
-                // If not a list, maybe remove or render once? Thymeleaf usually iterates iterables.
-                // If null, it renders nothing.
-                el.remove();
-                return;
+                if (Array.isArray(list)) {
+                    const fragment = document.createDocumentFragment();
+                    list.forEach((item) => {
+                        const clone = el.cloneNode(true);
+                        const newContext = { ...context, [iterVar]: item };
+                        processNode(clone, newContext);
+                        fragment.appendChild(clone);
+                    });
+                    el.replaceWith(fragment);
+                    return; // Stop processing original
+                } else {
+                    el.remove();
+                    return;
+                }
             }
         }
 
-        // 2. th:if
+        // 2. th:if / th:unless
         if (el.hasAttribute('th:if')) {
-            const expr = el.getAttribute('th:if');
+            const val = evaluateExpression(el.getAttribute('th:if'), context);
             el.removeAttribute('th:if');
-            const val = evaluateExpression(expr, context);
-            if (!val) {
-                el.remove();
-                return;
-            }
+            if (!val) { el.remove(); return; }
         }
-
-        // 3. th:unless
         if (el.hasAttribute('th:unless')) {
-            const expr = el.getAttribute('th:unless');
+            const val = evaluateExpression(el.getAttribute('th:unless'), context);
             el.removeAttribute('th:unless');
-            const val = evaluateExpression(expr, context);
-            if (val) {
-                el.remove();
-                return;
+            if (val) { el.remove(); return; }
+        }
+
+        // 3. Standard Attributes
+        ['text', 'utext', 'href', 'src', 'value', 'action'].forEach(attr => {
+            const thAttr = 'th:' + attr;
+            if (el.hasAttribute(thAttr)) {
+                const val = evaluateExpression(el.getAttribute(thAttr), context);
+                el.removeAttribute(thAttr);
+
+                if (attr === 'text') el.textContent = val ?? '';
+                else if (attr === 'utext') el.innerHTML = val ?? '';
+                else if (val !== null && val !== undefined) el.setAttribute(attr, val);
+            }
+        });
+
+        // Recurse Children
+        Array.from(el.childNodes).forEach(child => processNode(child, context));
+
+        // 4. Unwrap <th:block>
+        if (tagName === 'th:block') {
+            // Replace block with its children
+            const fragment = document.createDocumentFragment();
+            while (el.firstChild) {
+                fragment.appendChild(el.firstChild);
+            }
+            el.replaceWith(fragment);
+        }
+    }
+
+    // --- Expression Engine ---
+
+    const THYMELEAF_UTILS = {
+        numbers: {
+            formatDecimal: (target, minInt, thousandsSep, decPlaces, decimalSep) => {
+                if (target === undefined || target === null) return '';
+                let num = Number(target);
+                if (isNaN(num)) return '';
+
+                // Format options
+                // thousandsSep: 'COMMA', 'POINT', 'NONE', 'WHITESPACE'
+                // decimalSep: 'COMMA', 'POINT'
+
+                // Helper to get symbol
+                const getSym = (type) => {
+                    if (type === 'COMMA') return ',';
+                    if (type === 'POINT') return '.';
+                    if (type === 'WHITESPACE') return ' ';
+                    return ''; // NONE or DEFAULT (assume none for simple JS, or locale?)
+                };
+
+                const thSepChar = getSym(thousandsSep);
+                const decSepChar = getSym(decimalSep);
+
+                // Fixed decimal places
+                let str = num.toFixed(decPlaces); // e.g., "1234.56"
+                let [intPart, decPart] = str.split('.');
+
+                // Pad integer part
+                if (intPart.length < minInt) {
+                    intPart = intPart.padStart(minInt, '0');
+                }
+
+                // Add thousands separator
+                if (thSepChar) {
+                    intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thSepChar);
+                }
+
+                // Reassemble
+                if (decPlaces > 0) {
+                    return intPart + decSepChar + decPart;
+                }
+                return intPart;
+            }
+        },
+        temporals: {
+            format: (target, pattern) => {
+                if (!target) return '';
+                // Target can be ISO string "2023-10-25T14:30:00"
+                const d = new Date(target);
+                if (isNaN(d.getTime())) return target; // Return original if parse fails
+
+                // Simple pattern replacer for dd, MM, yyyy, HH, mm, ss
+                // Note: Java pattern has many more tokens, this is a subset
+                const pad = (n) => n.toString().padStart(2, '0');
+
+                const map = {
+                    'dd': pad(d.getDate()),
+                    'MM': pad(d.getMonth() + 1),
+                    'yyyy': d.getFullYear(),
+                    'HH': pad(d.getHours()),
+                    'mm': pad(d.getMinutes()),
+                    'ss': pad(d.getSeconds())
+                };
+
+                // Replace longest keys first? Regex global replace
+                // Simple regex for our supported tokens
+                return pattern.replace(/yyyy|MM|dd|HH|mm|ss/g, match => map[match]);
             }
         }
-
-        // 4. th:text
-        if (el.hasAttribute('th:text')) {
-            const expr = el.getAttribute('th:text');
-            el.removeAttribute('th:text');
-            const val = evaluateExpression(expr, context);
-            el.textContent = val !== undefined && val !== null ? String(val) : '';
-        }
-
-        // 5. th:utext
-        if (el.hasAttribute('th:utext')) {
-            const expr = el.getAttribute('th:utext');
-            el.removeAttribute('th:utext');
-            const val = evaluateExpression(expr, context);
-            el.innerHTML = val !== undefined && val !== null ? String(val) : '';
-        }
-
-        // 6. th:href
-        if (el.hasAttribute('th:href')) {
-            const expr = el.getAttribute('th:href');
-            el.removeAttribute('th:href');
-            const val = evaluateExpression(expr, context);
-            if (val) el.setAttribute('href', val);
-        }
-
-        // 7. th:src
-        if (el.hasAttribute('th:src')) {
-            const expr = el.getAttribute('th:src');
-            el.removeAttribute('th:src');
-            const val = evaluateExpression(expr, context);
-            if (val) el.setAttribute('src', val);
-        }
-
-        // 8. th:value
-        if (el.hasAttribute('th:value')) {
-            const expr = el.getAttribute('th:value');
-            el.removeAttribute('th:value');
-            const val = evaluateExpression(expr, context);
-            if (val !== undefined && val !== null) el.value = val;
-        }
-
-        // Recurse for children
-        // Use Array.from because childNodes list might change if we modify DOM
-        Array.from(el.childNodes).forEach(child => processNode(child, context));
-    }
+    };
 
     function evaluateExpression(expr, context) {
         if (!expr) return null;
         expr = expr.trim();
 
-        // Simple variable: ${user.name}
-        if (expr.startsWith('${') && expr.endsWith('}')) {
-            const path = expr.substring(2, expr.length - 1).trim();
-            return getDeepValue(context, path);
-        }
+        // 1. Transpile Java-isms to JS
 
-        // Simple string literal check (very basic)
-        if (expr.startsWith("'") && expr.endsWith("'")) {
-            return expr.substring(1, expr.length - 1);
-        }
+        // Remove 'new java.math.BigDecimal(...)' -> 'Number(...)'
+        // Regex handles nested parenthesis poorly, but for simple cases:
+        expr = expr.replace(/new\s+java\.math\.BigDecimal\s*\(([^)]+)\)/g, 'Number($1)');
 
-        // Fallback: return as is or handle complex expressions?
-        // For this utility, we treat it as a literal if it doesn't match ${}
-        return expr;
-    }
+        // Replace #objects with _utils.objects
+        expr = expr.replace(/#numbers\./g, '_utils.numbers.');
+        expr = expr.replace(/#temporals\./g, '_utils.temporals.');
+        // Add more mapped utilities here if needed
 
-    function getDeepValue(obj, path) {
-        if (!obj) return undefined;
-        const parts = path.split('.');
-        let current = obj;
+        // 2. Prepare Execution Context
+        // We create a function that takes the context keys and _utils
+        const contextKeys = Object.keys(context);
+        const contextValues = Object.values(context);
 
-        for (const part of parts) {
-            if (current === null || current === undefined) return undefined;
-            // Handle array access like users[0] - simplistic regex
-            if (part.includes('[')) {
-                // Not supported in this basic version, but typical JS split won't handle it cleanly without regex
-                // Let's rely on standard object property access for now.
-                // If user really needs array access, they can usually do it via property names in JS,
-                // but standard dot notation in JS doesn't support 'list[0]' directly as a property name.
-                // However, Thymeleaf usually treats dot as property access.
-                // We'll stick to simple property traversal.
-                current = current[part];
-            } else {
-                current = current[part];
+        try {
+            // Function(arg1, arg2, ..., body)
+            // We strip ${ } if still present (usually processed by caller, but if recursing...)
+            // The caller (processNode) strips ${ } for attributes but NOT for inline [[${ }]] content.
+            // Wait, processNode passes content INSIDE ${ }.
+            // Check processNode logic:
+            // Attribute: th:text="${user.name}" -> parts get passed?
+            // My previous logic was specific.
+            // Correct Logic:
+            // If expr starts with ${ and ends with }, strip it.
+            if (expr.startsWith('${') && expr.endsWith('}')) {
+                expr = expr.substring(2, expr.length - 1);
             }
+
+            // Create function
+            // We use 'with' statement strictly for backward compat with simple property access without prefix?
+            // No, 'with' is deprecated/strict mode issue.
+            // Better: destructured args? No, dynamic keys.
+            // Best for Playground: new Function with 'with(this) { return ... }'
+            // This allows accessing 'user' directly if 'user' is in context.
+
+            const func = new Function('_utils', `with(this) { return ${expr}; }`);
+
+            // Execute
+            return func.call(context, THYMELEAF_UTILS);
+
+        } catch (e) {
+            console.warn(`Expression eval failed: "${expr}"`, e);
+            return `[ERROR: ${e.message}]`;
         }
-        return current;
     }
 
-    // Initialize with empty state
-    document.addEventListener('DOMContentLoaded', () => {
-        // Optional: loadSample();
-    });
+    // Auto-load basic sample
+    document.addEventListener('DOMContentLoaded', () => loadSample('basic'));
 
 </script>
 
