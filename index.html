@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,11 +25,13 @@
         }
 
         .tool-card .card-body {
-            color: #212529; /* Ensure text is readable */
+            color: #212529;
+            /* Ensure text is readable */
         }
-        
+
         .tool-card i {
-            color: #0d6efd; /* Use primary color for icons */
+            color: #0d6efd;
+            /* Use primary color for icons */
         }
 
         /* Style for the search input */
@@ -38,224 +41,247 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container py-5">
-    <div class="text-center mb-5">
-        <h1 class="display-5 fw-bold">Utility Tools</h1>
-        <p class="lead text-muted">A collection of handy developer utilities.</p>
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold">Utility Tools</h1>
+            <p class="lead text-muted">A collection of handy developer utilities.</p>
+        </div>
+
+        <div class="mb-4">
+            <input type="text" id="toolSearch" class="form-control form-control-lg search-input"
+                placeholder="Search for a tool...">
+        </div>
+
+        <div id="toolGrid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+            <div class="col tool-item">
+                <a href="rate-conversion.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-currency-exchange display-4"></i>
+                        <h5 class="card-title mt-3">Generic Currency Converter</h5>
+                        <p class="card-text small text-muted">Convert currencies using current rates.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="data formatter v2.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-file-earmark-code display-4"></i>
+                        <h5 class="card-title mt-3">Data Formatter</h5>
+                        <p class="card-text small text-muted">Format JSON or XML for readability.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="v3/objectParser.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-file-earmark-code display-4"></i>
+                        <h5 class="card-title mt-3">Data Formatter v3</h5>
+                        <p class="card-text small text-muted">Advanced formatting with length info.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="json-beautify.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-braces display-4"></i>
+                        <h5 class="card-title mt-3">JSON Beautifier</h5>
+                        <p class="card-text small text-muted">Pretty-print and explore JSON data.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="generateReportCSV.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-filetype-csv display-4"></i>
+                        <h5 class="card-title mt-3">JSON to CSV Converter</h5>
+                        <p class="card-text small text-muted">Download CSV from JSON lists.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="log-formatter.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-table display-4"></i>
+                        <h5 class="card-title mt-3">Log Formatter</h5>
+                        <p class="card-text small text-muted">View JSON logs as HTML tables.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="log-formatter-v2.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-table display-4"></i>
+                        <h5 class="card-title mt-3">Log Formatter v2</h5>
+                        <p class="card-text small text-muted">Enhanced log viewer with extras.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="timeout-simulator.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-hourglass-split display-4"></i>
+                        <h5 class="card-title mt-3">Timeout Simulator</h5>
+                        <p class="card-text small text-muted">Experiment with delayed HTTP replies.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="stock-dr-convertion.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-calculator display-4"></i>
+                        <h5 class="card-title mt-3">DR Price Calculator</h5>
+                        <p class="card-text small text-muted">Compute DR prices from stock values.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="aes-256-gcm.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-shield-lock display-4"></i>
+                        <h5 class="card-title mt-3">AES-256-GCM Demo</h5>
+                        <p class="card-text small text-muted">Encrypt and decrypt data samples.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="line-liff-poc.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-chat-left-text display-4"></i>
+                        <h5 class="card-title mt-3">Line LIFF POC</h5>
+                        <p class="card-text small text-muted">Test basic LIFF features.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="line-lift-poc-2.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-phone display-4"></i>
+                        <h5 class="card-title mt-3">LIFF App Demo</h5>
+                        <p class="card-text small text-muted">Simple mobile LIFF application.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="bahtnet-template.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-bank display-4"></i>
+                        <h5 class="card-title mt-3">BAHTNET Template Viewer</h5>
+                        <p class="card-text small text-muted">View payment templates and fees.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="smart-media-clearing.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-diagram-3 display-4"></i>
+                        <h5 class="card-title mt-3">Smart Media Clearing</h5>
+                        <p class="card-text small text-muted">Scenario viewer and calculator.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="billpayment-template.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-receipt display-4"></i>
+                        <h5 class="card-title mt-3">Billpayment Template Calculator</h5>
+                        <p class="card-text small text-muted">Dynamic payment summation by template config.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="Dynatrace JSON Log Viewer with Summary View.html"
+                    class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-clipboard-data display-4"></i>
+                        <h5 class="card-title mt-3">Dynatrace Log Viewer</h5>
+                        <p class="card-text small text-muted">Analyze Dynatrace logs with summary view.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="PMCS Result files Data Loading.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-filetype-txt display-4"></i>
+                        <h5 class="card-title mt-3">PMCS Result files Data Loading</h5>
+                        <p class="card-text small text-muted">Generate fixed-length lines from PMCS JSON results.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="jwt-debugger.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-key display-4"></i>
+                        <h5 class="card-title mt-3">JWT Debugger</h5>
+                        <p class="card-text small text-muted">Decode and inspect JSON Web Tokens.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="thymeleaf-renderer.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-code-slash display-4"></i>
+                        <h5 class="card-title mt-3">Thymeleaf Renderer</h5>
+                        <p class="card-text small text-muted">Render Thymeleaf templates with JSON data.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="games/snake.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-controller display-4"></i>
+                        <h5 class="card-title mt-3">Retro Snake</h5>
+                        <p class="card-text small text-muted">Classic Nokia-style Snake game.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="yaml-json-converter.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-arrow-left-right display-4"></i>
+                        <h5 class="card-title mt-3">YAML ↔ JSON Converter</h5>
+                        <p class="card-text small text-muted">Convert between YAML and JSON formats.</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col tool-item">
+                <a href="istio-vs-generator.html" class="card h-100 text-decoration-none tool-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-hdd-network display-4"></i>
+                        <h5 class="card-title mt-3">Istio VS Generator</h5>
+                        <p class="card-text small text-muted">Generate Istio VirtualService direct response YAML
+                            objects.</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
     </div>
 
-    <div class="mb-4">
-        <input type="text" id="toolSearch" class="form-control form-control-lg search-input" placeholder="Search for a tool...">
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('toolSearch');
+            const toolItems = document.querySelectorAll('#toolGrid .tool-item');
 
-    <div id="toolGrid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
-        <div class="col tool-item">
-            <a href="rate-conversion.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-currency-exchange display-4"></i>
-                    <h5 class="card-title mt-3">Generic Currency Converter</h5>
-                    <p class="card-text small text-muted">Convert currencies using current rates.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="data formatter v2.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-file-earmark-code display-4"></i>
-                    <h5 class="card-title mt-3">Data Formatter</h5>
-                    <p class="card-text small text-muted">Format JSON or XML for readability.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="v3/objectParser.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-file-earmark-code display-4"></i>
-                    <h5 class="card-title mt-3">Data Formatter v3</h5>
-                    <p class="card-text small text-muted">Advanced formatting with length info.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="json-beautify.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-braces display-4"></i>
-                    <h5 class="card-title mt-3">JSON Beautifier</h5>
-                    <p class="card-text small text-muted">Pretty-print and explore JSON data.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="generateReportCSV.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-filetype-csv display-4"></i>
-                    <h5 class="card-title mt-3">JSON to CSV Converter</h5>
-                    <p class="card-text small text-muted">Download CSV from JSON lists.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="log-formatter.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-table display-4"></i>
-                    <h5 class="card-title mt-3">Log Formatter</h5>
-                    <p class="card-text small text-muted">View JSON logs as HTML tables.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="log-formatter-v2.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-table display-4"></i>
-                    <h5 class="card-title mt-3">Log Formatter v2</h5>
-                    <p class="card-text small text-muted">Enhanced log viewer with extras.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="timeout-simulator.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-hourglass-split display-4"></i>
-                    <h5 class="card-title mt-3">Timeout Simulator</h5>
-                    <p class="card-text small text-muted">Experiment with delayed HTTP replies.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="stock-dr-convertion.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-calculator display-4"></i>
-                    <h5 class="card-title mt-3">DR Price Calculator</h5>
-                    <p class="card-text small text-muted">Compute DR prices from stock values.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="aes-256-gcm.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-shield-lock display-4"></i>
-                    <h5 class="card-title mt-3">AES-256-GCM Demo</h5>
-                    <p class="card-text small text-muted">Encrypt and decrypt data samples.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="line-liff-poc.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-chat-left-text display-4"></i>
-                    <h5 class="card-title mt-3">Line LIFF POC</h5>
-                    <p class="card-text small text-muted">Test basic LIFF features.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="line-lift-poc-2.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-phone display-4"></i>
-                    <h5 class="card-title mt-3">LIFF App Demo</h5>
-                    <p class="card-text small text-muted">Simple mobile LIFF application.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="bahtnet-template.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-bank display-4"></i>
-                    <h5 class="card-title mt-3">BAHTNET Template Viewer</h5>
-                    <p class="card-text small text-muted">View payment templates and fees.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="smart-media-clearing.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-diagram-3 display-4"></i>
-                    <h5 class="card-title mt-3">Smart Media Clearing</h5>
-                    <p class="card-text small text-muted">Scenario viewer and calculator.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="Dynatrace JSON Log Viewer with Summary View.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-clipboard-data display-4"></i>
-                    <h5 class="card-title mt-3">Dynatrace Log Viewer</h5>
-                    <p class="card-text small text-muted">Analyze Dynatrace logs with summary view.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="PMCS Result files Data Loading.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-filetype-txt display-4"></i>
-                    <h5 class="card-title mt-3">PMCS Result files Data Loading</h5>
-                    <p class="card-text small text-muted">Generate fixed-length lines from PMCS JSON results.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="jwt-debugger.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-key display-4"></i>
-                    <h5 class="card-title mt-3">JWT Debugger</h5>
-                    <p class="card-text small text-muted">Decode and inspect JSON Web Tokens.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="thymeleaf-renderer.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-code-slash display-4"></i>
-                    <h5 class="card-title mt-3">Thymeleaf Renderer</h5>
-                    <p class="card-text small text-muted">Render Thymeleaf templates with JSON data.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="games/snake.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-controller display-4"></i>
-                    <h5 class="card-title mt-3">Retro Snake</h5>
-                    <p class="card-text small text-muted">Classic Nokia-style Snake game.</p>
-                </div>
-            </a>
-        </div>
-        <div class="col tool-item">
-            <a href="istio-vs-generator.html" class="card h-100 text-decoration-none tool-card">
-                <div class="card-body text-center p-4">
-                    <i class="bi bi-hdd-network display-4"></i>
-                    <h5 class="card-title mt-3">Istio VS Generator</h5>
-                    <p class="card-text small text-muted">Generate Istio VirtualService direct response YAML objects.</p>
-                </div>
-            </a>
-        </div>
-        </div>
-    </div>
-</div>
+            searchInput.addEventListener('keyup', function (event) {
+                const query = event.target.value.toLowerCase();
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('toolSearch');
-        const toolItems = document.querySelectorAll('#toolGrid .tool-item');
+                toolItems.forEach(item => {
+                    const title = item.querySelector('.card-title').textContent.toLowerCase();
+                    const description = item.querySelector('.card-text').textContent.toLowerCase();
 
-        searchInput.addEventListener('keyup', function(event) {
-            const query = event.target.value.toLowerCase();
-
-            toolItems.forEach(item => {
-                const title = item.querySelector('.card-title').textContent.toLowerCase();
-                const description = item.querySelector('.card-text').textContent.toLowerCase();
-
-                if (title.includes(query) || description.includes(query)) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
+                    if (title.includes(query) || description.includes(query)) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
             });
         });
-    });
-</script>
+    </script>
 
 </body>
+
 </html>

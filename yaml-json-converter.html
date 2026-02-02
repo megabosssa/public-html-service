@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="global.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAML ↔ JSON Converter</title>
+    <!-- Tailwind CSS for styling -->
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- js-yaml library for YAML parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <!-- Lucide icons for UI elements -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom styles for better UI/UX */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #4a5568; /* gray-700 */
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background-color: #a0aec0; /* gray-400 */
+        }
+        /* Textarea styling */
+        .code-textarea {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            tab-size: 2;
+        }
+        /* Active tab indicator */
+        .tab-btn.active {
+            border-bottom-color: #3B82F6;
+            color: #3B82F6;
+        }
+        .dark .tab-btn.active {
+            border-bottom-color: #60A5FA;
+            color: #60A5FA;
+        }
+        /* Swap button animation */
+        .swap-btn:hover {
+            transform: rotate(180deg);
+        }
+        .swap-btn {
+            transition: transform 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+<nav class="simple-nav">
+    <a href="index.html">Home</a> | <a href="javascript:history.back()">Back</a>
+</nav>
+
+    <div class="container mx-auto p-4 max-w-7xl">
+
+        <!-- Header Section -->
+        <header class="flex justify-between items-center mb-4">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-purple-500"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+                YAML ↔ JSON Converter
+            </h1>
+            <div class="flex items-center space-x-2">
+                <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" title="Toggle Dark/Light Mode">
+                    <i data-lucide="sun" class="block dark:hidden"></i>
+                    <i data-lucide="moon" class="hidden dark:block"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content: Two-panel layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[calc(100vh-180px)]">
+            
+            <!-- Left Panel: Input -->
+            <div class="flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                <div class="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex">
+                        <button id="yaml-tab" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent hover:text-blue-500 active" data-format="yaml">
+                            YAML
+                        </button>
+                        <button id="json-tab" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent hover:text-blue-500" data-format="json">
+                            JSON
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="file" id="file-input" class="hidden" accept=".yaml,.yml,.json">
+                        <button id="upload-btn" class="flex items-center px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors" title="Upload File">
+                            <i data-lucide="upload" class="w-4 h-4 mr-1"></i> Upload
+                        </button>
+                        <button id="sample-btn" class="flex items-center px-3 py-1.5 text-sm bg-gray-500 hover:bg-gray-600 text-white rounded-md transition-colors" title="Load Sample">
+                            <i data-lucide="file-text" class="w-4 h-4 mr-1"></i> Sample
+                        </button>
+                        <button id="clear-input-btn" class="flex items-center px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors" title="Clear Input">
+                            <i data-lucide="trash-2" class="w-4 h-4 mr-1"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 flex flex-col relative">
+                    <textarea id="input-area" class="code-textarea w-full flex-1 p-4 bg-transparent resize-none focus:outline-none" placeholder="Paste your YAML or JSON here..."></textarea>
+                    <div id="input-status" class="absolute bottom-2 left-4 text-xs text-gray-500 dark:text-gray-400"></div>
+                </div>
+            </div>
+
+            <!-- Center: Convert Button -->
+            <div class="hidden lg:flex absolute left-1/2 top-1/2 transform -translate-x-1/2 z-10">
+                <button id="swap-btn" class="swap-btn p-3 bg-purple-500 hover:bg-purple-600 text-white rounded-full shadow-lg" title="Swap Input/Output">
+                    <i data-lucide="arrow-left-right" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <!-- Right Panel: Output -->
+            <div class="flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                <div class="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700">
+                    <span id="output-format-label" class="text-sm font-semibold ml-2">Output: JSON</span>
+                    <div id="output-controls" class="flex items-center space-x-2" style="display: none;">
+                        <select id="indent-select" class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded border border-gray-300 dark:border-gray-600">
+                            <option value="2">2 spaces</option>
+                            <option value="4">4 spaces</option>
+                            <option value="\t">Tab</option>
+                        </select>
+                        <button id="copy-btn" class="flex items-center px-3 py-1.5 text-sm bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors" title="Copy Output">
+                            <i data-lucide="copy" class="w-4 h-4 mr-1"></i> Copy
+                        </button>
+                        <button id="download-btn" class="flex items-center px-3 py-1.5 text-sm bg-indigo-500 hover:bg-indigo-600 text-white rounded-md transition-colors" title="Download Output">
+                            <i data-lucide="download" class="w-4 h-4 mr-1"></i> Download
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-auto relative">
+                    <textarea id="output-area" class="code-textarea w-full h-full p-4 bg-transparent resize-none focus:outline-none" placeholder="Converted output will appear here..." readonly></textarea>
+                    <div id="output-placeholder" class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-500 pointer-events-none">
+                        <div class="text-center">
+                            <i data-lucide="arrow-right" class="w-16 h-16 mx-auto mb-2 opacity-50"></i>
+                            <p>Your converted output will appear here.</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="error-message" class="px-4 py-2 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 border-t border-red-200 dark:border-red-800 hidden"></div>
+            </div>
+        </div>
+
+        <!-- Mobile Swap Button -->
+        <div class="lg:hidden flex justify-center my-4">
+            <button id="swap-btn-mobile" class="swap-btn p-3 bg-purple-500 hover:bg-purple-600 text-white rounded-full shadow-lg" title="Swap Input/Output">
+                <i data-lucide="arrow-left-right" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <!-- Toast Notification for Copy -->
+        <div id="copy-toast" class="fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center transition-transform translate-y-20 opacity-0">
+             <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
+             <span>Copied to clipboard!</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- UI Elements ---
+            const inputArea = document.getElementById('input-area');
+            const outputArea = document.getElementById('output-area');
+            const outputPlaceholder = document.getElementById('output-placeholder');
+            const outputControls = document.getElementById('output-controls');
+            const errorMessage = document.getElementById('error-message');
+            const outputFormatLabel = document.getElementById('output-format-label');
+            const inputStatus = document.getElementById('input-status');
+            const indentSelect = document.getElementById('indent-select');
+            const copyToast = document.getElementById('copy-toast');
+
+            const yamlTab = document.getElementById('yaml-tab');
+            const jsonTab = document.getElementById('json-tab');
+
+            let inputFormat = 'yaml'; // 'yaml' or 'json'
+            let debounceTimer;
+
+            // Sample data
+            const sampleYaml = `# Sample YAML Configuration
+server:
+  host: localhost
+  port: 8080
+  ssl:
+    enabled: true
+    cert: /path/to/cert.pem
+
+database:
+  driver: postgresql
+  host: db.example.com
+  port: 5432
+  name: myapp
+  credentials:
+    username: admin
+    password: secret123
+
+features:
+  - name: authentication
+    enabled: true
+  - name: caching
+    enabled: true
+    ttl: 3600
+  - name: logging
+    enabled: true
+    level: info
+
+tags:
+  - production
+  - v2.0
+  - stable`;
+
+            const sampleJson = `{
+  "server": {
+    "host": "localhost",
+    "port": 8080,
+    "ssl": {
+      "enabled": true,
+      "cert": "/path/to/cert.pem"
+    }
+  },
+  "database": {
+    "driver": "postgresql",
+    "host": "db.example.com",
+    "port": 5432,
+    "name": "myapp",
+    "credentials": {
+      "username": "admin",
+      "password": "secret123"
+    }
+  },
+  "features": [
+    { "name": "authentication", "enabled": true },
+    { "name": "caching", "enabled": true, "ttl": 3600 },
+    { "name": "logging", "enabled": true, "level": "info" }
+  ],
+  "tags": ["production", "v2.0", "stable"]
+}`;
+
+            // --- Core Conversion Functions ---
+            function convert() {
+                const input = inputArea.value.trim();
+                errorMessage.classList.add('hidden');
+                errorMessage.textContent = '';
+
+                if (!input) {
+                    outputArea.value = '';
+                    outputControls.style.display = 'none';
+                    outputPlaceholder.style.display = 'flex';
+                    inputStatus.textContent = '';
+                    return;
+                }
+
+                try {
+                    let result;
+                    const indent = indentSelect.value === '\\t' ? '\t' : parseInt(indentSelect.value);
+
+                    if (inputFormat === 'yaml') {
+                        // YAML to JSON
+                        const parsed = jsyaml.load(input);
+                        result = JSON.stringify(parsed, null, indent);
+                        outputFormatLabel.textContent = 'Output: JSON';
+                        inputStatus.textContent = 'Valid YAML';
+                        inputStatus.className = 'absolute bottom-2 left-4 text-xs text-green-500';
+                    } else {
+                        // JSON to YAML
+                        const parsed = JSON.parse(input);
+                        result = jsyaml.dump(parsed, { 
+                            indent: typeof indent === 'number' ? indent : 2,
+                            lineWidth: -1, // Don't wrap lines
+                            noRefs: true,
+                            sortKeys: false
+                        });
+                        outputFormatLabel.textContent = 'Output: YAML';
+                        inputStatus.textContent = 'Valid JSON';
+                        inputStatus.className = 'absolute bottom-2 left-4 text-xs text-green-500';
+                    }
+
+                    outputArea.value = result;
+                    outputControls.style.display = 'flex';
+                    outputPlaceholder.style.display = 'none';
+
+                } catch (e) {
+                    outputArea.value = '';
+                    outputControls.style.display = 'none';
+                    outputPlaceholder.style.display = 'flex';
+                    errorMessage.textContent = `Error: ${e.message}`;
+                    errorMessage.classList.remove('hidden');
+                    inputStatus.textContent = `Invalid ${inputFormat.toUpperCase()}`;
+                    inputStatus.className = 'absolute bottom-2 left-4 text-xs text-red-500';
+                }
+            }
+
+            // --- Tab Switching ---
+            function setActiveTab(format) {
+                inputFormat = format;
+                if (format === 'yaml') {
+                    yamlTab.classList.add('active');
+                    jsonTab.classList.remove('active');
+                    inputArea.placeholder = 'Paste your YAML here...';
+                } else {
+                    jsonTab.classList.add('active');
+                    yamlTab.classList.remove('active');
+                    inputArea.placeholder = 'Paste your JSON here...';
+                }
+                convert();
+            }
+
+            yamlTab.addEventListener('click', () => setActiveTab('yaml'));
+            jsonTab.addEventListener('click', () => setActiveTab('json'));
+
+            // --- Event Handlers ---
+
+            // Real-time conversion with debounce
+            inputArea.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(convert, 200);
+            });
+
+            // Indent change
+            indentSelect.addEventListener('change', convert);
+
+            // Clear button
+            document.getElementById('clear-input-btn').addEventListener('click', function() {
+                inputArea.value = '';
+                convert();
+            });
+
+            // Sample button
+            document.getElementById('sample-btn').addEventListener('click', function() {
+                inputArea.value = inputFormat === 'yaml' ? sampleYaml : sampleJson;
+                convert();
+            });
+
+            // Copy button
+            document.getElementById('copy-btn').addEventListener('click', function() {
+                if (!outputArea.value) return;
+                navigator.clipboard.writeText(outputArea.value).then(() => {
+                    showCopyToast();
+                }).catch(err => {
+                    // Fallback for older browsers
+                    outputArea.select();
+                    document.execCommand('copy');
+                    showCopyToast();
+                });
+            });
+
+            // Download button
+            document.getElementById('download-btn').addEventListener('click', function() {
+                if (!outputArea.value) return;
+                const outputFormat = inputFormat === 'yaml' ? 'json' : 'yaml';
+                const mimeType = outputFormat === 'json' ? 'application/json' : 'text/yaml';
+                const extension = outputFormat === 'json' ? 'json' : 'yaml';
+                
+                const blob = new Blob([outputArea.value], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `converted.${extension}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            // File Upload
+            document.getElementById('upload-btn').addEventListener('click', () => document.getElementById('file-input').click());
+            document.getElementById('file-input').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        inputArea.value = e.target.result;
+                        // Auto-detect format based on file extension
+                        if (file.name.endsWith('.json')) {
+                            setActiveTab('json');
+                        } else if (file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
+                            setActiveTab('yaml');
+                        }
+                        convert();
+                    };
+                    reader.readAsText(file);
+                }
+                this.value = '';
+            });
+
+            // Swap functionality
+            function swapInputOutput() {
+                if (!outputArea.value) return;
+                
+                // Swap the content
+                inputArea.value = outputArea.value;
+                
+                // Toggle the format
+                const newFormat = inputFormat === 'yaml' ? 'json' : 'yaml';
+                setActiveTab(newFormat);
+            }
+
+            document.getElementById('swap-btn')?.addEventListener('click', swapInputOutput);
+            document.getElementById('swap-btn-mobile')?.addEventListener('click', swapInputOutput);
+
+            // --- Helper Functions ---
+            function showCopyToast() {
+                copyToast.classList.remove('opacity-0', 'translate-y-20');
+                setTimeout(() => {
+                    copyToast.classList.add('opacity-0', 'translate-y-20');
+                }, 2000);
+            }
+
+            // Initialize Lucide icons
+            lucide.createIcons();
+        });
+    </script>
+    <script>
+        // Standalone dark mode toggle
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggle = document.getElementById('theme-toggle');
+            const html = document.documentElement;
+
+            const shouldUseDark = localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (shouldUseDark) {
+                html.classList.add('dark');
+            } else {
+                html.classList.remove('dark');
+            }
+
+            if (toggle) {
+                toggle.addEventListener('click', () => {
+                    html.classList.toggle('dark');
+                    localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
