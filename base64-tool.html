@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Encode and decode Base64 strings with file support">
+    <title>Base64 Encoder/Decoder | Dev Tools</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="shared-styles.css">
+</head>
+
+<body>
+    <div class="tool-container">
+        <a href="index.html" class="nav-back"><i class="bi bi-arrow-left"></i> Back to Tools</a>
+
+        <header class="tool-header">
+            <h1><i class="bi bi-file-binary"></i> Base64 Encoder/Decoder</h1>
+            <div class="tool-actions"></div>
+        </header>
+
+        <div class="split-container">
+            <!-- Input Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">Input</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button type="button" class="btn btn-primary" id="encodeBtn">
+                            <i class="bi bi-arrow-right"></i> Encode
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="decodeBtn">
+                            <i class="bi bi-arrow-left"></i> Decode
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Text Input</label>
+                    <textarea id="inputText" class="form-textarea code" rows="10"
+                        placeholder="Enter text to encode or Base64 to decode..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Or upload a file</label>
+                    <input type="file" id="fileInput" class="form-input">
+                </div>
+
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to encode
+                </div>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">Output</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button type="button" class="btn btn-secondary" id="copyBtn">
+                            <i class="bi bi-clipboard"></i> Copy
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="downloadBtn">
+                            <i class="bi bi-download"></i> Download
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="clearBtn">
+                            <i class="bi bi-x-lg"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <textarea id="outputText" class="form-textarea code" rows="10" readonly
+                    placeholder="Result will appear here..."></textarea>
+
+                <div id="stats" class="status-message" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="shared-utils.js"></script>
+    <script>
+        // DOM Elements
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const fileInput = document.getElementById('fileInput');
+        const encodeBtn = document.getElementById('encodeBtn');
+        const decodeBtn = document.getElementById('decodeBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const stats = document.getElementById('stats');
+
+        let lastOperation = 'encode';
+
+        // Initialize tool
+        const sharedData = initTool({
+            toolName: 'base64',
+            onExecute: () => encode(),
+            onHistorySelect: (value) => {
+                inputText.value = value;
+            },
+            getShareData: () => ({
+                input: inputText.value,
+                operation: lastOperation
+            })
+        });
+
+        // Load shared data if present
+        if (sharedData) {
+            inputText.value = sharedData.input || '';
+            if (sharedData.operation === 'decode') {
+                decode();
+            } else {
+                encode();
+            }
+        }
+
+        // Encode function
+        function encode() {
+            try {
+                const input = inputText.value;
+                if (!input) {
+                    showError('Please enter some text to encode');
+                    return;
+                }
+
+                const encoded = btoa(unescape(encodeURIComponent(input)));
+                outputText.value = encoded;
+                lastOperation = 'encode';
+
+                HistoryManager.addToHistory('base64', input);
+                showStats(input.length, encoded.length, 'Encoded');
+            } catch (e) {
+                showError('Encoding failed: ' + e.message);
+            }
+        }
+
+        // Decode function
+        function decode() {
+            try {
+                const input = inputText.value.trim();
+                if (!input) {
+                    showError('Please enter Base64 to decode');
+                    return;
+                }
+
+                const decoded = decodeURIComponent(escape(atob(input)));
+                outputText.value = decoded;
+                lastOperation = 'decode';
+
+                HistoryManager.addToHistory('base64', input);
+                showStats(input.length, decoded.length, 'Decoded');
+            } catch (e) {
+                showError('Invalid Base64 string: ' + e.message);
+            }
+        }
+
+        // File handling
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                // Convert ArrayBuffer to Base64
+                const bytes = new Uint8Array(reader.result);
+                let binary = '';
+                bytes.forEach(byte => binary += String.fromCharCode(byte));
+                const base64 = btoa(binary);
+
+                outputText.value = base64;
+                stats.textContent = `File "${file.name}" (${formatBytes(file.size)}) encoded to Base64`;
+                stats.className = 'status-message status-success';
+                stats.style.display = 'block';
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        // Button handlers
+        encodeBtn.addEventListener('click', encode);
+        decodeBtn.addEventListener('click', decode);
+
+        copyBtn.addEventListener('click', async () => {
+            if (outputText.value) {
+                await copyToClipboard(outputText.value);
+                showCopyFeedback('Copied to clipboard!');
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (outputText.value) {
+                const filename = lastOperation === 'encode' ? 'encoded.txt' : 'decoded.txt';
+                downloadFile(outputText.value, filename);
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            outputText.value = '';
+            fileInput.value = '';
+            stats.style.display = 'none';
+        });
+
+        // Helper functions
+        function showStats(inputLen, outputLen, operation) {
+            const ratio = ((outputLen / inputLen) * 100).toFixed(1);
+            stats.textContent = `${operation}: ${inputLen} chars → ${outputLen} chars (${ratio}%)`;
+            stats.className = 'status-message status-success';
+            stats.style.display = 'block';
+        }
+
+        function showError(message) {
+            stats.textContent = message;
+            stats.className = 'status-message status-error';
+            stats.style.display = 'block';
+        }
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+
+</html>
