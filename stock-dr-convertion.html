@@ -1220,16 +1220,19 @@
                 for (const t of altTickers) {
                     if (result) break;
 
-                    // Try Yahoo Finance Chart API
-                    result = await tryFetchFromYahoo(t);
+                    // Try our own Vercel API first (no CORS issues!)
+                    result = await tryFetchFromOwnAPI(t);
 
-                    // Try Yahoo Quote API
+                    // Fallback: Try Yahoo Finance via CORS proxies
+                    if (!result) result = await tryFetchFromYahoo(t);
+
+                    // Fallback: Try Yahoo Quote API
                     if (!result) result = await tryFetchFromYahooQuote(t);
 
-                    // Try Finnhub
+                    // Fallback: Try Finnhub
                     if (!result) result = await tryFetchFromFinnhub(t);
 
-                    // Try Alpha Vantage
+                    // Fallback: Try Alpha Vantage
                     if (!result) result = await tryFetchFromAlphaVantage(t);
                 }
 
@@ -1264,7 +1267,52 @@
             }
         }
 
-        // CORS Proxies to try (in order)
+        // Try fetching from our own Vercel API (deployed at /api/stock-price)
+        async function tryFetchFromOwnAPI(ticker) {
+            try {
+                // Use relative URL when deployed on Vercel
+                const isLocal = window.location.hostname === 'localhost' ||
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.protocol === 'file:';
+
+                // Skip own API if running locally (won't work without Vercel)
+                if (isLocal) {
+                    console.log('Running locally, skipping own API');
+                    return null;
+                }
+
+                const apiUrl = `/api/stock-price?symbol=${ticker}`;
+                console.log(`Trying own API: ${apiUrl}`);
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+                const response = await fetch(apiUrl, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    console.log(`Own API returned ${response.status}`);
+                    return null;
+                }
+
+                const data = await response.json();
+
+                if (data.price && data.price > 0) {
+                    console.log(`✓ Got price from own API: $${data.price}`);
+                    return {
+                        price: data.price,
+                        change: data.change || 0,
+                        changePercent: data.changePercent || 0
+                    };
+                }
+                return null;
+            } catch (error) {
+                console.log('Own API fetch failed:', error.message);
+                return null;
+            }
+        }
+
+        // CORS Proxies to try (in order) - fallback when own API fails
         const corsProxies = [
             (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
             (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
