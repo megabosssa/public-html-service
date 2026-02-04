@@ -28,21 +28,127 @@
             transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
             transition-duration: 150ms;
         }
+
+        /* Shared Utils Styles Adaptation */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            transition: all 150ms;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            background-color: white;
+            border: 1px solid #e2e8f0; /* slate-200 */
+            color: #475569; /* slate-600 */
+        }
+        .btn-secondary:hover {
+            background-color: #f8fafc; /* slate-50 */
+        }
+
+        /* Theme toggle specific */
+        .theme-toggle {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+        }
+        .theme-toggle:hover {
+            background-color: #f8fafc;
+        }
+
+        /* History Dropdown */
+        .history-dropdown {
+            position: relative;
+        }
+        .history-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 50;
+            display: none;
+        }
+        .history-menu.show {
+            display: block;
+        }
+        .history-item {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .history-item:hover {
+            background-color: #f8fafc;
+        }
+        .btn-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Copy feedback */
+        .copy-feedback {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: #10b981; /* emerald-500 */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 300ms;
+            z-index: 100;
+        }
+        .copy-feedback.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen p-4">
 
     <div class="max-w-7xl mx-auto space-y-6">
+
+        <a href="index.html" class="flex items-center space-x-1 text-slate-500 hover:text-blue-600 text-sm transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to Tools</span>
+        </a>
         
         <!-- Header -->
-        <header class="flex items-center space-x-3 pb-4 border-b border-slate-200">
-            <div class="bg-blue-600 p-2 rounded-lg text-white">
-                <i data-lucide="terminal" class="w-6 h-6"></i>
+        <header class="flex items-center justify-between pb-4 border-b border-slate-200">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 p-2 rounded-lg text-white">
+                    <i data-lucide="terminal" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900">DQL Query Builder</h1>
+                    <p class="text-slate-500 text-sm">Generate standardized Dynatrace log queries for API Factory</p>
+                </div>
             </div>
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900">DQL Query Builder</h1>
-                <p class="text-slate-500 text-sm">Generate standardized Dynatrace log queries for API Factory</p>
-            </div>
+            <div class="tool-actions flex items-center space-x-2"></div>
         </header>
 
         <main class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -652,6 +758,11 @@
             els.outputArea.select();
             document.execCommand('copy');
             
+            // Save to history
+            // We save a deep copy of state to ensure history is immutable
+            const stateCopy = JSON.parse(JSON.stringify(state));
+            HistoryManager.addToHistory('dql-builder', stateCopy);
+
             // Visual feedback
             const originalText = els.copyBtnText.textContent;
             const icon = els.copyBtn.querySelector('i');
@@ -675,6 +786,70 @@
         generateDQL();
         lucide.createIcons();
 
+        // --- Shared Utils Integration ---
+
+        function restoreState(savedState) {
+            // Update state object
+            if (typeof savedState === 'string') {
+                try {
+                    savedState = JSON.parse(savedState);
+                } catch(e) {
+                    // Fallback if string is just DQL query or invalid
+                    console.error("Invalid state format");
+                    return;
+                }
+            }
+
+            Object.assign(state, savedState);
+
+            // Update UI inputs to match state
+            els.relativeTimeInput.value = state.relativeTime;
+            els.startTimeInput.value = state.startTime;
+            els.endTimeInput.value = state.endTime;
+
+            els.namespaceSelect.value = state.namespace;
+            els.customNamespaceInput.value = state.customNamespace;
+
+            els.contentPathInput.value = state.contentPath;
+
+            els.serviceTypeSelect.value = state.serviceType;
+            els.customServiceTypeInput.value = state.customServiceType;
+            els.serviceNameInput.value = state.serviceName;
+            els.statusCodeInput.value = state.statusCode;
+
+            els.limitInput.value = state.limit;
+
+            // Re-render all UI
+            renderTimeUI();
+            renderNamespaceUI();
+            renderServiceUI();
+            renderParsingUI();
+            renderPhrases();
+            renderFields();
+            renderSortUI();
+
+            // Regenerate Output
+            generateDQL();
+        }
+
+        // Initialize Shared Tools (History, Share, Theme)
+        // Must wait for shared-utils.js to be loaded, but it is synchronous at bottom of body
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initTool === 'function') {
+                const sharedData = initTool({
+                    toolName: 'dql-builder',
+                    onExecute: generateDQL,
+                    onHistorySelect: restoreState,
+                    getShareData: () => state
+                });
+
+                if (sharedData) {
+                    restoreState(sharedData);
+                }
+            }
+        });
+
     </script>
+    <script src="shared-utils.js"></script>
 </body>
 </html>
