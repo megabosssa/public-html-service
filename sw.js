@@ -9,9 +9,9 @@ const CACHE_NAME = 'phs-cache-v1';
 const STATIC_ASSETS = [
     './',
     './index.html',
-    './shared-styles.css',
-    './shared-utils.js',
-    './global.css'
+    './assets/css/shared-styles.css',
+    './assets/js/shared-utils.js',
+    './assets/css/global.css'
 ];
 
 // Install event - cache static assets

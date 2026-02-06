@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Template Config Tool</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        .sub-order-label {
+            font-weight: 700;
+            color: #6366f1;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            background: #e0e7ff;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        .sign-badge {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-weight: bold;
+            font-family: monospace;
+            margin-right: 12px;
+            font-size: 1.1em;
+        }
+        .sign-plus { background: #dcfce7; color: #198754; }
+        .sign-minus { background: #fee2e2; color: #dc3545; }
+
+        input.input-val {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+        .summary-card {
+            background: #212529;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-4">
+    <!-- Navigation -->
+    <nav class="simple-nav mb-4">
+        <a href="../index.html">Home</a> | <a href="javascript:history.back()">Back</a>
+    </nav>
+
+    <!-- Header -->
+    <header class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-primary">Billpayment template calculator</h1>
+        <p class="lead text-muted">Dynamic summation based on system configuration tables.</p>
+    </header>
+
+    <!-- Main Card -->
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-body p-4 p-md-5">
+            <!-- Template Select -->
+            <div class="mb-5">
+                <label for="templateSelect" class="form-label fw-bold text-dark fs-5">Select Payment Template Name</label>
+                <select id="templateSelect" class="form-select form-select-lg border-2" onchange="renderTemplate()">
+                    <option value="">-- Select a configuration --</option>
+                </select>
+            </div>
+
+            <!-- Groups Display -->
+            <div id="groupsDisplay"></div>
+
+            <!-- Summary -->
+            <div id="summary" class="card summary-card mt-5 border-0 rounded-3 shadow-lg" style="display:none;">
+                <div class="card-body d-flex justify-content-between align-items-center p-4">
+                    <span class="h4 mb-0 text-white-50">Grand Total</span>
+                    <span id="grandTotal" class="display-5 fw-bold text-success">0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Data Mapping from common_payment_template_feature_group_config [cite: 3, 4, 5, 6, 7]
+    const featureGroups = {
+        "all_together_payer": [
+            {f: "PAY_BILL_AMOUNT", s: "+"}, {f: "EWHT", s: "+"}, {f: "CHANNEL_FEE", s: "+"},
+            {f: "PARTNER_FEE", s: "+"}, {f: "EWHT_FEE", s: "+"}, {f: "ADVICE_SMS_FEE", s: "+"},
+            {f: "ADVICE_EMAIL_FEE", s: "+"}, {f: "ADVICE_URL_FEE", s: "+"}, {f: "SERVICE_BANK_FEE", s: "+"},
+            {f: "BILLER_FEE", s: "+"}, {f: "INTER_REGION_FEE", s: "+"}
+        ],
+        "principal_payer": [{f: "PAY_BILL_AMOUNT", s: "+"}, {f: "EWHT", s: "+"}],
+        "all_fee_payer": [
+            {f: "CHANNEL_FEE", s: "+"}, {f: "PARTNER_FEE", s: "+"}, {f: "EWHT_FEE", s: "+"},
+            {f: "ADVICE_SMS_FEE", s: "+"}, {f: "ADVICE_EMAIL_FEE", s: "+"}, {f: "ADVICE_URL_FEE", s: "+"},
+            {f: "SERVICE_BANK_FEE", s: "+"}, {f: "BILLER_FEE", s: "+"}, {f: "INTER_REGION_FEE", s: "+"}
+        ],
+        "advice_fee": [{f: "ADVICE_SMS_FEE", s: "+"}, {f: "ADVICE_EMAIL_FEE", s: "+"}, {f: "ADVICE_URL_FEE", s: "+"}],
+        "ewht": [{f: "EWHT", s: "+"}, {f: "EWHT_FEE", s: "+"}],
+        "the_rest_by_feature": [
+            {f: "PAY_BILL_AMOUNT", s: "+"}, {f: "CHANNEL_FEE", s: "+"}, {f: "PARTNER_FEE", s: "+"},
+            {f: "SERVICE_BANK_FEE", s: "+"}, {f: "BILLER_FEE", s: "+"}, {f: "INTER_REGION_FEE", s: "+"}
+        ],
+        "net_amount_biller": [{f: "PAY_BILL_AMOUNT", s: "+"}, {f: "BILLER_FEE", s: "-"}, {f: "INTER_REGION_FEE", s: "-"}],
+        "principal_biller": [{f: "PAY_BILL_AMOUNT", s: "+"}],
+        "all_fee_biller": [{f: "BILLER_FEE", s: "+"}, {f: "INTER_REGION_FEE", s: "+"}]
+    };
+
+    // Template Mapping from common_payment_template_config [cite: 10, 11, 12]
+    const templates = {
+        "payer_template_001/altogether": ["all_together_payer"],
+        "payer_template_002/fee_separate": ["principal_payer", "all_fee_payer"],
+        "payer_template_003/by_feature": ["advice_fee", "ewht", "the_rest_by_feature"],
+        "biller_template_001/net_amount": ["net_amount_biller"],
+        "biller_template_002/fee_separate": ["principal_biller", "all_fee_biller"]
+    };
+
+    const select = document.getElementById('templateSelect');
+    Object.keys(templates).forEach(t => {
+        let opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = t;
+        select.appendChild(opt);
+    });
+
+    function renderTemplate() {
+        const templateName = select.value;
+        const container = document.getElementById('groupsDisplay');
+        const summary = document.getElementById('summary');
+        container.innerHTML = '';
+
+        if (!templateName) {
+            summary.style.display = 'none';
+            return;
+        }
+
+        summary.style.display = 'block';
+        templates[templateName].forEach((groupName, index) => {
+            const groupCard = document.createElement('div');
+            groupCard.className = 'card mb-4 border shadow-sm';
+
+            groupCard.innerHTML = `
+                <div class="card-header d-flex justify-content-between align-items-center bg-light-subtle py-3 px-4">
+                    <div class="d-flex align-items-center">
+                        <span class="sub-order-label me-3">Sub order ${index + 1}</span>
+                        <span class="fw-bold text-dark mb-0 h6">${groupName}</span>
+                    </div>
+                    <div class="fw-bold text-muted small text-uppercase">Subtotal: <span id="sub-${groupName}" class="text-success fs-6 ms-1">0.00</span></div>
+                </div>
+                <div class="card-body p-0" id="fields-${groupName}"></div>
+            `;
+            container.appendChild(groupCard);
+
+            const fieldsContainer = document.getElementById(`fields-${groupName}`);
+            featureGroups[groupName].forEach((item, i, arr) => {
+                const row = document.createElement('div');
+                const isLast = i === arr.length - 1;
+                // Add border-bottom except for the last item
+                row.className = `row align-items-center p-3 m-0 ${isLast ? '' : 'border-bottom'}`;
+
+                const signClass = item.s === '+' ? 'sign-plus' : 'sign-minus';
+
+                row.innerHTML = `
+                    <div class="col d-flex align-items-center">
+                        <span class="sign-badge ${signClass}">${item.s}</span>
+                        <span class="text-secondary fw-medium">${item.f}</span>
+                    </div>
+                    <div class="col-auto" style="min-width: 150px;">
+                        <div class="input-group">
+                             <input type="number" step="0.01" value="0"
+                               class="form-control text-end input-val border-secondary-subtle" data-group="${groupName}"
+                               data-sign="${item.s}" oninput="calculate()">
+                        </div>
+                    </div>
+                `;
+                fieldsContainer.appendChild(row);
+            });
+        });
+        calculate();
+    }
+
+    function calculate() {
+        let grandTotal = 0;
+        const groupSums = {};
+
+        document.querySelectorAll('.input-val').forEach(input => {
+            const val = parseFloat(input.value) || 0;
+            const sign = input.dataset.sign === '+' ? 1 : -1;
+            const group = input.dataset.group;
+
+            if (!groupSums[group]) groupSums[group] = 0;
+            groupSums[group] += (val * sign);
+            grandTotal += (val * sign);
+        });
+
+        for (let group in groupSums) {
+            const el = document.getElementById(`sub-${group}`);
+            if (el) el.textContent = groupSums[group].toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+
+        document.getElementById('grandTotal').textContent = grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+</script>
+</body>
+</html>
