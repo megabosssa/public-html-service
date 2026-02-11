@@ -17,23 +17,37 @@
 
         .table-container {
             overflow-x: auto;
+            overflow-y: auto;
             border: 1px solid var(--color-border);
             border-radius: var(--radius-md);
             background: var(--color-bg-secondary);
+            max-height: 70vh;
+            transition: max-height 0.3s ease;
+        }
+
+        .table-container.table-fullheight {
+            max-height: none;
         }
 
         .csv-table {
             width: 100%;
             border-collapse: collapse;
             font-size: var(--font-size-sm);
+            table-layout: fixed;
         }
 
         .csv-table th,
         .csv-table td {
-            padding: 0.5rem;
+            padding: 0.5rem 0.6rem;
             border: 1px solid var(--color-border);
             text-align: left;
-            min-width: 100px;
+            min-width: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            position: relative;
+            cursor: default;
+            user-select: none;
         }
 
         .csv-table th {
@@ -41,31 +55,134 @@
             font-weight: 600;
             position: sticky;
             top: 0;
-            z-index: 1;
+            z-index: 2;
         }
 
         .csv-table tr:nth-child(even) {
             background: var(--color-bg-tertiary);
         }
 
-        .csv-table tr:hover {
-            background: var(--color-accent-light);
+        .csv-table tr:hover td:not(.row-number) {
+            background: rgba(99, 102, 241, 0.04);
         }
 
-        .csv-table input {
+        /* Cell content span */
+        .csv-table td .cell-text {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            line-height: 1.5;
+            min-height: 1.5em;
+        }
+
+        /* Unfolded mode: wrap text, show full content */
+        .table-unfolded .csv-table th,
+        .table-unfolded .csv-table td {
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            overflow: visible;
+            text-overflow: clip;
+        }
+
+        .table-unfolded .csv-table td .cell-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            overflow: visible;
+            text-overflow: clip;
+        }
+
+        .table-unfolded .csv-table {
+            table-layout: auto;
+        }
+
+        /* Fold/Unfold button active state */
+        .btn-fold-active {
+            background: var(--color-accent, #6366f1) !important;
+            color: #fff !important;
+            border-color: var(--color-accent, #6366f1) !important;
+        }
+
+        /* Auto-fit button */
+        .btn-autofit {
+            position: relative;
+        }
+
+        /* Selected cell */
+        .csv-table td.cell-selected {
+            outline: 2px solid var(--color-accent, #6366f1);
+            outline-offset: -2px;
+            background: rgba(99, 102, 241, 0.08) !important;
+            z-index: 1;
+        }
+
+        /* Inline edit input (textarea for multiline) */
+        .csv-table td .cell-edit-input {
             width: 100%;
-            padding: 0.25rem;
+            padding: 0;
+            border: none;
+            background: var(--color-bg-input, #fff);
+            color: inherit;
+            font-size: inherit;
+            font-family: inherit;
+            line-height: 1.5;
+            outline: none;
+            resize: none;
+            overflow: hidden;
+            min-height: 1.5em;
+            box-sizing: border-box;
+            field-sizing: content;
+        }
+
+        /* Header inputs remain as before */
+        .csv-table th .header-input {
+            width: 100%;
+            padding: 0.15rem 0.25rem;
             border: 1px solid transparent;
             background: transparent;
             color: inherit;
             font-size: inherit;
             font-family: inherit;
+            font-weight: 600;
         }
 
-        .csv-table input:focus {
-            border-color: var(--color-border-focus);
+        .csv-table th .header-input:focus {
+            border-color: var(--color-border-focus, #6366f1);
             outline: none;
-            background: var(--color-bg-input);
+            background: var(--color-bg-input, #fff);
+        }
+
+        /* Column resize handle */
+        .col-resize-handle {
+            position: absolute;
+            right: -3px;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            cursor: col-resize;
+            z-index: 3;
+            user-select: none;
+        }
+
+        .col-resize-handle:hover,
+        .col-resize-handle.active {
+            background: var(--color-accent, #6366f1);
+            opacity: 0.5;
+        }
+
+        /* Resize guide line */
+        .resize-guide {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--color-accent, #6366f1);
+            opacity: 0.6;
+            z-index: 9999;
+            pointer-events: none;
+            display: none;
         }
 
         .row-number {
@@ -121,6 +238,215 @@
         .drop-zone i {
             font-size: 2rem;
             margin-bottom: 0.5rem;
+        }
+
+        /* Formula Bar (Excel-like cell editor) */
+        .formula-bar {
+            display: none;
+            align-items: stretch;
+            gap: 0;
+            margin-bottom: 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: var(--color-bg-secondary);
+            min-height: 36px;
+            max-height: 150px;
+            transition: max-height 0.2s ease;
+        }
+
+        .formula-bar.visible {
+            display: flex;
+        }
+
+        .formula-bar-ref {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            padding: 0.4rem 0.75rem;
+            background: var(--color-bg-tertiary);
+            border-right: 1px solid var(--color-border);
+            font-family: var(--font-mono);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--color-accent, #6366f1);
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .formula-bar-icon {
+            display: flex;
+            align-items: center;
+            padding: 0 0.5rem;
+            border-right: 1px solid var(--color-border);
+            color: var(--color-text-muted);
+            font-size: 0.85rem;
+        }
+
+        .formula-bar-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 0.4rem 0.75rem;
+            font-size: var(--font-size-sm);
+            font-family: var(--font-mono);
+            background: transparent;
+            color: inherit;
+            resize: none;
+            line-height: 1.5;
+            min-height: 28px;
+        }
+
+        .formula-bar-input:focus {
+            background: var(--color-bg-input, #fff);
+        }
+
+        .formula-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0 0.5rem;
+            border-left: 1px solid var(--color-border);
+        }
+
+        .formula-bar-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem 0.4rem;
+            border-radius: var(--radius-sm, 4px);
+            color: var(--color-text-muted);
+            font-size: 1rem;
+            line-height: 1;
+            transition: all 0.15s;
+        }
+
+        .formula-bar-actions button:hover {
+            background: var(--color-bg-tertiary);
+            color: var(--color-text);
+        }
+
+        .formula-bar-actions .fb-confirm:hover {
+            color: #22c55e;
+        }
+
+        .formula-bar-actions .fb-cancel:hover {
+            color: #ef4444;
+        }
+
+        .formula-bar-actions .fb-expand:hover {
+            color: var(--color-accent, #6366f1);
+        }
+
+        /* Expanded editor modal */
+        .cell-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .cell-modal-overlay.visible {
+            display: flex;
+        }
+
+        .cell-modal {
+            background: var(--color-bg-secondary, #fff);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg, 12px);
+            width: min(90vw, 700px);
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalIn 0.2s ease-out;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.95) translateY(10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .cell-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .cell-modal-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cell-modal-header .cell-ref-badge {
+            font-family: var(--font-mono);
+            background: var(--color-accent, #6366f1);
+            color: #fff;
+            padding: 0.15rem 0.5rem;
+            border-radius: var(--radius-sm, 4px);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .cell-modal-body {
+            flex: 1;
+            padding: 1.25rem;
+            overflow: auto;
+        }
+
+        .cell-modal-body textarea {
+            width: 100%;
+            min-height: 200px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md, 8px);
+            padding: 0.75rem;
+            font-family: var(--font-mono);
+            font-size: var(--font-size-sm);
+            background: var(--color-bg-input, #fff);
+            color: inherit;
+            resize: vertical;
+            line-height: 1.6;
+            outline: none;
+        }
+
+        .cell-modal-body textarea:focus {
+            border-color: var(--color-accent, #6366f1);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .cell-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--color-border);
+        }
+
+        /* No-data body styling */
+        body.resizing-columns {
+            cursor: col-resize !important;
+            user-select: none !important;
+        }
+
+        body.resizing-columns * {
+            cursor: col-resize !important;
         }
     </style>
 </head>
@@ -195,6 +521,17 @@ Jane,30,Los Angeles"></textarea>
             <button type="button" class="btn btn-secondary" id="addColBtn">
                 <i class="bi bi-plus"></i> Add Column
             </button>
+            <button type="button" class="btn btn-secondary" id="foldBtn" title="Folded: single-line compact view">
+                <i class="bi bi-arrows-collapse"></i> Fold
+            </button>
+            <button type="button" class="btn btn-secondary" id="unfoldBtn"
+                title="Unfolded: expand all cells to show full text">
+                <i class="bi bi-arrows-expand"></i> Unfold
+            </button>
+            <button type="button" class="btn btn-secondary btn-autofit" id="autofitBtn"
+                title="Auto-fit column widths to content">
+                <i class="bi bi-arrows"></i> Auto-fit
+            </button>
             <button type="button" class="btn btn-success" id="exportBtn">
                 <i class="bi bi-download"></i> Export CSV
             </button>
@@ -206,11 +543,53 @@ Jane,30,Los Angeles"></textarea>
             </button>
         </div>
 
+        <!-- Formula Bar -->
+        <div id="formulaBar" class="formula-bar">
+            <div id="formulaRef" class="formula-bar-ref">—</div>
+            <div class="formula-bar-icon"><i class="bi bi-pencil-square"></i></div>
+            <textarea id="formulaInput" class="formula-bar-input" rows="1"
+                placeholder="Select a cell to view or edit its content..."></textarea>
+            <div class="formula-bar-actions">
+                <button type="button" class="fb-confirm" title="Confirm (Enter)"><i class="bi bi-check-lg"></i></button>
+                <button type="button" class="fb-cancel" title="Cancel (Esc)"><i class="bi bi-x-lg"></i></button>
+                <button type="button" class="fb-expand" title="Expand editor"><i
+                        class="bi bi-arrows-fullscreen"></i></button>
+            </div>
+        </div>
+
         <!-- Table Container -->
-        <div id="tableContainer" class="table-container" style="display: none; max-height: 500px; overflow: auto;">
+        <div id="tableContainer" class="table-container" style="display: none;">
             <table id="csvTable" class="csv-table"></table>
         </div>
     </div>
+
+    <!-- Expanded Cell Editor Modal -->
+    <div id="cellModalOverlay" class="cell-modal-overlay">
+        <div class="cell-modal">
+            <div class="cell-modal-header">
+                <h3>
+                    <i class="bi bi-pencil-square"></i>
+                    Edit Cell
+                    <span id="modalCellRef" class="cell-ref-badge">—</span>
+                </h3>
+                <button type="button" class="btn btn-secondary" id="modalCloseBtn" style="padding: 0.25rem 0.5rem;">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="cell-modal-body">
+                <textarea id="modalTextarea" placeholder="Enter cell content..."></textarea>
+            </div>
+            <div class="cell-modal-footer">
+                <button type="button" class="btn btn-secondary" id="modalCancelBtn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="modalSaveBtn">
+                    <i class="bi bi-check-lg"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resize guide line -->
+    <div id="resizeGuide" class="resize-guide"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script src="../../assets/js/shared-utils.js"></script>
@@ -234,9 +613,41 @@ Jane,30,Los Angeles"></textarea>
         const copyBtn = document.getElementById('copyBtn');
         const clearTableBtn = document.getElementById('clearTableBtn');
 
+        // Formula bar elements
+        const formulaBar = document.getElementById('formulaBar');
+        const formulaRef = document.getElementById('formulaRef');
+        const formulaInput = document.getElementById('formulaInput');
+        const fbConfirm = document.querySelector('.fb-confirm');
+        const fbCancel = document.querySelector('.fb-cancel');
+        const fbExpand = document.querySelector('.fb-expand');
+
+        // Modal elements
+        const cellModalOverlay = document.getElementById('cellModalOverlay');
+        const modalCellRef = document.getElementById('modalCellRef');
+        const modalTextarea = document.getElementById('modalTextarea');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const modalSaveBtn = document.getElementById('modalSaveBtn');
+
+        // Resize guide
+        const resizeGuide = document.getElementById('resizeGuide');
+
         let data = [];
         let headers = [];
         let editCount = 0;
+        let columnWidths = [];  // Track column widths
+        let isUnfolded = false;  // Fold/unfold state
+
+        // Selected cell state
+        let selectedRow = -1;
+        let selectedCol = -1;
+        let isInlineEditing = false;
+
+        // Column resize state
+        let isResizing = false;
+        let resizeColIndex = -1;
+        let resizeStartX = 0;
+        let resizeStartWidth = 0;
 
         // Initialize tool
         initTool({
@@ -280,6 +691,118 @@ Jane,30,Los Angeles"></textarea>
         });
         clearTableBtn.addEventListener('click', clearTable);
 
+        // Fold / Unfold / Auto-fit buttons
+        const foldBtn = document.getElementById('foldBtn');
+        const unfoldBtn = document.getElementById('unfoldBtn');
+        const autofitBtn = document.getElementById('autofitBtn');
+
+        foldBtn.addEventListener('click', () => setFoldState(true));
+        unfoldBtn.addEventListener('click', () => setFoldState(false));
+        autofitBtn.addEventListener('click', autofitColumns);
+
+        // Formula bar events
+        fbConfirm.addEventListener('click', commitFormulaBar);
+        fbCancel.addEventListener('click', cancelFormulaBar);
+        fbExpand.addEventListener('click', openCellModal);
+        formulaInput.addEventListener('input', autoGrowFormulaBar);
+
+        formulaInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                commitFormulaBar();
+                // Move selection down
+                if (selectedRow < data.length - 1) {
+                    selectCell(selectedRow + 1, selectedCol);
+                }
+            } else if (e.key === 'Escape') {
+                cancelFormulaBar();
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                commitFormulaBar();
+                if (e.shiftKey) {
+                    // Move left
+                    if (selectedCol > 0) selectCell(selectedRow, selectedCol - 1);
+                    else if (selectedRow > 0) selectCell(selectedRow - 1, headers.length - 1);
+                } else {
+                    // Move right
+                    if (selectedCol < headers.length - 1) selectCell(selectedRow, selectedCol + 1);
+                    else if (selectedRow < data.length - 1) selectCell(selectedRow + 1, 0);
+                }
+            }
+        });
+
+        // Modal events
+        modalCloseBtn.addEventListener('click', closeCellModal);
+        modalCancelBtn.addEventListener('click', closeCellModal);
+        modalSaveBtn.addEventListener('click', saveCellModal);
+        cellModalOverlay.addEventListener('click', (e) => {
+            if (e.target === cellModalOverlay) closeCellModal();
+        });
+        modalTextarea.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeCellModal();
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                saveCellModal();
+            }
+        });
+
+        // Keyboard navigation on table
+        document.addEventListener('keydown', (e) => {
+            if (cellModalOverlay.classList.contains('visible')) return;
+            if (document.activeElement === formulaInput) return;
+            if (document.activeElement === csvInput) return;
+            if (selectedRow < 0 || selectedCol < 0) return;
+            if (isInlineEditing) return;
+
+            const key = e.key;
+            if (key === 'ArrowUp' && selectedRow > 0) {
+                e.preventDefault();
+                selectCell(selectedRow - 1, selectedCol);
+            } else if (key === 'ArrowDown' && selectedRow < data.length - 1) {
+                e.preventDefault();
+                selectCell(selectedRow + 1, selectedCol);
+            } else if (key === 'ArrowLeft' && selectedCol > 0) {
+                e.preventDefault();
+                selectCell(selectedRow, selectedCol - 1);
+            } else if (key === 'ArrowRight' && selectedCol < headers.length - 1) {
+                e.preventDefault();
+                selectCell(selectedRow, selectedCol + 1);
+            } else if (key === 'Enter') {
+                e.preventDefault();
+                startInlineEdit();
+            } else if (key === 'Tab') {
+                e.preventDefault();
+                if (e.shiftKey) {
+                    if (selectedCol > 0) selectCell(selectedRow, selectedCol - 1);
+                    else if (selectedRow > 0) selectCell(selectedRow - 1, headers.length - 1);
+                } else {
+                    if (selectedCol < headers.length - 1) selectCell(selectedRow, selectedCol + 1);
+                    else if (selectedRow < data.length - 1) selectCell(selectedRow + 1, 0);
+                }
+            } else if (key === 'Delete' || key === 'Backspace') {
+                e.preventDefault();
+                setCellValue(selectedRow, selectedCol, '');
+                updateFormulaBar();
+            } else if (key === 'F2') {
+                e.preventDefault();
+                startInlineEdit();
+            } else if (key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                // Start typing directly into cell
+                startInlineEdit(key);
+            }
+        });
+
+        // Click outside table to deselect
+        document.addEventListener('mousedown', (e) => {
+            if (isResizing) return;
+            const inTable = e.target.closest('#csvTable');
+            const inFormula = e.target.closest('#formulaBar');
+            const inModal = e.target.closest('.cell-modal');
+            if (!inTable && !inFormula && !inModal) {
+                deselectCell();
+            }
+        });
+
         function handleFile(file) {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -311,29 +834,69 @@ Jane,30,Los Angeles"></textarea>
             headers = result.meta.fields || [];
             data = result.data;
             editCount = 0;
+            selectedRow = -1;
+            selectedCol = -1;
+
+            // Initialize column widths (default 150px per column)
+            columnWidths = headers.map(() => 150);
+            isUnfolded = false;
 
             renderTable();
             updateStats();
+            updateFoldUI();
 
             tableContainer.style.display = 'block';
             statsBar.style.display = 'flex';
             tableActions.style.display = 'flex';
+            formulaBar.classList.add('visible');
+
+            // Auto-fit columns on first parse for better initial view
+            setTimeout(() => autofitColumns(), 50);
+        }
+
+        // Helper: get Excel-style column letter (A, B, ... Z, AA, AB, ...)
+        function getColLetter(index) {
+            let letter = '';
+            let n = index;
+            while (n >= 0) {
+                letter = String.fromCharCode(65 + (n % 26)) + letter;
+                n = Math.floor(n / 26) - 1;
+            }
+            return letter;
+        }
+
+        function getCellRef(row, col) {
+            return getColLetter(col) + (row + 1);
         }
 
         function renderTable() {
             if (headers.length === 0) return;
 
-            let html = '<thead><tr><th class="row-number">#</th>';
+            // Build colgroup for column widths
+            let html = '<colgroup>';
+            html += '<col style="width:50px;">';
+            headers.forEach((_, i) => {
+                html += `<col style="width:${columnWidths[i]}px;" data-col-index="${i}">`;
+            });
+            html += '</colgroup>';
+
+            // Header row
+            html += '<thead><tr><th class="row-number">#</th>';
             headers.forEach((header, i) => {
-                html += `<th><input type="text" value="${escapeHtml(header)}" data-header="${i}"></th>`;
+                html += `<th style="position:relative;">`;
+                html += `<input type="text" class="header-input" value="${escapeHtml(header)}" data-header="${i}">`;
+                html += `<div class="col-resize-handle" data-resize-col="${i}"></div>`;
+                html += `</th>`;
             });
             html += '</tr></thead><tbody>';
 
+            // Data rows — we set textContent later to properly handle newlines
             data.forEach((row, rowIndex) => {
                 html += `<tr><td class="row-number">${rowIndex + 1}</td>`;
                 headers.forEach((header, colIndex) => {
-                    const value = row[header] || '';
-                    html += `<td><input type="text" value="${escapeHtml(value)}" data-row="${rowIndex}" data-col="${colIndex}"></td>`;
+                    html += `<td data-row="${rowIndex}" data-col="${colIndex}">`;
+                    html += `<span class="cell-text"></span>`;
+                    html += `</td>`;
                 });
                 html += '</tr>';
             });
@@ -341,25 +904,40 @@ Jane,30,Los Angeles"></textarea>
             html += '</tbody>';
             csvTable.innerHTML = html;
 
-            // Add event listeners for editing
-            csvTable.querySelectorAll('input[data-row]').forEach(input => {
-                input.addEventListener('change', (e) => {
-                    const row = parseInt(e.target.dataset.row);
-                    const col = parseInt(e.target.dataset.col);
-                    const header = headers[col];
-                    data[row][header] = e.target.value;
-                    editCount++;
-                    updateStats();
+            // Set cell text content (preserves newlines for pre-wrap rendering)
+            csvTable.querySelectorAll('td[data-row]').forEach(td => {
+                const r = parseInt(td.dataset.row);
+                const c = parseInt(td.dataset.col);
+                const header = headers[c];
+                const span = td.querySelector('.cell-text');
+                if (span) span.textContent = data[r][header] || '';
+            });
+
+            // Bind cell click / double-click
+            csvTable.querySelectorAll('td[data-row]').forEach(td => {
+                td.addEventListener('click', (e) => {
+                    const r = parseInt(td.dataset.row);
+                    const c = parseInt(td.dataset.col);
+                    if (isInlineEditing && r === selectedRow && c === selectedCol) return;
+                    finishInlineEdit();
+                    selectCell(r, c);
+                });
+
+                td.addEventListener('dblclick', (e) => {
+                    const r = parseInt(td.dataset.row);
+                    const c = parseInt(td.dataset.col);
+                    selectCell(r, c);
+                    startInlineEdit();
                 });
             });
 
-            csvTable.querySelectorAll('input[data-header]').forEach(input => {
+            // Header editing
+            csvTable.querySelectorAll('.header-input').forEach(input => {
                 input.addEventListener('change', (e) => {
                     const col = parseInt(e.target.dataset.header);
                     const oldHeader = headers[col];
                     const newHeader = e.target.value;
 
-                    // Rename header in data
                     data.forEach(row => {
                         row[newHeader] = row[oldHeader];
                         delete row[oldHeader];
@@ -370,6 +948,251 @@ Jane,30,Los Angeles"></textarea>
                     updateStats();
                 });
             });
+
+            // Column resize handles
+            csvTable.querySelectorAll('.col-resize-handle').forEach(handle => {
+                handle.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    startResize(e, parseInt(handle.dataset.resizeCol));
+                });
+            });
+        }
+
+        // =====================
+        // Column Resizing
+        // =====================
+        function startResize(e, colIndex) {
+            isResizing = true;
+            resizeColIndex = colIndex;
+            resizeStartX = e.clientX;
+            resizeStartWidth = columnWidths[colIndex];
+
+            document.body.classList.add('resizing-columns');
+            resizeGuide.style.display = 'block';
+            resizeGuide.style.left = e.clientX + 'px';
+
+            document.addEventListener('mousemove', onResizeMove);
+            document.addEventListener('mouseup', onResizeEnd);
+        }
+
+        function onResizeMove(e) {
+            if (!isResizing) return;
+            const diff = e.clientX - resizeStartX;
+            const newWidth = Math.max(60, resizeStartWidth + diff);
+            resizeGuide.style.left = e.clientX + 'px';
+
+            // Live preview
+            columnWidths[resizeColIndex] = newWidth;
+            const col = csvTable.querySelector(`col[data-col-index="${resizeColIndex}"]`);
+            if (col) col.style.width = newWidth + 'px';
+        }
+
+        function onResizeEnd(e) {
+            if (!isResizing) return;
+            isResizing = false;
+            document.body.classList.remove('resizing-columns');
+            resizeGuide.style.display = 'none';
+            document.removeEventListener('mousemove', onResizeMove);
+            document.removeEventListener('mouseup', onResizeEnd);
+        }
+
+        // =====================
+        // Cell Selection
+        // =====================
+        function selectCell(row, col) {
+            finishInlineEdit();
+            deselectCellVisual();
+
+            selectedRow = row;
+            selectedCol = col;
+
+            const td = csvTable.querySelector(`td[data-row="${row}"][data-col="${col}"]`);
+            if (td) {
+                td.classList.add('cell-selected');
+                // Scroll into view if needed
+                td.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+            }
+
+            updateFormulaBar();
+        }
+
+        function deselectCell() {
+            finishInlineEdit();
+            deselectCellVisual();
+            selectedRow = -1;
+            selectedCol = -1;
+            formulaRef.textContent = '—';
+            formulaInput.value = '';
+        }
+
+        function deselectCellVisual() {
+            csvTable.querySelectorAll('.cell-selected').forEach(el => el.classList.remove('cell-selected'));
+        }
+
+        function updateFormulaBar() {
+            if (selectedRow < 0 || selectedCol < 0) return;
+            formulaRef.textContent = getCellRef(selectedRow, selectedCol);
+            const header = headers[selectedCol];
+            formulaInput.value = data[selectedRow][header] || '';
+            autoGrowFormulaBar();
+        }
+
+        function autoGrowFormulaBar() {
+            formulaInput.style.height = 'auto';
+            formulaInput.style.height = Math.min(formulaInput.scrollHeight, 140) + 'px';
+        }
+
+        // =====================
+        // Formula Bar Actions
+        // =====================
+        function commitFormulaBar() {
+            if (selectedRow < 0 || selectedCol < 0) return;
+            const newValue = formulaInput.value;
+            setCellValue(selectedRow, selectedCol, newValue);
+        }
+
+        function cancelFormulaBar() {
+            updateFormulaBar(); // Revert to current value
+            formulaInput.blur();
+        }
+
+        function setCellValue(row, col, value) {
+            const header = headers[col];
+            if (data[row][header] !== value) {
+                data[row][header] = value;
+                editCount++;
+                updateStats();
+            }
+            // Update cell display
+            const td = csvTable.querySelector(`td[data-row="${row}"][data-col="${col}"]`);
+            if (td) {
+                const span = td.querySelector('.cell-text');
+                if (span) span.textContent = value;
+            }
+            updateFormulaBar();
+        }
+
+        // =====================
+        // Inline Cell Editing
+        // =====================
+        function startInlineEdit(initialChar) {
+            if (selectedRow < 0 || selectedCol < 0) return;
+            if (isInlineEditing) return;
+
+            isInlineEditing = true;
+            const td = csvTable.querySelector(`td[data-row="${selectedRow}"][data-col="${selectedCol}"]`);
+            if (!td) return;
+
+            const header = headers[selectedCol];
+            const currentValue = data[selectedRow][header] || '';
+
+            const span = td.querySelector('.cell-text');
+            if (span) span.style.display = 'none';
+
+            // Use textarea for multiline support
+            const input = document.createElement('textarea');
+            input.className = 'cell-edit-input';
+            input.value = initialChar !== undefined ? initialChar : currentValue;
+            input.rows = 1;
+            td.appendChild(input);
+            input.focus();
+
+            // Auto-grow the textarea to fit content
+            function autoGrowInline() {
+                input.style.height = 'auto';
+                input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+            }
+            autoGrowInline();
+
+            if (initialChar !== undefined) {
+                // Cursor at end
+                input.setSelectionRange(input.value.length, input.value.length);
+            } else {
+                input.select();
+            }
+
+            // Sync to formula bar
+            formulaInput.value = input.value;
+            autoGrowFormulaBar();
+
+            input.addEventListener('input', () => {
+                formulaInput.value = input.value;
+                autoGrowInline();
+                autoGrowFormulaBar();
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    // Enter commits, Shift+Enter inserts newline
+                    e.preventDefault();
+                    setCellValue(selectedRow, selectedCol, input.value);
+                    finishInlineEdit();
+                    // Move down
+                    if (selectedRow < data.length - 1) {
+                        selectCell(selectedRow + 1, selectedCol);
+                    }
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    finishInlineEdit();
+                    updateFormulaBar();
+                } else if (e.key === 'Tab') {
+                    e.preventDefault();
+                    setCellValue(selectedRow, selectedCol, input.value);
+                    finishInlineEdit();
+                    if (e.shiftKey) {
+                        if (selectedCol > 0) selectCell(selectedRow, selectedCol - 1);
+                        else if (selectedRow > 0) selectCell(selectedRow - 1, headers.length - 1);
+                    } else {
+                        if (selectedCol < headers.length - 1) selectCell(selectedRow, selectedCol + 1);
+                        else if (selectedRow < data.length - 1) selectCell(selectedRow + 1, 0);
+                    }
+                }
+            });
+
+            input.addEventListener('blur', () => {
+                if (isInlineEditing) {
+                    setCellValue(selectedRow, selectedCol, input.value);
+                    finishInlineEdit();
+                }
+            });
+        }
+
+        function finishInlineEdit() {
+            if (!isInlineEditing) return;
+            isInlineEditing = false;
+
+            csvTable.querySelectorAll('.cell-edit-input').forEach(input => {
+                const td = input.parentElement;
+                input.remove();
+                const span = td.querySelector('.cell-text');
+                if (span) span.style.display = '';
+            });
+        }
+
+        // =====================
+        // Expanded Cell Modal
+        // =====================
+        function openCellModal() {
+            if (selectedRow < 0 || selectedCol < 0) return;
+            const ref = getCellRef(selectedRow, selectedCol);
+            const header = headers[selectedCol];
+            const value = data[selectedRow][header] || '';
+
+            modalCellRef.textContent = ref;
+            modalTextarea.value = value;
+            cellModalOverlay.classList.add('visible');
+            setTimeout(() => modalTextarea.focus(), 100);
+        }
+
+        function closeCellModal() {
+            cellModalOverlay.classList.remove('visible');
+        }
+
+        function saveCellModal() {
+            if (selectedRow < 0 || selectedCol < 0) return;
+            setCellValue(selectedRow, selectedCol, modalTextarea.value);
+            closeCellModal();
         }
 
         function updateStats() {
@@ -390,6 +1213,7 @@ Jane,30,Los Angeles"></textarea>
             const colName = prompt('Enter column name:', `Column${headers.length + 1}`);
             if (colName) {
                 headers.push(colName);
+                columnWidths.push(150);
                 data.forEach(row => row[colName] = '');
                 renderTable();
                 updateStats();
@@ -413,11 +1237,79 @@ Jane,30,Los Angeles"></textarea>
             data = [];
             headers = [];
             editCount = 0;
+            columnWidths = [];
+            isUnfolded = false;
+            selectedRow = -1;
+            selectedCol = -1;
             csvTable.innerHTML = '';
             tableContainer.style.display = 'none';
+            tableContainer.classList.remove('table-unfolded', 'table-fullheight');
             statsBar.style.display = 'none';
             tableActions.style.display = 'none';
+            formulaBar.classList.remove('visible');
             csvInput.value = '';
+        }
+
+        // =====================
+        // Fold / Unfold
+        // =====================
+        function setFoldState(folded) {
+            isUnfolded = !folded;
+            if (isUnfolded) {
+                tableContainer.classList.add('table-unfolded', 'table-fullheight');
+            } else {
+                tableContainer.classList.remove('table-unfolded', 'table-fullheight');
+            }
+            updateFoldUI();
+        }
+
+        function updateFoldUI() {
+            if (isUnfolded) {
+                unfoldBtn.classList.add('btn-fold-active');
+                foldBtn.classList.remove('btn-fold-active');
+            } else {
+                foldBtn.classList.add('btn-fold-active');
+                unfoldBtn.classList.remove('btn-fold-active');
+            }
+        }
+
+        // =====================
+        // Auto-fit Columns
+        // =====================
+        function autofitColumns() {
+            if (headers.length === 0) return;
+
+            // Create offscreen measurement element
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const style = getComputedStyle(csvTable);
+            ctx.font = style.fontSize + ' ' + style.fontFamily;
+
+            const padding = 28; // cell padding + some breathing room
+            const minWidth = 80;
+            const maxWidth = 500;
+
+            headers.forEach((header, i) => {
+                // Measure header width
+                let maxTextWidth = ctx.measureText(header).width;
+
+                // Measure each data cell — for multiline, measure the longest line
+                data.forEach(row => {
+                    const val = row[header] || '';
+                    const lines = val.split('\n');
+                    lines.forEach(line => {
+                        const w = ctx.measureText(line).width;
+                        if (w > maxTextWidth) maxTextWidth = w;
+                    });
+                });
+
+                const targetWidth = Math.min(maxWidth, Math.max(minWidth, maxTextWidth + padding));
+                columnWidths[i] = Math.round(targetWidth);
+
+                // Update the col element
+                const col = csvTable.querySelector(`col[data-col-index="${i}"]`);
+                if (col) col.style.width = targetWidth + 'px';
+            });
         }
 
         // Register service worker
