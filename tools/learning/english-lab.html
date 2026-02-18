@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Interactive English learning lab with flashcards, quizzes, and vocabulary building.">
+    <title>English Lab - Learn English</title>
+    <link rel="icon" type="image/svg+xml" href="../../assets/images/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../assets/css/shared-styles.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --el-gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --el-gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --el-gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --el-gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --el-gradient-5: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --el-xp-color: #f59e0b;
+            --el-streak-color: #ef4444;
+            --el-level-color: #8b5cf6;
+        }
+
+        body {
+            background: var(--color-bg-primary);
+            overflow-x: hidden;
+        }
+
+        /* Top Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .stat-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-chip:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-chip .stat-icon {
+            font-size: 1.3rem;
+        }
+
+        .stat-chip.xp .stat-icon {
+            color: var(--el-xp-color);
+        }
+
+        .stat-chip.streak .stat-icon {
+            color: var(--el-streak-color);
+        }
+
+        .stat-chip.level .stat-icon {
+            color: var(--el-level-color);
+        }
+
+        .xp-progress {
+            width: 80px;
+            height: 6px;
+            background: var(--color-bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .xp-fill {
+            height: 100%;
+            background: var(--el-xp-color);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Navigation Tabs */
+        .mode-tabs {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .mode-tab {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--color-border);
+            border-radius: 2rem;
+            background: var(--color-bg-secondary);
+            color: var(--color-text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mode-tab:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .mode-tab.active {
+            background: var(--el-gradient-1);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .mode-content {
+            display: none;
+            animation: fadeSlideIn 0.4s ease;
+        }
+
+        .mode-content.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Hero/WotD */
+        .wotd-card {
+            background: var(--el-gradient-1);
+            border-radius: 1.25rem;
+            padding: 2rem 2.5rem;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .wotd-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+
+        .wotd-card .wotd-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            opacity: 0.85;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .wotd-card .wotd-word {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+        }
+
+        .wotd-card .wotd-phonetic {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+            font-style: italic;
+        }
+
+        .wotd-card .wotd-type {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.2rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .wotd-card .wotd-def {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        .wotd-card .wotd-example {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 0.75rem;
+            font-style: italic;
+            font-size: 0.95rem;
+            border-left: 3px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .wotd-card .wotd-actions {
+            margin-top: 1.25rem;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .wotd-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 2rem;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .wotd-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Flashcard */
+        .flashcard-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .flashcard-container {
+            perspective: 1200px;
+            width: 100%;
+            max-width: 520px;
+            height: 320px;
+            margin: 0 auto 2rem;
+            cursor: pointer;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 1.25rem;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            border-radius: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .flashcard-front {
+            background: var(--el-gradient-1);
+            color: #fff;
+        }
+
+        .flashcard-back {
+            background: var(--color-bg-secondary);
+            border: 2px solid var(--color-border);
+            color: var(--color-text-primary);
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-word {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .flashcard-phonetic {
+            font-size: 1rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .flashcard-hint {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-top: 1.5rem;
+        }
+
+        .flashcard-back .fc-type {
+            display: inline-block;
+            background: var(--color-accent-light);
+            color: var(--color-accent);
+            padding: 0.2rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .flashcard-back .fc-def {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .flashcard-back .fc-example {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            font-style: italic;
+            padding: 0.5rem 1rem;
+            background: var(--color-bg-tertiary);
+            border-radius: 0.5rem;
+        }
+
+        .flashcard-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .fc-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 2px solid var(--color-border);
+            background: var(--color-bg-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .fc-btn:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .fc-btn.know {
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+
+        .fc-btn.know:hover {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .fc-btn.skip {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .fc-btn.skip:hover {
+            background: #f59e0b;
+            color: #fff;
+        }
+
+        .fc-btn.dont-know {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .fc-btn.dont-know:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .fc-counter {
+            text-align: center;
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .fc-category-select {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .fc-cat-btn {
+            padding: 0.4rem 1rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-secondary);
+            color: var(--color-text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .fc-cat-btn.active {
+            background: var(--el-gradient-3);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        /* Quiz */
+        .quiz-container {
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--color-bg-tertiary);
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .quiz-progress-fill {
+            height: 100%;
+            background: var(--el-gradient-4);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .quiz-question-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-q-number {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-text-muted);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .quiz-q-type-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .quiz-q-type-badge.mcq {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .quiz-q-type-badge.fill {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .quiz-q-type-badge.match {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .quiz-question {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .quiz-option {
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--color-border);
+            border-radius: 0.75rem;
+            background: var(--color-bg-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .quiz-option:hover:not(.disabled) {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateX(4px);
+        }
+
+        .quiz-option .opt-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .quiz-option.correct {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.08);
+        }
+
+        .quiz-option.correct .opt-letter {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .quiz-option.wrong {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .quiz-option.wrong .opt-letter {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .quiz-option.disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        .quiz-fill-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--color-border);
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            font-family: var(--font-family);
+            background: var(--color-bg-input);
+            color: var(--color-text-primary);
+            transition: border-color 0.2s;
+        }
+
+        .quiz-fill-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .quiz-feedback {
+            padding: 1rem 1.25rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            animation: fadeSlideIn 0.3s;
+        }
+
+        .quiz-feedback.show {
+            display: flex;
+        }
+
+        .quiz-feedback.correct {
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .quiz-feedback.wrong {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .quiz-next-btn {
+            width: 100%;
+            padding: 0.9rem;
+            border-radius: 0.75rem;
+            border: none;
+            background: var(--el-gradient-1);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .quiz-next-btn.show {
+            display: block;
+        }
+
+        .quiz-next-btn:hover {
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .quiz-submit-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: none;
+            background: var(--el-gradient-3);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 52px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .quiz-submit-btn:hover {
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .quiz-submit-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+        }
+
+        .quiz-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Quiz Results */
+        .quiz-results {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .quiz-results .result-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .quiz-results .result-score {
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--el-gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .quiz-results .result-label {
+            color: var(--color-text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-results .result-xp {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--el-xp-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-restart-btn {
+            padding: 0.9rem 2.5rem;
+            border-radius: 2rem;
+            border: none;
+            background: var(--el-gradient-1);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quiz-restart-btn:hover {
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* XP Toast */
+        .xp-toast {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: var(--el-gradient-5);
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 8px 25px rgba(250, 112, 154, 0.4);
+            z-index: 9999;
+            transform: translateY(-80px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        .xp-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .wotd-card {
+                padding: 1.5rem;
+            }
+
+            .wotd-card .wotd-word {
+                font-size: 1.75rem;
+            }
+
+            .flashcard-container {
+                height: 260px;
+            }
+
+            .flashcard-word {
+                font-size: 1.75rem;
+            }
+
+            .mode-tab {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .stat-chip {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            .quiz-question-card {
+                padding: 1.25rem;
+            }
+
+            .quiz-fill-input {
+                font-size: 1rem;
+                padding: 0.9rem;
+            }
+
+            .quiz-submit-btn {
+                padding: 1rem;
+                font-size: 1.05rem;
+                min-height: 56px;
+            }
+
+            .quiz-option {
+                padding: 0.85rem 1rem;
+            }
+
+            .fc-btn {
+                width: 64px;
+                height: 64px;
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Answer Reveal Card */
+        .answer-reveal {
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-top: 1rem;
+            display: none;
+            animation: fadeSlideIn 0.3s;
+        }
+
+        .answer-reveal.show {
+            display: block;
+        }
+
+        .answer-reveal .ar-word {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--color-accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .answer-reveal .ar-phonetic {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+
+        .answer-reveal .ar-type {
+            display: inline-block;
+            background: var(--color-accent-light);
+            color: var(--color-accent);
+            padding: 0.15rem 0.6rem;
+            border-radius: 1rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .answer-reveal .ar-def {
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .answer-reveal .ar-example {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            font-style: italic;
+            padding: 0.5rem 0.75rem;
+            background: var(--color-bg-secondary);
+            border-radius: 0.5rem;
+            border-left: 3px solid var(--color-accent);
+        }
+
+        .answer-reveal .ar-listen {
+            margin-top: 0.5rem;
+            background: none;
+            border: 1px solid var(--color-border);
+            border-radius: 1.5rem;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .answer-reveal .ar-listen:hover {
+            color: var(--color-accent);
+            border-color: var(--color-accent);
+        }
+
+        /* Grammar Module */
+        .grammar-nav {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .grammar-nav::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .grammar-nav::-webkit-scrollbar-thumb {
+            background: var(--color-border);
+            border-radius: 2px;
+        }
+
+        .grammar-lesson-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-secondary);
+            color: var(--color-text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .grammar-lesson-btn.active {
+            background: var(--el-gradient-2);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .grammar-lesson-btn .lesson-check {
+            color: #22c55e;
+            margin-left: 0.3rem;
+        }
+
+        .grammar-panel {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .grammar-panel h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .grammar-panel .lesson-subtitle {
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .grammar-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .grammar-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--color-text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .grammar-rule {
+            background: var(--color-bg-tertiary);
+            border-left: 4px solid;
+            border-radius: 0.5rem;
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .grammar-rule.rule-green {
+            border-color: #22c55e;
+        }
+
+        .grammar-rule.rule-blue {
+            border-color: #3b82f6;
+        }
+
+        .grammar-rule.rule-purple {
+            border-color: #8b5cf6;
+        }
+
+        .grammar-rule.rule-orange {
+            border-color: #f59e0b;
+        }
+
+        .grammar-rule strong {
+            color: var(--color-accent);
+        }
+
+        .grammar-rule .example {
+            display: block;
+            margin-top: 0.5rem;
+            font-style: italic;
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .grammar-exercise {
+            background: var(--color-bg-tertiary);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .grammar-exercise .ge-question {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .grammar-exercise .ge-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .grammar-exercise .ge-opt {
+            padding: 0.5rem 1.25rem;
+            border: 2px solid var(--color-border);
+            border-radius: 2rem;
+            background: var(--color-bg-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .grammar-exercise .ge-opt:hover:not(.disabled) {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .grammar-exercise .ge-opt.correct {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+        }
+
+        .grammar-exercise .ge-opt.wrong {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .grammar-exercise .ge-opt.disabled {
+            cursor: default;
+            opacity: 0.6;
+        }
+
+        .grammar-exercise .ge-feedback {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+        }
+
+        .grammar-exercise .ge-feedback.show {
+            display: block;
+        }
+
+        .grammar-exercise .ge-feedback.correct {
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+        }
+
+        .grammar-exercise .ge-feedback.wrong {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .grammar-complete-msg {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--el-gradient-4);
+            border-radius: 1rem;
+            color: #065f46;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .grammar-complete-msg.show {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .grammar-panel {
+                padding: 1.25rem;
+            }
+
+            .grammar-panel h2 {
+                font-size: 1.2rem;
+            }
+
+            .grammar-exercise .ge-options {
+                flex-direction: column;
+            }
+
+            .grammar-exercise .ge-opt {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="tool-container">
+        <a href="../../index.html" class="nav-back"><i class="bi bi-arrow-left"></i> Back to Tools</a>
+        <div class="tool-header">
+            <h1><i class="bi bi-book"></i> English Lab</h1>
+            <div class="tool-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
+                    <span class="icon-sun">☀️</span><span class="icon-moon">🌙</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-chip xp"><span class="stat-icon">⚡</span><span id="xpCount">0</span> XP <div
+                    class="xp-progress">
+                    <div class="xp-fill" id="xpBar" style="width:0%"></div>
+                </div>
+            </div>
+            <div class="stat-chip streak"><span class="stat-icon">🔥</span><span id="streakCount">0</span> Day Streak
+            </div>
+            <div class="stat-chip level"><span class="stat-icon">🏆</span>Level <span id="levelCount">1</span></div>
+        </div>
+
+        <!-- Mode Tabs -->
+        <div class="mode-tabs">
+            <button class="mode-tab active" data-mode="wotd"><i class="bi bi-star"></i> Word of the Day</button>
+            <button class="mode-tab" data-mode="flashcards"><i class="bi bi-layers"></i> Flashcards</button>
+            <button class="mode-tab" data-mode="quiz"><i class="bi bi-patch-question"></i> Quiz</button>
+            <button class="mode-tab" data-mode="grammar"><i class="bi bi-mortarboard"></i> Grammar</button>
+        </div>
+
+        <!-- WORD OF THE DAY -->
+        <div class="mode-content active" id="mode-wotd">
+            <div class="wotd-card" id="wotdCard">
+                <div class="wotd-label">📅 Word of the Day</div>
+                <div class="wotd-word" id="wotdWord">—</div>
+                <div class="wotd-phonetic" id="wotdPhonetic"></div>
+                <span class="wotd-type" id="wotdType"></span>
+                <div class="wotd-def" id="wotdDef"></div>
+                <div class="wotd-example" id="wotdExample"></div>
+                <div class="wotd-actions">
+                    <button class="wotd-btn" onclick="speakWord(document.getElementById('wotdWord').textContent)"><i
+                            class="bi bi-volume-up"></i> Listen</button>
+                    <button class="wotd-btn" onclick="loadNewWotd()"><i class="bi bi-arrow-clockwise"></i> New
+                        Word</button>
+                </div>
+            </div>
+            <!-- Recent words -->
+            <div class="panel" style="margin-top:1.5rem;">
+                <div class="panel-header">
+                    <h3 class="panel-title"><i class="bi bi-clock-history"></i> Recently Learned</h3>
+                </div>
+                <div id="recentWords" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
+            </div>
+        </div>
+
+        <!-- FLASHCARDS -->
+        <div class="mode-content" id="mode-flashcards">
+            <div class="fc-category-select" id="fcCategories"></div>
+            <div class="flashcard-area">
+                <div class="flashcard-container" onclick="flipCard()">
+                    <div class="flashcard" id="flashcard">
+                        <div class="flashcard-face flashcard-front">
+                            <div class="flashcard-word" id="fcWord">—</div>
+                            <div class="flashcard-phonetic" id="fcPhonetic"></div>
+                            <div class="flashcard-hint">Tap to reveal meaning</div>
+                        </div>
+                        <div class="flashcard-face flashcard-back">
+                            <span class="fc-type" id="fcType"></span>
+                            <div class="fc-def" id="fcDef"></div>
+                            <div class="fc-example" id="fcExample"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flashcard-controls">
+                    <button class="fc-btn dont-know" onclick="rateCard('hard')" title="Didn't know"><i
+                            class="bi bi-x-lg"></i></button>
+                    <button class="fc-btn skip" onclick="rateCard('medium')" title="Somewhat knew"><i
+                            class="bi bi-dash-lg"></i></button>
+                    <button class="fc-btn know" onclick="rateCard('easy')" title="Knew it!"><i
+                            class="bi bi-check-lg"></i></button>
+                </div>
+                <div class="fc-counter" id="fcCounter">Card 1 / 10</div>
+            </div>
+        </div>
+
+        <!-- QUIZ -->
+        <div class="mode-content" id="mode-quiz">
+            <div class="quiz-container" id="quizArea">
+                <div class="quiz-header">
+                    <span class="quiz-q-number" id="quizQNum">Question 1 / 10</span>
+                    <span style="font-weight:700;color:var(--el-xp-color);" id="quizScore">Score: 0</span>
+                </div>
+                <div class="quiz-progress-bar">
+                    <div class="quiz-progress-fill" id="quizProgressBar" style="width:0%"></div>
+                </div>
+                <div class="quiz-question-card">
+                    <span class="quiz-q-type-badge mcq" id="quizTypeBadge">Multiple Choice</span>
+                    <div class="quiz-question" id="quizQuestion">Loading...</div>
+                    <div class="quiz-options" id="quizOptions"></div>
+                    <div class="quiz-fill-input-wrap" id="quizFillWrap" style="display:none;">
+                        <input type="text" class="quiz-fill-input" id="quizFillInput" placeholder="Type your answer..."
+                            autocomplete="off">
+                        <button class="quiz-submit-btn" id="quizSubmitBtn" onclick="checkFillAnswer()"><i
+                                class="bi bi-send"></i> Submit Answer</button>
+                    </div>
+                    <div class="quiz-feedback" id="quizFeedback"></div>
+                    <div class="answer-reveal" id="answerReveal">
+                        <div class="ar-word" id="arWord"></div>
+                        <div class="ar-phonetic" id="arPhonetic"></div>
+                        <span class="ar-type" id="arType"></span>
+                        <div class="ar-def" id="arDef"></div>
+                        <div class="ar-example" id="arExample"></div>
+                        <button class="ar-listen" id="arListen"
+                            onclick="speakWord(document.getElementById('arWord').textContent)"><i
+                                class="bi bi-volume-up"></i> Listen</button>
+                    </div>
+                    <button class="quiz-next-btn" id="quizNextBtn" onclick="nextQuizQuestion()">Next Question →</button>
+                </div>
+            </div>
+            <div class="quiz-results" id="quizResults" style="display:none;">
+                <div class="result-icon">🎉</div>
+                <div class="result-score" id="quizFinalScore">0/10</div>
+                <div class="result-label">Questions Correct</div>
+                <div class="result-xp" id="quizXpEarned">+0 XP earned!</div>
+                <button class="quiz-restart-btn" onclick="startQuiz()">Play Again</button>
+            </div>
+        </div>
+
+        <!-- GRAMMAR -->
+        <div class="mode-content" id="mode-grammar">
+            <div class="grammar-nav" id="grammarNav"></div>
+            <div class="grammar-panel" id="grammarPanel">
+                <p style="color:var(--color-text-muted);">Select a lesson to begin.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- XP Toast -->
+    <div class="xp-toast" id="xpToast">+10 XP</div>
+
+    <script>
+        /* ============================================
+           DATA: Vocabulary Database
+           ============================================ */
+        const VOCAB = {
+            "Business": [
+                { word: "Negotiate", phonetic: "/nɪˈɡoʊ.ʃi.eɪt/", type: "verb", def: "To discuss something in order to reach an agreement.", example: "We need to negotiate the terms of the contract." },
+                { word: "Revenue", phonetic: "/ˈrev.ən.uː/", type: "noun", def: "Income generated from business operations.", example: "The company's revenue increased by 20% this year." },
+                { word: "Stakeholder", phonetic: "/ˈsteɪkˌhoʊl.dɚ/", type: "noun", def: "A person with an interest or concern in something.", example: "All stakeholders were invited to the meeting." },
+                { word: "Leverage", phonetic: "/ˈlev.ɚ.ɪdʒ/", type: "verb", def: "To use something to maximum advantage.", example: "We can leverage our expertise to win this deal." },
+                { word: "Benchmark", phonetic: "/ˈbentʃ.mɑːrk/", type: "noun", def: "A standard or point of reference for evaluation.", example: "This score serves as a benchmark for future tests." },
+                { word: "Scalable", phonetic: "/ˈskeɪ.lə.bəl/", type: "adj", def: "Able to be changed in size or scale.", example: "We need a scalable solution for our growing user base." },
+                { word: "Synergy", phonetic: "/ˈsɪn.ɚ.dʒi/", type: "noun", def: "The combined power of a group working together.", example: "The merger created great synergy between the teams." },
+                { word: "Acquisition", phonetic: "/ˌæk.wɪˈzɪʃ.ən/", type: "noun", def: "The buying or obtaining of something.", example: "The acquisition of the startup was completed last month." },
+                { word: "Compliance", phonetic: "/kəmˈplaɪ.əns/", type: "noun", def: "The act of obeying rules or requests.", example: "The company must ensure compliance with regulations." },
+                { word: "Allocate", phonetic: "/ˈæl.ə.keɪt/", type: "verb", def: "To distribute resources for a particular purpose.", example: "We need to allocate more budget to marketing." }
+            ],
+            "Daily Life": [
+                { word: "Procrastinate", phonetic: "/proʊˈkræs.tɪ.neɪt/", type: "verb", def: "To delay or postpone action.", example: "Stop procrastinating and finish your homework!" },
+                { word: "Commute", phonetic: "/kəˈmjuːt/", type: "verb", def: "To travel regularly between home and work.", example: "She commutes by train every day." },
+                { word: "Overwhelmed", phonetic: "/ˌoʊ.vɚˈwelmd/", type: "adj", def: "Feeling completely overcome in mind or emotion.", example: "I felt overwhelmed by all the tasks on my list." },
+                { word: "Mundane", phonetic: "/mʌnˈdeɪn/", type: "adj", def: "Lacking interest or excitement; dull.", example: "She was tired of the mundane routine." },
+                { word: "Resilient", phonetic: "/rɪˈzɪl.jənt/", type: "adj", def: "Able to recover quickly from difficulties.", example: "Children are remarkably resilient." },
+                { word: "Versatile", phonetic: "/ˈvɝː.sə.t̬əl/", type: "adj", def: "Able to adapt to many different functions.", example: "He's a versatile actor who can play any role." },
+                { word: "Spontaneous", phonetic: "/spɑːnˈteɪ.ni.əs/", type: "adj", def: "Performed without planning; impulsive.", example: "They went on a spontaneous road trip." },
+                { word: "Substantial", phonetic: "/səbˈstæn.ʃəl/", type: "adj", def: "Of considerable importance or size.", example: "She received a substantial pay raise." },
+                { word: "Inevitable", phonetic: "/ɪˈnev.ɪ.t̬ə.bəl/", type: "adj", def: "Certain to happen; unavoidable.", example: "Change is inevitable in any organization." },
+                { word: "Ambiguous", phonetic: "/æmˈbɪɡ.ju.əs/", type: "adj", def: "Open to more than one interpretation.", example: "The instructions were ambiguous and confusing." }
+            ],
+            "Academic": [
+                { word: "Hypothesis", phonetic: "/haɪˈpɑː.θə.sɪs/", type: "noun", def: "A proposed explanation for a phenomenon.", example: "The scientist tested her hypothesis with experiments." },
+                { word: "Empirical", phonetic: "/ɪmˈpɪr.ɪ.kəl/", type: "adj", def: "Based on observation or experience, not theory.", example: "The study provides empirical evidence for the claim." },
+                { word: "Paradigm", phonetic: "/ˈper.ə.daɪm/", type: "noun", def: "A typical example or pattern of something.", example: "This discovery shifted the scientific paradigm." },
+                { word: "Synthesize", phonetic: "/ˈsɪn.θə.saɪz/", type: "verb", def: "To combine different ideas into a coherent whole.", example: "She synthesized information from multiple sources." },
+                { word: "Pragmatic", phonetic: "/præɡˈmæt̬.ɪk/", type: "adj", def: "Dealing with things sensibly and realistically.", example: "We need a pragmatic approach to solve this problem." },
+                { word: "Ubiquitous", phonetic: "/juːˈbɪk.wɪ.t̬əs/", type: "adj", def: "Present, appearing, or found everywhere.", example: "Smartphones have become ubiquitous in modern society." },
+                { word: "Eloquent", phonetic: "/ˈel.ə.kwənt/", type: "adj", def: "Fluent or persuasive in speaking or writing.", example: "She gave an eloquent speech at the conference." },
+                { word: "Meticulous", phonetic: "/məˈtɪk.jə.ləs/", type: "adj", def: "Showing great attention to detail.", example: "He was meticulous in his research methodology." },
+                { word: "Profound", phonetic: "/prəˈfaʊnd/", type: "adj", def: "Very great or intense; having deep meaning.", example: "The book had a profound impact on my thinking." },
+                { word: "Mitigate", phonetic: "/ˈmɪt̬.ə.ɡeɪt/", type: "verb", def: "To make less severe or serious.", example: "Steps were taken to mitigate the environmental damage." }
+            ],
+            "Idioms": [
+                { word: "Break the ice", phonetic: "", type: "idiom", def: "To do something to relieve tension or start a conversation.", example: "He told a joke to break the ice at the meeting." },
+                { word: "Hit the nail on the head", phonetic: "", type: "idiom", def: "To describe exactly what is causing a situation.", example: "You hit the nail on the head with that explanation." },
+                { word: "Piece of cake", phonetic: "", type: "idiom", def: "Something very easy to do.", example: "The test was a piece of cake!" },
+                { word: "Under the weather", phonetic: "", type: "idiom", def: "Feeling ill or unwell.", example: "I'm feeling a bit under the weather today." },
+                { word: "Cost an arm and a leg", phonetic: "", type: "idiom", def: "To be extremely expensive.", example: "That new car must have cost an arm and a leg." },
+                { word: "Burn the midnight oil", phonetic: "", type: "idiom", def: "To work or study late into the night.", example: "She burned the midnight oil to finish the project." },
+                { word: "Bite the bullet", phonetic: "", type: "idiom", def: "To endure a painful situation bravely.", example: "I decided to bite the bullet and go to the dentist." },
+                { word: "On the same page", phonetic: "", type: "idiom", def: "To agree or have the same understanding.", example: "Let's make sure we're all on the same page." },
+                { word: "The ball is in your court", phonetic: "", type: "idiom", def: "It's your turn to take action or make a decision.", example: "I've done my part, the ball is in your court now." },
+                { word: "Think outside the box", phonetic: "", type: "idiom", def: "To think creatively or unconventionally.", example: "We need to think outside the box to solve this." }
+            ]
+        };
+
+        const allWords = Object.values(VOCAB).flat();
+        const QUIZ_LENGTH = 10;
+        const XP_PER_LEVEL = 100;
+
+        /* ============================================
+           STATE
+           ============================================ */
+        let state = JSON.parse(localStorage.getItem('english-lab-state') || 'null') || {
+            xp: 0, level: 1, streak: 0, lastDate: null, learned: [], fcCategory: 'All'
+        };
+        let fcIndex = 0, fcDeck = [], quizIndex = 0, quizScore = 0, quizQuestions = [];
+
+        function saveState() { localStorage.setItem('english-lab-state', JSON.stringify(state)); }
+        function updateUI() {
+            document.getElementById('xpCount').textContent = state.xp;
+            document.getElementById('streakCount').textContent = state.streak;
+            document.getElementById('levelCount').textContent = state.level;
+            const xpInLevel = state.xp % XP_PER_LEVEL;
+            document.getElementById('xpBar').style.width = (xpInLevel / XP_PER_LEVEL * 100) + '%';
+        }
+        function addXP(amount) {
+            state.xp += amount;
+            state.level = Math.floor(state.xp / XP_PER_LEVEL) + 1;
+            checkStreak();
+            saveState(); updateUI();
+            showXPToast(amount);
+        }
+        function checkStreak() {
+            const today = new Date().toISOString().slice(0, 10);
+            if (state.lastDate !== today) {
+                const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+                state.streak = (state.lastDate === yesterday) ? state.streak + 1 : 1;
+                state.lastDate = today;
+            }
+        }
+        function showXPToast(amount) {
+            const t = document.getElementById('xpToast');
+            t.textContent = `+${amount} XP`;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 1800);
+        }
+
+        /* ============================================
+           WORD OF THE DAY
+           ============================================ */
+        function getWotd() {
+            const dayIndex = Math.floor(Date.now() / 86400000) % allWords.length;
+            return allWords[dayIndex];
+        }
+        function loadWotd(w) {
+            document.getElementById('wotdWord').textContent = w.word;
+            document.getElementById('wotdPhonetic').textContent = w.phonetic;
+            document.getElementById('wotdType').textContent = w.type;
+            document.getElementById('wotdDef').textContent = w.def;
+            document.getElementById('wotdExample').innerHTML = `"${w.example}"`;
+            const gradients = [
+                'linear-gradient(135deg,#667eea,#764ba2)', 'linear-gradient(135deg,#f093fb,#f5576c)',
+                'linear-gradient(135deg,#4facfe,#00f2fe)', 'linear-gradient(135deg,#43e97b,#38f9d7)',
+                'linear-gradient(135deg,#fa709a,#fee140)', 'linear-gradient(135deg,#a18cd1,#fbc2eb)'
+            ];
+            document.getElementById('wotdCard').style.background = gradients[Math.floor(Math.random() * gradients.length)];
+        }
+        function loadNewWotd() { loadWotd(allWords[Math.floor(Math.random() * allWords.length)]); addXP(2); }
+        function renderRecentWords() {
+            const el = document.getElementById('recentWords');
+            if (!state.learned.length) { el.innerHTML = '<span style="color:var(--color-text-muted);">No words learned yet. Start practicing!</span>'; return; }
+            el.innerHTML = state.learned.slice(-20).reverse().map(w => `<span style="padding:0.3rem 0.8rem;border-radius:1rem;background:var(--color-bg-tertiary);font-size:0.85rem;font-weight:500;cursor:pointer;" onclick="speakWord('${w}')">${w}</span>`).join('');
+        }
+
+        /* ============================================
+           FLASHCARDS
+           ============================================ */
+        function buildDeck() {
+            const cat = state.fcCategory;
+            const source = cat === 'All' ? allWords : (VOCAB[cat] || allWords);
+            fcDeck = [...source].sort(() => Math.random() - 0.5);
+            fcIndex = 0;
+            showFlashcard();
+        }
+        function showFlashcard() {
+            if (fcIndex >= fcDeck.length) fcIndex = 0;
+            const w = fcDeck[fcIndex];
+            document.getElementById('flashcard').classList.remove('flipped');
+            document.getElementById('fcWord').textContent = w.word;
+            document.getElementById('fcPhonetic').textContent = w.phonetic;
+            document.getElementById('fcType').textContent = w.type;
+            document.getElementById('fcDef').textContent = w.def;
+            document.getElementById('fcExample').textContent = `"${w.example}"`;
+            document.getElementById('fcCounter').textContent = `Card ${fcIndex + 1} / ${fcDeck.length}`;
+        }
+        function flipCard() { document.getElementById('flashcard').classList.toggle('flipped'); }
+        function rateCard(rating) {
+            const w = fcDeck[fcIndex];
+            if (!state.learned.includes(w.word)) state.learned.push(w.word);
+            const xp = rating === 'easy' ? 5 : rating === 'medium' ? 3 : 1;
+            addXP(xp);
+            fcIndex++;
+            showFlashcard();
+            renderRecentWords();
+        }
+        function renderFcCategories() {
+            const cats = ['All', ...Object.keys(VOCAB)];
+            const el = document.getElementById('fcCategories');
+            el.innerHTML = cats.map(c => `<button class="fc-cat-btn ${c === state.fcCategory ? 'active' : ''}" onclick="selectFcCategory('${c}')">${c}</button>`).join('');
+        }
+        function selectFcCategory(cat) {
+            state.fcCategory = cat; saveState();
+            renderFcCategories(); buildDeck();
+        }
+
+        /* ============================================
+           QUIZ
+           ============================================ */
+        function generateQuizQuestions() {
+            const qs = [];
+            const pool = [...allWords].sort(() => Math.random() - 0.5);
+            for (let i = 0; i < QUIZ_LENGTH && i < pool.length; i++) {
+                const w = pool[i];
+                const qType = Math.random() < 0.6 ? 'mcq' : 'fill';
+                if (qType === 'mcq') {
+                    const others = allWords.filter(x => x.word !== w.word).sort(() => Math.random() - 0.5).slice(0, 3);
+                    const options = [w, ...others].sort(() => Math.random() - 0.5);
+                    qs.push({ type: 'mcq', question: `What does "${w.word}" mean?`, answer: w.def, options: options.map(o => o.def), word: w });
+                } else {
+                    const blanked = w.example.replace(new RegExp(w.word, 'i'), '_____');
+                    qs.push({ type: 'fill', question: `Fill in the blank: ${blanked}`, answer: w.word.toLowerCase(), word: w });
+                }
+            }
+            return qs;
+        }
+        function startQuiz() {
+            quizQuestions = generateQuizQuestions();
+            quizIndex = 0; quizScore = 0;
+            document.getElementById('quizResults').style.display = 'none';
+            document.getElementById('quizArea').style.display = 'block';
+            renderQuizQuestion();
+        }
+        function renderQuizQuestion() {
+            const q = quizQuestions[quizIndex];
+            document.getElementById('quizQNum').textContent = `Question ${quizIndex + 1} / ${quizQuestions.length}`;
+            document.getElementById('quizScore').textContent = `Score: ${quizScore}`;
+            document.getElementById('quizProgressBar').style.width = ((quizIndex) / quizQuestions.length * 100) + '%';
+            document.getElementById('quizQuestion').textContent = q.question;
+            const badge = document.getElementById('quizTypeBadge');
+            badge.textContent = q.type === 'mcq' ? 'Multiple Choice' : 'Fill in the Blank';
+            badge.className = 'quiz-q-type-badge ' + (q.type === 'mcq' ? 'mcq' : 'fill');
+            const optionsEl = document.getElementById('quizOptions');
+            const fillWrap = document.getElementById('quizFillWrap');
+            const feedback = document.getElementById('quizFeedback');
+            const nextBtn = document.getElementById('quizNextBtn');
+            feedback.className = 'quiz-feedback'; feedback.style.display = 'none';
+            nextBtn.className = 'quiz-next-btn';
+            document.getElementById('answerReveal').className = 'answer-reveal';
+            if (q.type === 'mcq') {
+                optionsEl.style.display = 'flex'; fillWrap.style.display = 'none';
+                const letters = ['A', 'B', 'C', 'D'];
+                optionsEl.innerHTML = q.options.map((o, i) => `<div class="quiz-option" onclick="checkMcqAnswer(this, '${encodeURIComponent(o)}')"><span class="opt-letter">${letters[i]}</span><span>${o}</span></div>`).join('');
+            } else {
+                optionsEl.style.display = 'none'; fillWrap.style.display = 'block';
+                document.getElementById('quizFillInput').value = '';
+                document.getElementById('quizFillInput').disabled = false;
+                const submitBtn = document.getElementById('quizSubmitBtn');
+                submitBtn.style.display = 'flex';
+                submitBtn.disabled = false;
+                document.getElementById('quizFillInput').focus();
+            }
+        }
+        function checkMcqAnswer(el, selectedEnc) {
+            const selected = decodeURIComponent(selectedEnc);
+            const q = quizQuestions[quizIndex];
+            const opts = document.querySelectorAll('.quiz-option');
+            opts.forEach(o => { o.classList.add('disabled'); o.onclick = null; });
+            const feedback = document.getElementById('quizFeedback');
+            if (selected === q.answer) {
+                el.classList.add('correct');
+                quizScore++;
+                feedback.className = 'quiz-feedback correct show';
+                feedback.innerHTML = '<i class="bi bi-check-circle"></i> Correct! Well done!';
+                addXP(10);
+            } else {
+                el.classList.add('wrong');
+                opts.forEach(o => { if (o.querySelector('span:last-child').textContent === q.answer) o.classList.add('correct'); });
+                feedback.className = 'quiz-feedback wrong show';
+                feedback.innerHTML = '<i class="bi bi-x-circle"></i> Not quite. The correct answer is highlighted.';
+                addXP(2);
+            }
+            showAnswerReveal(q.word);
+            if (!state.learned.includes(q.word.word)) state.learned.push(q.word.word);
+            saveState(); renderRecentWords();
+            document.getElementById('quizNextBtn').className = 'quiz-next-btn show';
+        }
+        function checkFillAnswer() {
+            const q = quizQuestions[quizIndex];
+            const input = document.getElementById('quizFillInput').value.trim().toLowerCase();
+            const feedback = document.getElementById('quizFeedback');
+            if (input === q.answer) {
+                quizScore++;
+                feedback.className = 'quiz-feedback correct show';
+                feedback.innerHTML = `<i class="bi bi-check-circle"></i> Correct! The answer is "${q.word.word}".`;
+                addXP(15);
+            } else {
+                feedback.className = 'quiz-feedback wrong show';
+                feedback.innerHTML = `<i class="bi bi-x-circle"></i> The correct answer is "${q.word.word}".`;
+                addXP(2);
+            }
+            document.getElementById('quizSubmitBtn').style.display = 'none';
+            document.getElementById('quizFillInput').disabled = true;
+            showAnswerReveal(q.word);
+            if (!state.learned.includes(q.word.word)) state.learned.push(q.word.word);
+            saveState(); renderRecentWords();
+            document.getElementById('quizNextBtn').className = 'quiz-next-btn show';
+        }
+        function nextQuizQuestion() {
+            quizIndex++;
+            if (quizIndex >= quizQuestions.length) { showQuizResults(); return; }
+            renderQuizQuestion();
+        }
+        function showQuizResults() {
+            document.getElementById('quizArea').style.display = 'none';
+            const res = document.getElementById('quizResults');
+            res.style.display = 'block';
+            document.getElementById('quizFinalScore').textContent = `${quizScore}/${quizQuestions.length}`;
+            const xpEarned = quizScore * 10 + (quizQuestions.length - quizScore) * 2;
+            document.getElementById('quizXpEarned').textContent = `+${xpEarned} XP earned!`;
+        }
+
+        /* ============================================
+           ANSWER REVEAL
+           ============================================ */
+        function showAnswerReveal(w) {
+            const el = document.getElementById('answerReveal');
+            document.getElementById('arWord').textContent = w.word;
+            document.getElementById('arPhonetic').textContent = w.phonetic || '';
+            document.getElementById('arType').textContent = w.type;
+            document.getElementById('arDef').textContent = w.def;
+            document.getElementById('arExample').textContent = '"' + w.example + '"';
+            el.className = 'answer-reveal show';
+        }
+
+        /* ============================================
+           GRAMMAR DATA & MODULE
+           ============================================ */
+        const GRAMMAR_LESSONS = [
+            {
+                id: 'present-simple', title: 'Present Simple', icon: '🕐',
+                subtitle: 'Habits, facts, and routines',
+                rules: [
+                    { color: 'green', text: '<strong>Affirmative:</strong> Subject + base verb (+s/es for he/she/it)', example: 'She <strong>works</strong> at a bank.' },
+                    { color: 'blue', text: '<strong>Negative:</strong> Subject + do/does + not + base verb', example: 'They <strong>don\'t like</strong> coffee.' },
+                    { color: 'purple', text: '<strong>Question:</strong> Do/Does + subject + base verb?', example: '<strong>Does</strong> he <strong>play</strong> guitar?' },
+                    { color: 'orange', text: '<strong>Time markers:</strong> always, usually, often, sometimes, never, every day', example: 'I <strong>always</strong> wake up at 7 AM.' }
+                ],
+                exercises: [
+                    { q: 'She _____ (go) to school every day.', opts: ['go', 'goes', 'going', 'gone'], answer: 'goes' },
+                    { q: 'They _____ (not/like) spicy food.', opts: ["doesn't like", "don't like", "not like", "aren't like"], answer: "don't like" },
+                    { q: '_____ you speak French?', opts: ['Are', 'Do', 'Does', 'Is'], answer: 'Do' },
+                    { q: 'The sun _____ in the east.', opts: ['rise', 'rises', 'rising', 'risen'], answer: 'rises' }
+                ]
+            },
+            {
+                id: 'present-continuous', title: 'Present Continuous', icon: '⏳',
+                subtitle: 'Actions happening right now',
+                rules: [
+                    { color: 'green', text: '<strong>Form:</strong> Subject + am/is/are + verb-ing', example: 'I <strong>am studying</strong> English right now.' },
+                    { color: 'blue', text: '<strong>Negative:</strong> Subject + am/is/are + not + verb-ing', example: 'She <strong>isn\'t watching</strong> TV.' },
+                    { color: 'purple', text: '<strong>Question:</strong> Am/Is/Are + subject + verb-ing?', example: '<strong>Are</strong> you <strong>listening</strong> to me?' },
+                    { color: 'orange', text: '<strong>Usage:</strong> now, at the moment, currently, today, this week', example: 'We <strong>are working</strong> on a new project <strong>this week</strong>.' }
+                ],
+                exercises: [
+                    { q: 'Look! It _____ (rain) outside.', opts: ['rains', 'is raining', 'rain', 'rained'], answer: 'is raining' },
+                    { q: 'She _____ (not/sleep) right now.', opts: ["doesn't sleep", "isn't sleeping", "not sleeping", "don't sleep"], answer: "isn't sleeping" },
+                    { q: 'What _____ you _____ at the moment?', opts: ['are...doing', 'do...do', 'does...do', 'is...doing'], answer: 'are...doing' },
+                    { q: 'They _____ (wait) for the bus.', opts: ['wait', 'waits', 'are waiting', 'waited'], answer: 'are waiting' }
+                ]
+            },
+            {
+                id: 'past-simple', title: 'Past Simple', icon: '⏪',
+                subtitle: 'Completed actions in the past',
+                rules: [
+                    { color: 'green', text: '<strong>Regular:</strong> Subject + verb + -ed', example: 'I <strong>walked</strong> to work yesterday.' },
+                    { color: 'blue', text: '<strong>Irregular:</strong> Subject + irregular past form', example: 'She <strong>went</strong> to Paris last summer.' },
+                    { color: 'purple', text: '<strong>Negative:</strong> Subject + did not (didn\'t) + base verb', example: 'We <strong>didn\'t see</strong> the movie.' },
+                    { color: 'orange', text: '<strong>Time markers:</strong> yesterday, last week/month/year, ago, in 2020', example: 'He <strong>graduated</strong> two years <strong>ago</strong>.' }
+                ],
+                exercises: [
+                    { q: 'I _____ (eat) sushi for dinner last night.', opts: ['eat', 'eats', 'ate', 'eaten'], answer: 'ate' },
+                    { q: 'She _____ (not/come) to the party.', opts: ["didn't come", "doesn't come", "wasn't come", "don't come"], answer: "didn't come" },
+                    { q: '_____ you _____ the exam?', opts: ['Did...pass', 'Do...pass', 'Are...pass', 'Were...pass'], answer: 'Did...pass' },
+                    { q: 'They _____ (buy) a new car last month.', opts: ['buy', 'buys', 'bought', 'buying'], answer: 'bought' }
+                ]
+            },
+            {
+                id: 'present-perfect', title: 'Present Perfect', icon: '🔗',
+                subtitle: 'Past actions connected to the present',
+                rules: [
+                    { color: 'green', text: '<strong>Form:</strong> Subject + have/has + past participle', example: 'I <strong>have visited</strong> Japan three times.' },
+                    { color: 'blue', text: '<strong>Usage 1:</strong> Experiences (ever/never)', example: '<strong>Have</strong> you <strong>ever tried</strong> skydiving?' },
+                    { color: 'purple', text: '<strong>Usage 2:</strong> Unfinished time (today, this week, yet, already)', example: 'She <strong>has already finished</strong> her homework.' },
+                    { color: 'orange', text: '<strong>Usage 3:</strong> Results visible now', example: 'He <strong>has broken</strong> his leg. (He can\'t walk now.)' }
+                ],
+                exercises: [
+                    { q: 'I _____ never _____ to Australia.', opts: ['have...been', 'has...been', 'have...go', 'did...go'], answer: 'have...been' },
+                    { q: 'She _____ (already/finish) the report.', opts: ['already finishes', 'has already finished', 'already finished', 'have already finished'], answer: 'has already finished' },
+                    { q: '_____ they _____ the movie yet?', opts: ['Have...seen', 'Did...see', 'Has...seen', 'Do...see'], answer: 'Have...seen' },
+                    { q: 'We _____ (live) here since 2015.', opts: ['live', 'lived', 'have lived', 'are living'], answer: 'have lived' }
+                ]
+            },
+            {
+                id: 'articles', title: 'Articles (a/an/the)', icon: '📝',
+                subtitle: 'When to use a, an, and the',
+                rules: [
+                    { color: 'green', text: '<strong>a/an:</strong> Used with singular, countable nouns mentioned for the first time', example: 'She is <strong>a</strong> doctor. I need <strong>an</strong> umbrella.' },
+                    { color: 'blue', text: '<strong>the:</strong> Used when the noun is specific or already known', example: 'Can you open <strong>the</strong> window?' },
+                    { color: 'purple', text: '<strong>No article:</strong> With uncountable nouns or plurals in general', example: '<strong>Water</strong> is essential. <strong>Dogs</strong> are loyal.' },
+                    { color: 'orange', text: '<strong>a vs an:</strong> Use "an" before vowel sounds', example: '<strong>an</strong> hour, <strong>a</strong> university, <strong>an</strong> honest person' }
+                ],
+                exercises: [
+                    { q: 'She is _____ engineer.', opts: ['a', 'an', 'the', '—'], answer: 'an' },
+                    { q: 'Can you pass me _____ salt?', opts: ['a', 'an', 'the', '—'], answer: 'the' },
+                    { q: '_____ children need love and care.', opts: ['A', 'An', 'The', '—'], answer: '—' },
+                    { q: 'He bought _____ new car. _____ car is red.', opts: ['a...The', 'the...A', 'a...A', 'the...The'], answer: 'a...The' }
+                ]
+            },
+            {
+                id: 'prepositions', title: 'Prepositions', icon: '📍',
+                subtitle: 'in, on, at and common prepositions',
+                rules: [
+                    { color: 'green', text: '<strong>Time — at:</strong> specific times | <strong>on:</strong> days, dates | <strong>in:</strong> months, years', example: '<strong>at</strong> 5 PM, <strong>on</strong> Monday, <strong>in</strong> January' },
+                    { color: 'blue', text: '<strong>Place — at:</strong> specific point | <strong>on:</strong> surface | <strong>in:</strong> enclosed space', example: '<strong>at</strong> the bus stop, <strong>on</strong> the table, <strong>in</strong> the room' },
+                    { color: 'purple', text: '<strong>Movement:</strong> to, into, onto, through, across, along', example: 'She walked <strong>into</strong> the office.' },
+                    { color: 'orange', text: '<strong>Phrases:</strong> depend on, interested in, good at, afraid of', example: 'I am <strong>interested in</strong> technology.' }
+                ],
+                exercises: [
+                    { q: 'The meeting is _____ Monday.', opts: ['in', 'on', 'at', 'to'], answer: 'on' },
+                    { q: 'She arrived _____ the airport.', opts: ['in', 'on', 'at', 'to'], answer: 'at' },
+                    { q: 'I was born _____ 1995.', opts: ['in', 'on', 'at', 'to'], answer: 'in' },
+                    { q: 'The book is _____ the table.', opts: ['in', 'on', 'at', 'to'], answer: 'on' }
+                ]
+            },
+            {
+                id: 'conditionals', title: 'Conditionals', icon: '🔀',
+                subtitle: 'If-clauses and conditional sentences',
+                rules: [
+                    { color: 'green', text: '<strong>Zero:</strong> If + present, present — General truths', example: 'If you <strong>heat</strong> water, it <strong>boils</strong>.' },
+                    { color: 'blue', text: '<strong>First:</strong> If + present, will + base verb — Real/likely', example: 'If it <strong>rains</strong>, I <strong>will stay</strong> home.' },
+                    { color: 'purple', text: '<strong>Second:</strong> If + past simple, would + base verb — Hypothetical', example: 'If I <strong>had</strong> a million dollars, I <strong>would travel</strong>.' },
+                    { color: 'orange', text: '<strong>Third:</strong> If + past perfect, would have + past participle — Past regrets', example: 'If I <strong>had studied</strong>, I <strong>would have passed</strong>.' }
+                ],
+                exercises: [
+                    { q: 'If it rains, I _____ an umbrella.', opts: ['take', 'will take', 'would take', 'took'], answer: 'will take' },
+                    { q: 'If I _____ you, I would apologize.', opts: ['am', 'was', 'were', 'be'], answer: 'were' },
+                    { q: 'If you heat ice, it _____.', opts: ['melts', 'will melt', 'would melt', 'melted'], answer: 'melts' },
+                    { q: 'If she had studied harder, she _____ the exam.', opts: ['passes', 'will pass', 'would pass', 'would have passed'], answer: 'would have passed' }
+                ]
+            },
+            {
+                id: 'modals', title: 'Modal Verbs', icon: '🔑',
+                subtitle: 'can, could, should, must, may, might',
+                rules: [
+                    { color: 'green', text: '<strong>can/could:</strong> Ability and possibility', example: 'I <strong>can</strong> speak English. <strong>Could</strong> you help me?' },
+                    { color: 'blue', text: '<strong>should/ought to:</strong> Advice and recommendations', example: 'You <strong>should</strong> exercise more.' },
+                    { color: 'purple', text: '<strong>must/have to:</strong> Obligation and necessity', example: 'You <strong>must</strong> wear a seatbelt.' },
+                    { color: 'orange', text: '<strong>may/might:</strong> Permission and possibility', example: 'It <strong>might</strong> rain tomorrow. <strong>May</strong> I come in?' }
+                ],
+                exercises: [
+                    { q: "You _____ drive without a license. It's illegal.", opts: ["mustn't", "don't have to", "shouldn't", "can't"], answer: "mustn't" },
+                    { q: '_____ you swim when you were five?', opts: ['Can', 'Could', 'May', 'Must'], answer: 'Could' },
+                    { q: 'You _____ see a doctor. You look sick.', opts: ['should', 'must', 'can', 'might'], answer: 'should' },
+                    { q: 'It _____ rain later. Take an umbrella just in case.', opts: ['must', 'should', 'might', 'can'], answer: 'might' }
+                ]
+            }
+        ];
+
+        let grammarCompleted = JSON.parse(localStorage.getItem('el-grammar-done') || '[]');
+
+        function renderGrammarNav() {
+            const nav = document.getElementById('grammarNav');
+            nav.innerHTML = GRAMMAR_LESSONS.map((l, i) =>
+                `<button class="grammar-lesson-btn" data-lesson="${i}" onclick="loadGrammarLesson(${i})">${l.icon} ${l.title}${grammarCompleted.includes(l.id) ? '<span class="lesson-check">✓</span>' : ''}</button>`
+            ).join('');
+        }
+
+        function loadGrammarLesson(idx) {
+            const l = GRAMMAR_LESSONS[idx];
+            document.querySelectorAll('.grammar-lesson-btn').forEach((b, i) => {
+                b.classList.toggle('active', i === idx);
+            });
+            const panel = document.getElementById('grammarPanel');
+            let html = `<h2>${l.icon} ${l.title}</h2><div class="lesson-subtitle">${l.subtitle}</div>`;
+            html += `<div class="grammar-section"><h3><i class="bi bi-lightbulb"></i> Rules</h3>`;
+            l.rules.forEach(r => {
+                html += `<div class="grammar-rule rule-${r.color}">${r.text}<span class="example">${r.example}</span></div>`;
+            });
+            html += `</div>`;
+            html += `<div class="grammar-section"><h3><i class="bi bi-pencil"></i> Practice</h3>`;
+            l.exercises.forEach((ex, ei) => {
+                html += `<div class="grammar-exercise" id="gex-${idx}-${ei}"><div class="ge-question">${ei + 1}. ${ex.q}</div><div class="ge-options">`;
+                ex.opts.forEach(opt => {
+                    const escaped = opt.replace(/'/g, "\\'");
+                    html += `<button class="ge-opt" onclick="checkGrammarExercise(${idx},${ei},this,'${escaped}')">${opt}</button>`;
+                });
+                html += `</div><div class="ge-feedback" id="gef-${idx}-${ei}"></div></div>`;
+            });
+            html += `</div>`;
+            html += `<div class="grammar-complete-msg" id="gcomplete-${idx}">🎉 Lesson Complete! +20 XP</div>`;
+            panel.innerHTML = html;
+        }
+
+        function checkGrammarExercise(lessonIdx, exIdx, el, selected) {
+            const ex = GRAMMAR_LESSONS[lessonIdx].exercises[exIdx];
+            const container = document.getElementById(`gex-${lessonIdx}-${exIdx}`);
+            const feedback = document.getElementById(`gef-${lessonIdx}-${exIdx}`);
+            const opts = container.querySelectorAll('.ge-opt');
+            opts.forEach(o => { o.classList.add('disabled'); o.onclick = null; });
+            if (selected === ex.answer) {
+                el.classList.add('correct');
+                feedback.className = 'ge-feedback correct show';
+                feedback.textContent = '✅ Correct!';
+                addXP(5);
+            } else {
+                el.classList.add('wrong');
+                opts.forEach(o => { if (o.textContent.trim() === ex.answer) o.classList.add('correct'); });
+                feedback.className = 'ge-feedback wrong show';
+                feedback.textContent = '❌ The correct answer is: ' + ex.answer;
+                addXP(1);
+            }
+            const allDone = GRAMMAR_LESSONS[lessonIdx].exercises.every((_, i) => {
+                const f = document.getElementById(`gef-${lessonIdx}-${i}`);
+                return f && f.classList.contains('show');
+            });
+            if (allDone) {
+                const lid = GRAMMAR_LESSONS[lessonIdx].id;
+                if (!grammarCompleted.includes(lid)) {
+                    grammarCompleted.push(lid);
+                    localStorage.setItem('el-grammar-done', JSON.stringify(grammarCompleted));
+                    addXP(20);
+                    renderGrammarNav();
+                }
+                const msg = document.getElementById(`gcomplete-${lessonIdx}`);
+                if (msg) msg.classList.add('show');
+            }
+        }
+
+        /* ============================================
+           TEXT-TO-SPEECH
+           ============================================ */
+        function speakWord(text) {
+            if (!('speechSynthesis' in window)) return;
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'en-US'; u.rate = 0.85;
+            speechSynthesis.speak(u);
+        }
+
+        /* ============================================
+           THEME
+           ============================================ */
+        function toggleTheme() {
+            const c = document.documentElement.getAttribute('data-theme') || 'light';
+            const n = c === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', n);
+            localStorage.setItem('phs-theme', n);
+        }
+
+        /* ============================================
+           INIT
+           ============================================ */
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme
+            const saved = localStorage.getItem('phs-theme');
+            if (saved) document.documentElement.setAttribute('data-theme', saved);
+            else if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark');
+
+            // Mode tabs
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('mode-' + tab.dataset.mode).classList.add('active');
+                    if (tab.dataset.mode === 'quiz') startQuiz();
+                });
+            });
+
+            // Fill input enter key
+            document.getElementById('quizFillInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkFillAnswer(); });
+
+            updateUI();
+            loadWotd(getWotd());
+            renderRecentWords();
+            renderFcCategories();
+            buildDeck();
+            renderGrammarNav();
+        });
+    </script>
+</body>
+
+</html>

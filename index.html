@@ -131,6 +131,11 @@
             color: #c2410c;
         }
 
+        .badge-learning {
+            background: #ccfbf1;
+            color: #0f766e;
+        }
+
         .tool-card {
             position: relative;
         }
@@ -181,6 +186,9 @@
             </button>
             <button class="category-btn" data-category="games">
                 <i class="bi bi-controller me-1"></i> Games
+            </button>
+            <button class="category-btn" data-category="learning">
+                <i class="bi bi-book me-1"></i> Learning
             </button>
             <button class="category-btn" data-category="other">
                 <i class="bi bi-three-dots me-1"></i> Other
@@ -592,6 +600,18 @@
                         <i class="bi bi-upc-scan display-4"></i>
                         <h5 class="card-title mt-3">Barcode Generator</h5>
                         <p class="card-text small text-muted">Generate Code128, EAN-13, UPC barcodes.</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- LEARNING TOOLS -->
+            <div class="col tool-item" data-category="learning">
+                <a href="tools/learning/english-lab.html" class="card h-100 text-decoration-none tool-card">
+                    <span class="category-badge badge-learning">Learning</span>
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-book display-4"></i>
+                        <h5 class="card-title mt-3">English Lab</h5>
+                        <p class="card-text small text-muted">Learn English with flashcards, quizzes & more.</p>
                     </div>
                 </a>
             </div>
