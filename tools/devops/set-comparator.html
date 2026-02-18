@@ -7,6 +7,8 @@
     <link rel="icon" type="image/svg+xml" href="../../assets/images/favicon.svg">
     <!-- We'll use Tailwind CSS for easy and clean styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/venn.js@0.2.20/build/venn.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -22,6 +24,26 @@
         /* Custom style for a consistent textarea height */
         textarea {
             min-height: 350px;
+        }
+        /* Venn diagram styles */
+        #venn-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', sans-serif;
+        }
+        .venntooltip {
+            position: absolute;
+            text-align: center;
+            width: 128px;
+            height: 16px;
+            background: #333;
+            color: #ddd;
+            padding: 2px;
+            border: 0px;
+            border-radius: 8px;
+            opacity: 0;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -56,6 +78,12 @@
                 class="w-full bg-blue-600 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-md hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 ease-in-out transform hover:-translate-y-0.5 mb-8">
             Compare Sets
         </button>
+
+        <!-- Venn Diagram Section -->
+        <div id="venn-container" class="bg-white p-6 rounded-xl shadow-lg mb-8 hidden">
+            <h2 class="text-2xl font-semibold mb-3 text-center text-gray-700">Venn Diagram Result</h2>
+            <div id="venn-diagram" class="w-full h-[400px]"></div>
+        </div>
 
         <!-- Output Section -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -145,6 +173,89 @@
             document.getElementById('countOnly1').textContent = onlyIn1.length;
             document.getElementById('countOnly2').textContent = onlyIn2.length;
             document.getElementById('countCommon').textContent = common.length;
+
+            // 7. Draw Venn Diagram
+            drawVennDiagram(s1.size, s2.size, common.length);
+        }
+
+        function drawVennDiagram(size1, size2, commonSize) {
+            const container = document.getElementById('venn-container');
+            container.classList.remove('hidden');
+
+            const chartDiv = document.getElementById('venn-diagram');
+            chartDiv.innerHTML = ''; // Clear previous diagram
+
+            const sets = [
+                {sets: ['Set 1'], size: size1},
+                {sets: ['Set 2'], size: size2},
+                {sets: ['Set 1', 'Set 2'], size: commonSize}
+            ];
+
+            const chart = venn.VennDiagram()
+                .width(chartDiv.clientWidth)
+                .height(400);
+
+            const div = d3.select("#venn-diagram");
+            div.datum(sets).call(chart);
+
+            // Styling based on image style (minimalist, beige/gray)
+            // Set 1: Beige/Jacket color (#E6D3B3)
+            // Set 2: Cool Gray (#94A3B8)
+            // Intersection: Blend
+
+            div.selectAll("g[data-venn-sets='Set 1'] path")
+                .style("fill", "#E6D3B3")
+                .style("fill-opacity", 0.6)
+                .style("stroke", "#C5B292")
+                .style("stroke-width", 1);
+
+            div.selectAll("g[data-venn-sets='Set 2'] path")
+                .style("fill", "#94A3B8")
+                .style("fill-opacity", 0.6)
+                .style("stroke", "#738297")
+                .style("stroke-width", 1);
+
+            // Intersection styling (often handled automatically by transparency, but can enforce)
+            div.selectAll("g[data-venn-sets='Set 1_Set 2'] path")
+                .style("fill-opacity", 0.1) // Let the blend show
+                .style("stroke-width", 0);
+
+            // Text styling
+            div.selectAll("text")
+                .style("font-family", "Inter, sans-serif")
+                .style("fill", "#333")
+                .style("font-size", "16px");
+
+            // Add tooltips
+            const tooltip = d3.select("body").append("div")
+                .attr("class", "venntooltip");
+
+            div.selectAll("g")
+                .on("mouseover", function(event, d) {
+                    // sort all the areas relative to the current item
+                    venn.sortAreas(div, d);
+
+                    // Display a tooltip with the current size
+                    tooltip.transition().duration(400).style("opacity", .9);
+                    tooltip.text(d.size + " items");
+
+                    // highlight the current path
+                    const selection = d3.select(this).transition("tooltip").duration(400);
+                    selection.select("path")
+                        .style("fill-opacity", d.sets.length == 1 ? .8 : .4)
+                        .style("stroke-opacity", 1);
+                })
+                .on("mousemove", function(event) {
+                    tooltip.style("left", (event.pageX) + "px")
+                           .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(event, d) {
+                    tooltip.transition().duration(400).style("opacity", 0);
+                    const selection = d3.select(this).transition("tooltip").duration(400);
+                    selection.select("path")
+                        .style("fill-opacity", d.sets.length == 1 ? .6 : .1)
+                        .style("stroke-opacity", d.sets.length == 1 ? 1 : 0);
+                });
         }
     </script>
 
