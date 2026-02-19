@@ -2,7 +2,7 @@
     "name": "Dev Hub — Utility Tools",
     "short_name": "Dev Hub",
     "description": "A curated suite of developer tools — format, convert, generate, and explore.",
-    "start_url": "/public-html-service/",
+    "start_url": "/",
     "display": "standalone",
     "background_color": "#0f172a",
     "theme_color": "#6366f1",

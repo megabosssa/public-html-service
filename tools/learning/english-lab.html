@@ -808,7 +808,174 @@
             }
         }
 
-        /* Answer Reveal Card */
+        /* Spelling Bee & Word Match shared styles */
+        .game-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .game-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+        }
+
+        .game-word-display {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: var(--el-gradient-3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .game-score-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+        }
+
+        .spell-input {
+            width: 100%;
+            padding: 0.9rem;
+            font-size: 1.2rem;
+            letter-spacing: 0.1em;
+            text-align: center;
+            border: 2px solid var(--color-border);
+            border-radius: 0.75rem;
+            background: var(--color-bg-input);
+            color: var(--color-text-primary);
+            font-family: monospace;
+            transition: border-color 0.2s;
+            margin: 1rem 0;
+        }
+
+        .spell-input:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .spell-hint {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .spell-hint-letter {
+            display: inline-block;
+            background: var(--color-bg-tertiary);
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin: 0 1px;
+            font-weight: 700;
+        }
+
+        .game-btn {
+            padding: 0.75rem 2rem;
+            border-radius: 2rem;
+            border: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .game-btn.primary {
+            background: var(--el-gradient-3);
+            color: #fff;
+        }
+
+        .game-btn.primary:hover {
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .game-btn.secondary {
+            background: var(--color-bg-tertiary);
+            color: var(--color-text-secondary);
+            border: 1px solid var(--color-border);
+        }
+
+        /* Word Match grid */
+        .match-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .match-card {
+            padding: 0.85rem;
+            border: 2px solid var(--color-border);
+            border-radius: 0.75rem;
+            background: var(--color-bg-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88rem;
+            text-align: center;
+            transition: all 0.18s;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .match-card:hover:not(.matched):not(.selected) {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.06);
+        }
+
+        .match-card.selected {
+            border-color: #4facfe;
+            background: rgba(79, 172, 254, 0.12);
+            transform: scale(1.03);
+        }
+
+        .match-card.matched {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+            cursor: default;
+        }
+
+        .match-card.wrong {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            animation: shake 0.3s;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0)
+            }
+
+            25% {
+                transform: translateX(-6px)
+            }
+
+            75% {
+                transform: translateX(6px)
+            }
+        }
+
+        .match-score {
+            text-align: center;
+            font-weight: 700;
+            color: var(--el-xp-color);
+            margin-top: 0.5rem;
+        }
+
         .answer-reveal {
             background: var(--color-bg-tertiary);
             border: 1px solid var(--color-border);
@@ -1142,6 +1309,8 @@
             <button class="mode-tab active" data-mode="wotd"><i class="bi bi-star"></i> Word of the Day</button>
             <button class="mode-tab" data-mode="flashcards"><i class="bi bi-layers"></i> Flashcards</button>
             <button class="mode-tab" data-mode="quiz"><i class="bi bi-patch-question"></i> Quiz</button>
+            <button class="mode-tab" data-mode="spelling"><i class="bi bi-keyboard"></i> Spelling Bee</button>
+            <button class="mode-tab" data-mode="wordmatch"><i class="bi bi-grid-3x2-gap"></i> Word Match</button>
             <button class="mode-tab" data-mode="grammar"><i class="bi bi-mortarboard"></i> Grammar</button>
         </div>
 
@@ -1243,6 +1412,61 @@
             </div>
         </div>
 
+        <!-- SPELLING BEE -->
+        <div class="mode-content" id="mode-spelling">
+            <div class="game-container">
+                <div class="game-score-bar">
+                    <span>🐝 Spelling Bee</span>
+                    <span id="spellScore">Score: 0</span>
+                    <span id="spellStreak">🔥 0</span>
+                </div>
+                <div class="game-card">
+                    <div class="spell-hint" id="spellHint">Listen to the word and spell it</div>
+                    <div style="margin:1rem 0;">
+                        <button class="game-btn primary" onclick="spellSpeak()" id="spellPlayBtn"><i
+                                class="bi bi-volume-up-fill"></i> Play Word</button>
+                    </div>
+                    <div id="spellLetterHint" class="spell-hint" style="margin-bottom:0.5rem;"></div>
+                    <input type="text" class="spell-input" id="spellInput" placeholder="Type the word here..."
+                        autocomplete="off" autocorrect="off" spellcheck="false">
+                    <div class="quiz-feedback" id="spellFeedback" style="justify-content:center;"></div>
+                    <div style="display:flex;gap:0.75rem;justify-content:center;margin-top:1rem;">
+                        <button class="game-btn secondary" onclick="spellHint()" id="spellHintBtn">💡 Hint</button>
+                        <button class="game-btn primary" onclick="checkSpelling()" id="spellCheckBtn">Check ✓</button>
+                    </div>
+                    <div style="margin-top:1.25rem;">
+                        <button class="game-btn secondary" onclick="spellSkip()"
+                            style="font-size:0.8rem;padding:0.4rem 1rem;">Skip →</button>
+                    </div>
+                </div>
+                <div class="quiz-results" id="spellResults" style="display:none;padding:1.5rem 0;">
+                    <div class="result-icon">🐝</div>
+                    <div class="result-score" id="spellFinalScore">0/10</div>
+                    <div class="result-label">Words Spelled Correctly</div>
+                    <div class="result-xp" id="spellXp">+0 XP</div>
+                    <button class="quiz-restart-btn" onclick="startSpellingBee()">Play Again</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- WORD MATCH -->
+        <div class="mode-content" id="mode-wordmatch">
+            <div class="game-container">
+                <div class="game-score-bar">
+                    <span>🎯 Word Match</span>
+                    <span id="matchScore">Matches: 0/6</span>
+                    <span id="matchTimer">⏱ 0s</span>
+                </div>
+                <p style="text-align:center;font-size:0.85rem;color:var(--color-text-secondary);margin-bottom:0.75rem;">
+                    Match each word to its definition</p>
+                <div class="match-grid" id="matchGrid"></div>
+                <div class="match-score" id="matchResult"></div>
+                <div style="text-align:center;margin-top:1rem;">
+                    <button class="game-btn primary" onclick="startWordMatch()">New Round 🔀</button>
+                </div>
+            </div>
+        </div>
+
         <!-- GRAMMAR -->
         <div class="mode-content" id="mode-grammar">
             <div class="grammar-nav" id="grammarNav"></div>
@@ -1270,7 +1494,12 @@
                 { word: "Synergy", phonetic: "/ˈsɪn.ɚ.dʒi/", type: "noun", def: "The combined power of a group working together.", example: "The merger created great synergy between the teams." },
                 { word: "Acquisition", phonetic: "/ˌæk.wɪˈzɪʃ.ən/", type: "noun", def: "The buying or obtaining of something.", example: "The acquisition of the startup was completed last month." },
                 { word: "Compliance", phonetic: "/kəmˈplaɪ.əns/", type: "noun", def: "The act of obeying rules or requests.", example: "The company must ensure compliance with regulations." },
-                { word: "Allocate", phonetic: "/ˈæl.ə.keɪt/", type: "verb", def: "To distribute resources for a particular purpose.", example: "We need to allocate more budget to marketing." }
+                { word: "Allocate", phonetic: "/ˈæl.ə.keɪt/", type: "verb", def: "To distribute resources for a particular purpose.", example: "We need to allocate more budget to marketing." },
+                { word: "Entrepreneur", phonetic: "/ˌɑːn.trə.prəˈnɜːr/", type: "noun", def: "A person who starts and runs a business.", example: "She became a successful entrepreneur at age 25." },
+                { word: "Dividend", phonetic: "/ˈdɪv.ɪ.dend/", type: "noun", def: "A share of profits paid to shareholders.", example: "Investors received a quarterly dividend." },
+                { word: "Foreclosure", phonetic: "/fɔːrˈkloʊ.ʒɚ/", type: "noun", def: "A legal process where a lender takes property due to unpaid debt.", example: "The bank initiated foreclosure proceedings." },
+                { word: "Infiltrate", phonetic: "/ˈɪn.fɪl.treɪt/", type: "verb", def: "To enter an organization gradually and secretly.", example: "The competitors tried to infiltrate the market quietly." },
+                { word: "Liquidate", phonetic: "/ˈlɪk.wɪ.deɪt/", type: "verb", def: "To convert assets into cash; to close a business.", example: "They decided to liquidate the company's assets." }
             ],
             "Daily Life": [
                 { word: "Procrastinate", phonetic: "/proʊˈkræs.tɪ.neɪt/", type: "verb", def: "To delay or postpone action.", example: "Stop procrastinating and finish your homework!" },
@@ -1282,7 +1511,10 @@
                 { word: "Spontaneous", phonetic: "/spɑːnˈteɪ.ni.əs/", type: "adj", def: "Performed without planning; impulsive.", example: "They went on a spontaneous road trip." },
                 { word: "Substantial", phonetic: "/səbˈstæn.ʃəl/", type: "adj", def: "Of considerable importance or size.", example: "She received a substantial pay raise." },
                 { word: "Inevitable", phonetic: "/ɪˈnev.ɪ.t̬ə.bəl/", type: "adj", def: "Certain to happen; unavoidable.", example: "Change is inevitable in any organization." },
-                { word: "Ambiguous", phonetic: "/æmˈbɪɡ.ju.əs/", type: "adj", def: "Open to more than one interpretation.", example: "The instructions were ambiguous and confusing." }
+                { word: "Ambiguous", phonetic: "/æmˈbɪɡ.ju.əs/", type: "adj", def: "Open to more than one interpretation.", example: "The instructions were ambiguous and confusing." },
+                { word: "Frugal", phonetic: "/ˈfruː.ɡəl/", type: "adj", def: "Sparing with money; economical.", example: "Living frugally helped him save for a house." },
+                { word: "Clutter", phonetic: "/ˈklʌt̬.ɚ/", type: "noun", def: "A collection of things lying about in an untidy way.", example: "She cleared the clutter from her desk before working." },
+                { word: "Renovate", phonetic: "/ˈren.ə.veɪt/", type: "verb", def: "To restore or improve a building or room.", example: "They renovated their kitchen last summer." }
             ],
             "Academic": [
                 { word: "Hypothesis", phonetic: "/haɪˈpɑː.θə.sɪs/", type: "noun", def: "A proposed explanation for a phenomenon.", example: "The scientist tested her hypothesis with experiments." },
@@ -1294,7 +1526,11 @@
                 { word: "Eloquent", phonetic: "/ˈel.ə.kwənt/", type: "adj", def: "Fluent or persuasive in speaking or writing.", example: "She gave an eloquent speech at the conference." },
                 { word: "Meticulous", phonetic: "/məˈtɪk.jə.ləs/", type: "adj", def: "Showing great attention to detail.", example: "He was meticulous in his research methodology." },
                 { word: "Profound", phonetic: "/prəˈfaʊnd/", type: "adj", def: "Very great or intense; having deep meaning.", example: "The book had a profound impact on my thinking." },
-                { word: "Mitigate", phonetic: "/ˈmɪt̬.ə.ɡeɪt/", type: "verb", def: "To make less severe or serious.", example: "Steps were taken to mitigate the environmental damage." }
+                { word: "Mitigate", phonetic: "/ˈmɪt̬.ə.ɡeɪt/", type: "verb", def: "To make less severe or serious.", example: "Steps were taken to mitigate the environmental damage." },
+                { word: "Scrutinize", phonetic: "/ˈskruː.tɪ.naɪz/", type: "verb", def: "To examine carefully and in detail.", example: "The committee scrutinized every line of the proposal." },
+                { word: "Corroborate", phonetic: "/kəˈrɒb.ə.reɪt/", type: "verb", def: "To confirm or give support to a statement or theory.", example: "New evidence corroborated the original findings." },
+                { word: "Ambivalent", phonetic: "/æmˈbɪv.ə.lənt/", type: "adj", def: "Having mixed or contradictory feelings about something.", example: "She felt ambivalent about accepting the new job offer." },
+                { word: "Plagiarism", phonetic: "/ˈpleɪ.dʒər.ɪ.zəm/", type: "noun", def: "The practice of copying someone else's work without credit.", example: "Students are expelled for plagiarism at this university." }
             ],
             "Idioms": [
                 { word: "Break the ice", phonetic: "", type: "idiom", def: "To do something to relieve tension or start a conversation.", example: "He told a joke to break the ice at the meeting." },
@@ -1306,7 +1542,54 @@
                 { word: "Bite the bullet", phonetic: "", type: "idiom", def: "To endure a painful situation bravely.", example: "I decided to bite the bullet and go to the dentist." },
                 { word: "On the same page", phonetic: "", type: "idiom", def: "To agree or have the same understanding.", example: "Let's make sure we're all on the same page." },
                 { word: "The ball is in your court", phonetic: "", type: "idiom", def: "It's your turn to take action or make a decision.", example: "I've done my part, the ball is in your court now." },
-                { word: "Think outside the box", phonetic: "", type: "idiom", def: "To think creatively or unconventionally.", example: "We need to think outside the box to solve this." }
+                { word: "Think outside the box", phonetic: "", type: "idiom", def: "To think creatively or unconventionally.", example: "We need to think outside the box to solve this." },
+                { word: "Beat around the bush", phonetic: "", type: "idiom", def: "To avoid coming to the main point.", example: "Stop beating around the bush and tell me what happened." },
+                { word: "Hit the sack", phonetic: "", type: "idiom", def: "To go to bed.", example: "I'm exhausted — time to hit the sack." },
+                { word: "Spill the beans", phonetic: "", type: "idiom", def: "To reveal secret information accidentally.", example: "He spilled the beans about the surprise party." },
+                { word: "Once in a blue moon", phonetic: "", type: "idiom", def: "Very rarely.", example: "We only eat out once in a blue moon." },
+                { word: "Pull someone's leg", phonetic: "", type: "idiom", def: "To joke or tease someone.", example: "Are you serious? Or are you pulling my leg?" }
+            ],
+            "Technology": [
+                { word: "Algorithm", phonetic: "/ˈæl.ɡə.rɪ.ðəm/", type: "noun", def: "A set of rules or steps for solving a problem.", example: "The recommendation algorithm learns from user behavior." },
+                { word: "Bandwidth", phonetic: "/ˈbænd.wɪdθ/", type: "noun", def: "The capacity for data transmission in a network.", example: "Video streaming requires a lot of bandwidth." },
+                { word: "Encryption", phonetic: "/ɪnˈkrɪp.ʃən/", type: "noun", def: "Converting data into a code to prevent unauthorized access.", example: "End-to-end encryption keeps messages private." },
+                { word: "Latency", phonetic: "/ˈleɪ.tən.si/", type: "noun", def: "The delay before data transfer begins.", example: "High latency makes online gaming frustrating." },
+                { word: "Iterate", phonetic: "/ˈɪt.ə.reɪt/", type: "verb", def: "To repeat a process with the aim of improving it.", example: "The development team iterated quickly on user feedback." },
+                { word: "Deploy", phonetic: "/dɪˈplɔɪ/", type: "verb", def: "To put software into active use.", example: "We will deploy the new version next Friday." },
+                { word: "Cache", phonetic: "/kæʃ/", type: "noun", def: "Stored data for faster future access.", example: "Clearing the cache fixed the loading issue." },
+                { word: "API", phonetic: "/ˌeɪ.piːˈaɪ/", type: "noun", def: "A set of rules allowing software applications to communicate.", example: "We built the app using a weather API." },
+                { word: "Deprecated", phonetic: "/ˈdep.rɪ.keɪ.tɪd/", type: "adj", def: "An outdated feature that is no longer recommended.", example: "This function is deprecated; use the new one instead." },
+                { word: "Refactor", phonetic: "/ˌriːˈfæk.tɚ/", type: "verb", def: "To restructure existing code without changing its behavior.", example: "I need to refactor this module to improve readability." },
+                { word: "Middleware", phonetic: "/ˈmɪd.əl.weɚ/", type: "noun", def: "Software that connects different applications or services.", example: "The middleware handles authentication between services." },
+                { word: "Vulnerability", phonetic: "/ˌvʌl.nɚ.əˈbɪl.ɪ.ti/", type: "noun", def: "A weakness in a system that can be exploited.", example: "The security team patched the critical vulnerability." }
+            ],
+            "Emotions": [
+                { word: "Euphoric", phonetic: "/juːˈfɔːr.ɪk/", type: "adj", def: "Feeling intensely happy and excited.", example: "She felt euphoric after winning the competition." },
+                { word: "Melancholy", phonetic: "/ˈmel.ən.kɒl.i/", type: "noun", def: "A feeling of pensive sadness with no obvious cause.", example: "A wave of melancholy washed over him on rainy days." },
+                { word: "Anxious", phonetic: "/ˈæŋk.ʃəs/", type: "adj", def: "Worried and nervous about a future event.", example: "She was anxious about her job interview." },
+                { word: "Empathy", phonetic: "/ˈem.pə.θi/", type: "noun", def: "The ability to understand and share another's feelings.", example: "A good doctor must have empathy for patients." },
+                { word: "Grateful", phonetic: "/ˈɡreɪt.fəl/", type: "adj", def: "Feeling thankful for kindness received.", example: "I am so grateful for your help today." },
+                { word: "Nostalgic", phonetic: "/nɒˈstæl.dʒɪk/", type: "adj", def: "Wistfully longing for the past.", example: "Looking at old photos made him feel nostalgic." },
+                { word: "Envious", phonetic: "/ˈen.vi.əs/", type: "adj", def: "Feeling or showing envy.", example: "She was envious of her friend's success." },
+                { word: "Serene", phonetic: "/səˈriːn/", type: "adj", def: "Calm, peaceful, and untroubled.", example: "The lake looked serene in the early morning light." },
+                { word: "Furious", phonetic: "/ˈfjʊr.i.əs/", type: "adj", def: "Extremely angry.", example: "He was furious when he discovered the mistake." },
+                { word: "Apprehensive", phonetic: "/ˌæp.rɪˈhen.sɪv/", type: "adj", def: "Anxious or fearful about a future event.", example: "She was apprehensive about moving to a new city." },
+                { word: "Elated", phonetic: "/ɪˈleɪ.tɪd/", type: "adj", def: "Ecstatically happy.", example: "The team was elated after winning the championship." },
+                { word: "Indifferent", phonetic: "/ɪnˈdɪf.ɚ.ənt/", type: "adj", def: "Having no particular interest or concern.", example: "He seemed completely indifferent to the outcome." }
+            ],
+            "Phrasal Verbs": [
+                { word: "Give up", phonetic: "", type: "phrasal verb", def: "To stop trying; to surrender.", example: "Don't give up — you're almost there!" },
+                { word: "Look into", phonetic: "", type: "phrasal verb", def: "To investigate or examine something.", example: "I'll look into the issue and get back to you." },
+                { word: "Run out of", phonetic: "", type: "phrasal verb", def: "To have no more of something left.", example: "We ran out of coffee this morning." },
+                { word: "Put off", phonetic: "", type: "phrasal verb", def: "To delay or postpone something.", example: "She kept putting off the difficult conversation." },
+                { word: "Bring up", phonetic: "", type: "phrasal verb", def: "To raise a topic; or to raise a child.", example: "He brought up an interesting point in the meeting." },
+                { word: "Come across", phonetic: "", type: "phrasal verb", def: "To find or meet by chance.", example: "I came across an old photo while cleaning my room." },
+                { word: "Turn down", phonetic: "", type: "phrasal verb", def: "To refuse or reject an offer.", example: "She turned down the job offer for a better one." },
+                { word: "Figure out", phonetic: "", type: "phrasal verb", def: "To understand or solve something.", example: "Can you figure out how to use this machine?" },
+                { word: "Catch up", phonetic: "", type: "phrasal verb", def: "To reach the same level; to update on news.", example: "Let's meet for coffee and catch up!" },
+                { word: "Break down", phonetic: "", type: "phrasal verb", def: "To stop functioning; to lose emotional control.", example: "The car broke down on the highway." },
+                { word: "Get over", phonetic: "", type: "phrasal verb", def: "To recover from an illness or difficult experience.", example: "It took her months to get over the breakup." },
+                { word: "Set up", phonetic: "", type: "phrasal verb", def: "To arrange or establish something.", example: "They set up a new office in downtown Bangkok." }
             ]
         };
 
@@ -1680,6 +1963,54 @@
                     { q: 'You _____ see a doctor. You look sick.', opts: ['should', 'must', 'can', 'might'], answer: 'should' },
                     { q: 'It _____ rain later. Take an umbrella just in case.', opts: ['must', 'should', 'might', 'can'], answer: 'might' }
                 ]
+            },
+            {
+                id: 'future-tenses', title: 'Future Tenses', icon: '🚀',
+                subtitle: 'will, going to, and present continuous for future',
+                rules: [
+                    { color: 'green', text: '<strong>will:</strong> Spontaneous decisions, predictions, promises', example: 'I <strong>will call</strong> you tonight. It <strong>will be</strong> sunny tomorrow.' },
+                    { color: 'blue', text: '<strong>going to:</strong> Plans made in advance, evidence-based predictions', example: 'She <strong>is going to</strong> study medicine. Look at those clouds — it <strong>is going to</strong> rain!' },
+                    { color: 'purple', text: '<strong>Present Continuous:</strong> Fixed future arrangements', example: 'I <strong>am meeting</strong> the client tomorrow at 10 AM.' },
+                    { color: 'orange', text: '<strong>Time expressions:</strong> tomorrow, next week, soon, in an hour, this evening', example: 'We <strong>will finish</strong> the project <strong>next Friday</strong>.' }
+                ],
+                exercises: [
+                    { q: 'A: The phone is ringing. B: I _____ get it!', opts: ["'m going to get", "'ll get", "'m getting", 'get'], answer: "'ll get" },
+                    { q: 'She has bought tickets. She _____ visit Paris next summer.', opts: ['will visit', 'is going to visit', 'visits', 'visited'], answer: 'is going to visit' },
+                    { q: 'They _____ married on Saturday. (arranged)', opts: ['will get', 'get', 'are getting', 'got'], answer: 'are getting' },
+                    { q: 'I think prices _____ rise next year.', opts: ['are going to', 'will', 'are', 'going to'], answer: 'will' }
+                ]
+            },
+            {
+                id: 'passive-voice', title: 'Passive Voice', icon: '🔄',
+                subtitle: 'Shifting focus from doer to the action or receiver',
+                rules: [
+                    { color: 'green', text: '<strong>Form:</strong> Subject + be (conjugated) + past participle', example: 'The report <strong>was written</strong> by Sarah.' },
+                    { color: 'blue', text: '<strong>Use:</strong> When the doer is unknown, unimportant, or obvious', example: 'The Eiffel Tower <strong>was built</strong> in 1889.' },
+                    { color: 'purple', text: '<strong>Active → Passive:</strong> Object becomes subject; add "by + agent" if needed', example: 'Active: They <strong>make</strong> cars here. → Passive: Cars <strong>are made</strong> here.' },
+                    { color: 'orange', text: '<strong>Tenses in passive:</strong> Present (is done), Past (was done), Perfect (has been done)', example: 'The email <strong>has been sent</strong>.' }
+                ],
+                exercises: [
+                    { q: 'English _____ all over the world.', opts: ['speaks', 'is spoken', 'is speaking', 'spoke'], answer: 'is spoken' },
+                    { q: 'The cake _____ by my mother yesterday.', opts: ['made', 'was made', 'is made', 'has made'], answer: 'was made' },
+                    { q: 'The letter _____ yet. (not/send)', opts: ["hasn't been sent", "wasn't sent", "isn't sent", "don't send"], answer: "hasn't been sent" },
+                    { q: 'A new hospital _____ in our city next year.', opts: ['builds', 'will build', 'will be built', 'is built'], answer: 'will be built' }
+                ]
+            },
+            {
+                id: 'reported-speech', title: 'Reported Speech', icon: '💬',
+                subtitle: 'Saying what someone else said (indirect speech)',
+                rules: [
+                    { color: 'green', text: '<strong>Tense shift:</strong> Present → Past when reporting', example: '"I <strong>am</strong> tired." → She said she <strong>was</strong> tired.' },
+                    { color: 'blue', text: '<strong>Pronouns & time words change:</strong> today → that day, tomorrow → the next day', example: '"I will come <strong>tomorrow</strong>." → He said he would come <strong>the next day</strong>.' },
+                    { color: 'purple', text: '<strong>Reporting questions:</strong> Use if/whether for yes/no; wh-word for open questions', example: '"Are you ready?" → She asked <strong>if</strong> I was ready.' },
+                    { color: 'orange', text: '<strong>Reporting commands:</strong> told/asked + object + to-infinitive', example: '"Please sit down." → He <strong>told me to sit down</strong>.' }
+                ],
+                exercises: [
+                    { q: '"I live in Bangkok." → She said she _____ in Bangkok.', opts: ['lives', 'lived', 'is living', 'has lived'], answer: 'lived' },
+                    { q: '"We will help you." → They said they _____ help me.', opts: ['will', 'would', 'can', 'could'], answer: 'would' },
+                    { q: '"Are you coming?" → She asked _____ I was coming.', opts: ['that', 'what', 'if', 'which'], answer: 'if' },
+                    { q: '"Finish your work!" → He told me _____ my work.', opts: ['finish', 'finishing', 'to finish', 'finished'], answer: 'to finish' }
+                ]
             }
         ];
 
@@ -1764,6 +2095,178 @@
         }
 
         /* ============================================
+           SPELLING BEE
+           ============================================ */
+        let spellDeck = [], spellIdx = 0, spellCorrect = 0, spellStreak = 0, spellHintsUsed = 0;
+        const SPELL_LENGTH = 10;
+
+        function startSpellingBee() {
+            spellDeck = [...allWords].filter(w => !w.word.includes(' ')).sort(() => Math.random() - 0.5).slice(0, SPELL_LENGTH);
+            spellIdx = 0; spellCorrect = 0; spellStreak = 0;
+            document.getElementById('spellResults').style.display = 'none';
+            document.getElementById('spellInput').style.display = '';
+            document.getElementById('spellCheckBtn').style.display = '';
+            document.getElementById('spellHintBtn').style.display = '';
+            document.getElementById('spellPlayBtn').style.display = '';
+            renderSpellQuestion();
+        }
+
+        function renderSpellQuestion() {
+            if (spellIdx >= spellDeck.length) { showSpellResults(); return; }
+            const w = spellDeck[spellIdx];
+            spellHintsUsed = 0;
+            document.getElementById('spellHint').textContent = `Question ${spellIdx + 1}/${SPELL_LENGTH}: Listen and spell the word`;
+            document.getElementById('spellLetterHint').innerHTML = '';
+            document.getElementById('spellInput').value = '';
+            document.getElementById('spellInput').disabled = false;
+            document.getElementById('spellFeedback').className = 'quiz-feedback';
+            document.getElementById('spellScore').textContent = `Score: ${spellCorrect}`;
+            document.getElementById('spellStreak').textContent = `🔥 ${spellStreak}`;
+            // Show definition as context
+            document.getElementById('spellHint').innerHTML = `<em style="font-size:0.9rem;color:var(--color-text-secondary);">${w.def}</em><br><span style="font-size:0.75rem;">(${w.type})</span>`;
+            spellSpeak();
+        }
+
+        function spellSpeak() {
+            if (spellIdx >= spellDeck.length) return;
+            speakWord(spellDeck[spellIdx].word);
+        }
+
+        function spellHint() {
+            const w = spellDeck[spellIdx];
+            spellHintsUsed++;
+            const revealed = spellHintsUsed;
+            let html = '';
+            for (let i = 0; i < w.word.length; i++) {
+                if (i < revealed || w.word[i] === ' ') {
+                    html += `<span class="spell-hint-letter">${w.word[i].toUpperCase()}</span>`;
+                } else {
+                    html += `<span class="spell-hint-letter">_</span>`;
+                }
+            }
+            document.getElementById('spellLetterHint').innerHTML = html;
+        }
+
+        function checkSpelling() {
+            const w = spellDeck[spellIdx];
+            const typed = document.getElementById('spellInput').value.trim();
+            const correct = typed.toLowerCase() === w.word.toLowerCase();
+            const fb = document.getElementById('spellFeedback');
+            document.getElementById('spellInput').disabled = true;
+            if (correct) {
+                spellCorrect++;
+                spellStreak++;
+                fb.className = 'quiz-feedback correct show';
+                fb.innerHTML = `<i class="bi bi-check-circle"></i> Correct! "${w.word}"`;
+                addXP(spellHintsUsed === 0 ? 12 : 6);
+            } else {
+                spellStreak = 0;
+                fb.className = 'quiz-feedback wrong show';
+                fb.innerHTML = `<i class="bi bi-x-circle"></i> The answer was "<strong>${w.word}</strong>"`;
+                addXP(1);
+            }
+            if (!state.learned.includes(w.word)) state.learned.push(w.word);
+            saveState(); renderRecentWords();
+            setTimeout(() => { spellIdx++; renderSpellQuestion(); }, 1800);
+        }
+
+        function spellSkip() {
+            const w = spellDeck[spellIdx];
+            const fb = document.getElementById('spellFeedback');
+            fb.className = 'quiz-feedback wrong show';
+            fb.innerHTML = `Skipped — the word was "<strong>${w.word}</strong>"`;
+            spellStreak = 0;
+            setTimeout(() => { spellIdx++; renderSpellQuestion(); }, 1600);
+        }
+
+        function showSpellResults() {
+            document.getElementById('spellInput').style.display = 'none';
+            document.getElementById('spellCheckBtn').style.display = 'none';
+            document.getElementById('spellHintBtn').style.display = 'none';
+            document.getElementById('spellPlayBtn').style.display = 'none';
+            document.getElementById('spellFeedback').className = 'quiz-feedback';
+            const xp = spellCorrect * 12;
+            document.getElementById('spellFinalScore').textContent = `${spellCorrect}/${SPELL_LENGTH}`;
+            document.getElementById('spellXp').textContent = `+${xp} XP earned!`;
+            document.getElementById('spellResults').style.display = 'block';
+        }
+
+        /* ============================================
+           WORD MATCH
+           ============================================ */
+        let matchSelected = null, matchPairs = [], matchDone = 0, matchTimerInterval = null, matchSeconds = 0;
+
+        function startWordMatch() {
+            clearInterval(matchTimerInterval);
+            matchSeconds = 0; matchDone = 0; matchSelected = null;
+            document.getElementById('matchResult').textContent = '';
+            const pool = [...allWords].filter(w => !w.word.includes(' ')).sort(() => Math.random() - 0.5).slice(0, 6);
+            matchPairs = pool;
+            document.getElementById('matchScore').textContent = `Matches: 0/${pool.length}`;
+            document.getElementById('matchTimer').textContent = '⏱ 0s';
+
+            // Build card array: words on left, defs on right — shuffle both sides separately
+            const words = pool.map(p => ({ id: p.word, text: p.word, kind: 'word' })).sort(() => Math.random() - 0.5);
+            const defs = pool.map(p => ({ id: p.word, text: p.def.length > 60 ? p.def.slice(0, 57) + '…' : p.def, kind: 'def' })).sort(() => Math.random() - 0.5);
+
+            const grid = document.getElementById('matchGrid');
+            grid.innerHTML = '';
+            // Interleave: first column = words, second = defs
+            for (let i = 0; i < pool.length; i++) {
+                grid.appendChild(makeMatchCard(words[i]));
+                grid.appendChild(makeMatchCard(defs[i]));
+            }
+
+            matchTimerInterval = setInterval(() => {
+                matchSeconds++;
+                document.getElementById('matchTimer').textContent = `⏱ ${matchSeconds}s`;
+            }, 1000);
+        }
+
+        function makeMatchCard(item) {
+            const el = document.createElement('div');
+            el.className = 'match-card';
+            el.textContent = item.text;
+            el.dataset.id = item.id;
+            el.dataset.kind = item.kind;
+            el.addEventListener('click', () => onMatchCardClick(el));
+            return el;
+        }
+
+        function onMatchCardClick(el) {
+            if (el.classList.contains('matched')) return;
+            if (matchSelected === el) { el.classList.remove('selected'); matchSelected = null; return; }
+            if (matchSelected) {
+                const a = matchSelected, b = el;
+                if (a.dataset.id === b.dataset.id && a.dataset.kind !== b.dataset.kind) {
+                    // Correct pair
+                    a.classList.remove('selected'); a.classList.add('matched');
+                    b.classList.add('matched');
+                    matchDone++;
+                    document.getElementById('matchScore').textContent = `Matches: ${matchDone}/${matchPairs.length}`;
+                    addXP(8);
+                    matchSelected = null;
+                    if (matchDone === matchPairs.length) {
+                        clearInterval(matchTimerInterval);
+                        document.getElementById('matchResult').textContent = `🎉 Completed in ${matchSeconds}s! +${matchDone * 8} XP`;
+                    }
+                } else {
+                    // Wrong
+                    a.classList.add('wrong'); b.classList.add('wrong');
+                    setTimeout(() => {
+                        a.classList.remove('wrong', 'selected');
+                        b.classList.remove('wrong');
+                    }, 600);
+                    matchSelected = null;
+                }
+            } else {
+                if (matchSelected) matchSelected.classList.remove('selected');
+                el.classList.add('selected');
+                matchSelected = el;
+            }
+        }
+
+        /* ============================================
            THEME
            ============================================ */
         function toggleTheme() {
@@ -1790,11 +2293,15 @@
                     tab.classList.add('active');
                     document.getElementById('mode-' + tab.dataset.mode).classList.add('active');
                     if (tab.dataset.mode === 'quiz') startQuiz();
+                    if (tab.dataset.mode === 'spelling') startSpellingBee();
+                    if (tab.dataset.mode === 'wordmatch') startWordMatch();
                 });
             });
 
             // Fill input enter key
             document.getElementById('quizFillInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkFillAnswer(); });
+            // Spelling Bee enter key
+            document.getElementById('spellInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkSpelling(); });
 
             updateUI();
             loadWotd(getWotd());
@@ -1802,6 +2309,8 @@
             renderFcCategories();
             buildDeck();
             renderGrammarNav();
+            startSpellingBee();
+            startWordMatch();
         });
     </script>
 </body>
