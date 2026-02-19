@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Comprehensive guide to Coding Design Best Practices, SOLID principles, Clean Code, and Design Patterns.">
+    <title>Coding Design Best Practices</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/shared-styles.css">
+    <style>
+        :root {
+            --gradient-primary: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-accent: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --gradient-warning: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.7;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--gradient-primary);
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            color: #fff;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: var(--color-bg-secondary);
+            border-bottom: 1px solid var(--color-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(79, 172, 254, 0.1);
+            color: #4facfe;
+        }
+
+        /* Main Content */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+
+        .section-card:hover {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #fff;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Best Practice Items */
+        .practice-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .practice-item {
+            background: var(--color-bg-tertiary);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border-left: 4px solid #4facfe;
+        }
+
+        .practice-item h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #4facfe;
+        }
+
+        .practice-item p {
+            color: var(--color-text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: #1a1a2e;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            margin: 1rem 0;
+            border: 1px solid #2d3748;
+        }
+
+        .code-header {
+            background: #16213e;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2d3748;
+        }
+
+        .code-lang {
+            color: #a78bfa;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid #4a5568;
+            color: #a0aec0;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #2d3748;
+            color: #fff;
+        }
+
+        pre {
+            margin: 0;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: #e2e8f0;
+        }
+
+        /* Syntax Highlighting */
+        .keyword {
+            color: #c792ea;
+        }
+
+        .string {
+            color: #c3e88d;
+        }
+
+        .annotation {
+            color: #ffcb6b;
+        }
+
+        .comment {
+            color: #676e95;
+            font-style: italic;
+        }
+
+        .class-name {
+            color: #82aaff;
+        }
+
+        .method {
+            color: #82aaff;
+        }
+
+        .number {
+            color: #f78c6c;
+        }
+
+        .property {
+            color: #f07178;
+        }
+
+        /* Tip Boxes */
+        .tip-box {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            border-radius: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .tip-box.info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .tip-box.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .tip-box.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .tip-box i {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .tip-box.info i {
+            color: #3b82f6;
+        }
+
+        .tip-box.warning i {
+            color: #f59e0b;
+        }
+
+        .tip-box.success i {
+            color: #10b981;
+        }
+
+        /* Architecture Diagram */
+        .arch-diagram {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .arch-layers {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .arch-layer {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .layer-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: #fff;
+        }
+
+        .layer-content h5 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .layer-content p {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .checklist li i {
+            color: var(--color-success);
+            margin-top: 0.25rem;
+        }
+
+        /* Grid Layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Quick Reference Cards */
+        .ref-card {
+            background: var(--color-bg-tertiary);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border: 1px solid var(--color-border);
+        }
+
+        .ref-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--color-bg-secondary);
+            margin-top: 3rem;
+            border-top: 1px solid var(--color-border);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .section-card {
+                padding: 1.5rem;
+            }
+
+            .nav-inner {
+                flex-direction: column;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 1.25rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="bi bi-star-fill"></i>
+                <span>Code Craftsmanship</span>
+            </div>
+            <h1><i class="bi bi-braces-asterisk"></i> Coding Design Best Practices</h1>
+            <p>Elevate your engineering skills by learning essential principles, design patterns, and clean code
+                techniques.</p>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-link"><i class="bi bi-arrow-left"></i> Back to Tools</a>
+            <div class="nav-links">
+                <a href="#solid" class="nav-link">SOLID Principles</a>
+                <a href="#cleancode" class="nav-link">Clean Code</a>
+                <a href="#patterns" class="nav-link">Design Patterns</a>
+                <a href="#microservices" class="nav-link">Microservices</a>
+                <a href="#smells" class="nav-link">Code Smells</a>
+                <a href="springboot-microservice-guide.html" class="nav-link" style="color: #4facfe;"><i
+                        class="bi bi-box-arrow-up-right"></i> Spring Boot Guide</a>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                <span class="icon-sun">☀️</span>
+                <span class="icon-moon">🌙</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-container">
+
+        <!-- SOLID Section -->
+        <section id="solid" class="section-card">
+            <div class="section-header">
+                <div class="section-icon" style="background: var(--gradient-primary);">
+                    <i class="bi bi-layers"></i>
+                </div>
+                <div>
+                    <h2 class="section-title">SOLID Principles</h2>
+                    <p style="color: var(--color-text-secondary);">The foundational principles of object-oriented design
+                    </p>
+                </div>
+            </div>
+
+            <div class="practice-list">
+                <div class="practice-item">
+                    <h4><i class="bi bi-1-circle"></i> Single Responsibility Principle (SRP)</h4>
+                    <p>A class should have one, and only one, reason to change. Meaning that a class should have only
+                        one job.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Java - Example</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i class="bi bi-clipboard"></i>
+                                Copy</button>
+                        </div>
+                        <pre><span class="comment">// ❌ Bad: Handles both business logic and persistence</span>
+<span class="keyword">class</span> <span class="class-name">Employee</span> {
+    <span class="keyword">public void</span> <span class="method">calculatePay</span>() { <span class="comment">/*...*/</span> }
+    <span class="keyword">public void</span> <span class="method">saveToDatabase</span>() { <span class="comment">/*...*/</span> }
+}
+
+<span class="comment">// ✅ Good: Responsibilities are separated</span>
+<span class="keyword">class</span> <span class="class-name">Employee</span> {
+    <span class="keyword">public void</span> <span class="method">calculatePay</span>() { <span class="comment">/*...*/</span> }
+}
+
+<span class="keyword">class</span> <span class="class-name">EmployeeRepository</span> {
+    <span class="keyword">public void</span> <span class="method">save</span>(<span class="class-name">Employee</span> employee) { <span class="comment">/*...*/</span> }
+}</pre>
+                    </div>
+                </div>
+
+                <div class="practice-item">
+                    <h4><i class="bi bi-2-circle"></i> Open/Closed Principle (OCP)</h4>
+                    <p>Objects or entities should be open for extension but closed for modification. You should be able
+                        to add new functionality without changing existing code.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Java - Example</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i class="bi bi-clipboard"></i>
+                                Copy</button>
+                        </div>
+                        <pre><span class="comment">// ✅ Good: Strategy pattern to allow extending without modification</span>
+<span class="keyword">interface</span> <span class="class-name">DiscountStrategy</span> {
+    <span class="class-name">double</span> <span class="method">apply</span>(<span class="class-name">double</span> amount);
+}
+
+<span class="keyword">class</span> <span class="class-name">VIPDiscount</span> <span class="keyword">implements</span> <span class="class-name">DiscountStrategy</span> {
+    <span class="annotation">@Override</span>
+    <span class="keyword">public double</span> <span class="method">apply</span>(<span class="class-name">double</span> amount) { <span class="keyword">return</span> amount * <span class="number">0.8</span>; }
+}
+
+<span class="comment">// The checkout service doesn't need to change when a new discount type is added</span>
+<span class="keyword">class</span> <span class="class-name">CheckoutService</span> {
+    <span class="keyword">public double</span> <span class="method">calculateTotal</span>(<span class="class-name">double</span> amount, <span class="class-name">DiscountStrategy</span> discount) {
+        <span class="keyword">return</span> discount.apply(amount);
+    }
+}</pre>
+                    </div>
+                </div>
+
+                <div class="practice-item">
+                    <h4><i class="bi bi-3-circle" style="color: #f59e0b;"></i> Liskov Substitution (LSP)</h4>
+                    <p>Subclasses should be replaceable for their base classes without altering the correctness of the
+                        program.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Java - Example</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i class="bi bi-clipboard"></i>
+                                Copy</button>
+                        </div>
+                        <pre><span class="comment">// ❌ Bad: Throwing exception violates LSP</span>
+<span class="keyword">class</span> <span class="class-name">Bird</span> {
+    <span class="keyword">public void</span> <span class="method">fly</span>() { <span class="comment">/*...*/</span> }
+}
+
+<span class="keyword">class</span> <span class="class-name">Penguin</span> <span class="keyword">extends</span> <span class="class-name">Bird</span> {
+    <span class="annotation">@Override</span>
+    <span class="keyword">public void</span> <span class="method">fly</span>() { 
+        <span class="keyword">throw new</span> <span class="class-name">UnsupportedOperationException</span>(<span class="string">"Cannot fly"</span>); 
+    }
+}
+
+<span class="comment">// ✅ Good: Refactor hierarchy to respect behavior</span>
+<span class="keyword">interface</span> <span class="class-name">FlyingBird</span> {
+    <span class="keyword">void</span> <span class="method">fly</span>();
+}
+
+<span class="keyword">class</span> <span class="class-name">Eagle</span> <span class="keyword">implements</span> <span class="class-name">FlyingBird</span> {
+    <span class="keyword">public void</span> <span class="method">fly</span>() { <span class="comment">/*...*/</span> }
+}</pre>
+                    </div>
+                </div>
+
+                <div class="practice-item">
+                    <h4><i class="bi bi-4-circle" style="color: #10b981;"></i> Interface Segregation (ISP)</h4>
+                    <p>A client should never be forced to implement an interface that it doesn't use. Break large
+                        interfaces into smaller, more specific ones.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Java - Example</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i class="bi bi-clipboard"></i>
+                                Copy</button>
+                        </div>
+                        <pre><span class="comment">// ❌ Bad: One fat interface</span>
+<span class="keyword">interface</span> <span class="class-name">Worker</span> {
+    <span class="keyword">void</span> <span class="method">work</span>();
+    <span class="keyword">void</span> <span class="method">eat</span>();
+}
+
+<span class="keyword">class</span> <span class="class-name">Robot</span> <span class="keyword">implements</span> <span class="class-name">Worker</span> {
+    <span class="keyword">public void</span> <span class="method">work</span>() { <span class="comment">/*...*/</span> }
+    <span class="keyword">public void</span> <span class="method">eat</span>() { <span class="comment">/* Not applicable */</span> }
+}
+
+<span class="comment">// ✅ Good: Segregated interfaces</span>
+<span class="keyword">interface</span> <span class="class-name">Workable</span> { <span class="keyword">void</span> <span class="method">work</span>(); }
+<span class="keyword">interface</span> <span class="class-name">Eatable</span> { <span class="keyword">void</span> <span class="method">eat</span>(); }
+
+<span class="keyword">class</span> <span class="class-name">Human</span> <span class="keyword">implements</span> <span class="class-name">Workable</span>, <span class="class-name">Eatable</span> { <span class="comment">/*...*/</span> }
+<span class="keyword">class</span> <span class="class-name">Robot</span> <span class="keyword">implements</span> <span class="class-name">Workable</span> { <span class="comment">/*...*/</span> }</pre>
+                    </div>
+                </div>
+
+                <div class="practice-item">
+                    <h4><i class="bi bi-5-circle" style="color: #a855f7;"></i> Dependency Inversion (DIP)</h4>
+                    <p>High-level modules must not depend on low-level modules; both should depend on abstractions.
+                        Crucial for Microservices and Spring Boot.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Java Spring - Example</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i class="bi bi-clipboard"></i>
+                                Copy</button>
+                        </div>
+                        <pre><span class="comment">// ❌ Bad: Tightly coupled to a specific implementation</span>
+<span class="keyword">class</span> <span class="class-name">OrderService</span> {
+    <span class="keyword">private</span> <span class="class-name">MySQLOrderRepository</span> repository = <span class="keyword">new</span> <span class="class-name">MySQLOrderRepository</span>();
+}
+
+<span class="comment">// ✅ Good: Depends on abstraction, injected via constructor</span>
+<span class="annotation">@Service</span>
+<span class="keyword">class</span> <span class="class-name">OrderService</span> {
+    <span class="keyword">private final</span> <span class="class-name">OrderRepository</span> repository;
+
+    <span class="comment">// Spring will inject the implementation here</span>
+    <span class="keyword">public</span> <span class="method">OrderService</span>(<span class="class-name">OrderRepository</span> repository) {
+        <span class="keyword">this</span>.repository = repository;
+    }
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Clean Code Section -->
+        <section id="cleancode" class="section-card">
+            <div class="section-header">
+                <div class="section-icon" style="background: var(--gradient-success);">
+                    <i class="bi bi-stars"></i>
+                </div>
+                <div>
+                    <h2 class="section-title">Clean Code</h2>
+                    <p style="color: var(--color-text-secondary);">Write code that is easy to read, understand, and
+                        maintain</p>
+                </div>
+            </div>
+
+            <div class="practice-list">
+                <div class="practice-item">
+                    <h4><i class="bi bi-droplet-half"></i> DRY vs WET Code</h4>
+                    <p><strong>DRY</strong> (Don't Repeat Yourself) is the principle of reducing repetition of software
+                        patterns. <strong>WET</strong> (Write Everything Twice or We Enjoy Typing) is the opposite.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Java - Example</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i class="bi bi-clipboard"></i>
+                                Copy</button>
+                        </div>
+                        <pre><span class="comment">// ❌ Bad (WET): Repeating validation logic</span>
+<span class="keyword">public void</span> <span class="method">createUser</span>(<span class="class-name">UserDto</span> dto) {
+    <span class="keyword">if</span> (dto.getEmail() == <span class="keyword">null</span> || !dto.getEmail().contains(<span class="string">"@"</span>)) { <span class="keyword">throw new</span> <span class="class-name">Exception</span>(); }
+    <span class="comment">/*...*/</span>
+}
+<span class="keyword">public void</span> <span class="method">updateUser</span>(<span class="class-name">UserDto</span> dto) {
+    <span class="keyword">if</span> (dto.getEmail() == <span class="keyword">null</span> || !dto.getEmail().contains(<span class="string">"@"</span>)) { <span class="keyword">throw new</span> <span class="class-name">Exception</span>(); }
+    <span class="comment">/*...*/</span>
+}
+
+<span class="comment">// ✅ Good (DRY): Extract to a method or use Spring Boot Validation (@Valid)</span>
+<span class="keyword">private void</span> <span class="method">validateEmail</span>(<span class="class-name">String</span> email) {
+    <span class="keyword">if</span> (email == <span class="keyword">null</span> || !email.contains(<span class="string">"@"</span>)) { <span class="keyword">throw new</span> <span class="class-name">ValidationException</span>(); }
+}</pre>
+                    </div>
+                    <div class="tip-box info">
+                        <i class="bi bi-info-circle"></i>
+                        <div>
+                            <strong>Rule of Three:</strong> Write it once. Write it twice, you might feel a bit of pain.
+                            When you write it a third time, it's time to extract it into a reusable function or module.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="practice-item">
+                    <h4><i class="bi bi-magic"></i> KISS (Keep It Simple, Stupid)</h4>
+                    <p>Most systems work best if they are kept simple rather than made complicated; therefore,
+                        simplicity should be a key goal in design, and unnecessary complexity should be avoided.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Java - Example</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i class="bi bi-clipboard"></i>
+                                Copy</button>
+                        </div>
+                        <pre><span class="comment">// ❌ Bad (Over-engineered for a simple task)</span>
+<span class="class-name">String</span> names = users.stream()
+    .filter(u -> <span class="class-name">Optional</span>.ofNullable(u.getAge()).orElse(<span class="number">0</span>) > <span class="number">18</span>)
+    .map(<span class="class-name">User</span>::getName)
+    .collect(<span class="class-name">Collectors</span>.joining(<span class="string">", "</span>));
+
+<span class="comment">// ✅ Good (Simple and readable)</span>
+<span class="class-name">List</span>&lt;<span class="class-name">String</span>&gt; adultNames = <span class="keyword">new</span> <span class="class-name">ArrayList</span>&lt;&gt;();
+<span class="keyword">for</span> (<span class="class-name">User</span> user : users) {
+    <span class="keyword">if</span> (user.getAge() != <span class="keyword">null</span> && user.getAge() > <span class="number">18</span>) {
+        adultNames.add(user.getName());
+    }
+}
+<span class="class-name">String</span> names = <span class="class-name">String</span>.join(<span class="string">", "</span>, adultNames);</pre>
+                    </div>
+                </div>
+
+                <div class="practice-item">
+                    <h4><i class="bi bi-box-arrow-right"></i> YAGNI (You Aren't Gonna Need It)</h4>
+                    <p>Always implement things when you actually need them, never when you just foresee that you need
+                        them. Unused code is a liability, not an asset.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Java - Example</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i class="bi bi-clipboard"></i>
+                                Copy</button>
+                        </div>
+                        <pre><span class="comment">// ❌ Bad: Adding generic type parameters "just in case" we need to support other databases in the future</span>
+<span class="keyword">public interface</span> <span class="class-name">GenericRepository</span>&lt;T, ID <span class="keyword">extends</span> <span class="class-name">Serializable</span>, DB_TYPE <span class="keyword">extends</span> <span class="class-name">Database</span>&gt; {
+    <span class="comment">/*...*/</span>
+}
+
+<span class="comment">// ✅ Good: Start concrete, extract interface only when the second implementation arrives</span>
+<span class="keyword">public interface</span> <span class="class-name">UserRepository</span> <span class="keyword">extends</span> <span class="class-name">JpaRepository</span>&lt;<span class="class-name">User</span>, <span class="class-name">Long</span>&gt; {
+    <span class="comment">/*...*/</span>
+}</pre>
+                    </div>
+                </div>
+
+                <div class="practice-item">
+                    <h4><i class="bi bi-type"></i> Meaningful Naming</h4>
+                    <ul class="checklist">
+                        <li><i class="bi bi-check-circle-fill"></i> <span>Use intention-revealing names:
+                                <code>elapsedTimeInDays</code> instead of <code>d</code>.</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span>Avoid encodings and prefixes like
+                                <code>m_</code> or <code>I_</code>.</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span>Class names should be nouns (e.g.,
+                                <code>Customer</code>, <code>Account</code>).</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span>Method names should be verbs (e.g.,
+                                <code>postPayment</code>, <code>deletePage</code>).</span></li>
+                    </ul>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Java - Example</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i class="bi bi-clipboard"></i>
+                                Copy</button>
+                        </div>
+                        <pre><span class="comment">// ❌ Bad</span>
+<span class="keyword">class</span> <span class="class-name">DataProc</span> {
+    <span class="keyword">public void</span> <span class="method">run</span>() { <span class="comment">/*...*/</span> }
+    <span class="keyword">public</span> <span class="class-name">List</span>&lt;<span class="class-name">Object</span>&gt; <span class="method">get</span>() { <span class="comment">/*...*/</span> }
+}
+
+<span class="comment">// ✅ Good</span>
+<span class="keyword">class</span> <span class="class-name">EndOfDayReportGenerator</span> {
+    <span class="keyword">public void</span> <span class="method">generateReport</span>() { <span class="comment">/*...*/</span> }
+    <span class="keyword">public</span> <span class="class-name">List</span>&lt;<span class="class-name">TransactionDto</span>&gt; <span class="method">getPendingTransactions</span>() { <span class="comment">/*...*/</span> }
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Design Patterns Section -->
+        <section id="patterns" class="section-card">
+            <div class="section-header">
+                <div class="section-icon" style="background: var(--gradient-warning);">
+                    <i class="bi bi-grid-1x2"></i>
+                </div>
+                <div>
+                    <h2 class="section-title">Design Patterns</h2>
+                    <p style="color: var(--color-text-secondary);">Reusable solutions to common software design problems
+                    </p>
+                </div>
+            </div>
+
+            <div class="practice-list">
+                <div class="practice-item">
+                    <h4><i class="bi bi-gear-wide-connected"></i> 1. Strategy Pattern (Behavioral)</h4>
+                    <p>Defines a family of algorithms, encapsulates each one, and makes them interchangeable.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Java - Strategy Use Case</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i class="bi bi-clipboard"></i>
+                                Copy</button>
+                        </div>
+                        <pre><span class="comment">// Useful for substituting different payment methods at runtime</span>
+<span class="keyword">interface</span> <span class="class-name">PaymentStrategy</span> {
+    <span class="keyword">void</span> <span class="method">pay</span>(<span class="class-name">int</span> amount);
+}
+
+<span class="keyword">class</span> <span class="class-name">CreditCardPayment</span> <span class="keyword">implements</span> <span class="class-name">PaymentStrategy</span> {
+    <span class="keyword">public void</span> <span class="method">pay</span>(<span class="class-name">int</span> amount) { <span class="class-name">System</span>.out.println(<span class="string">"Paid with CC: "</span> + amount); }
+}
+
+<span class="keyword">class</span> <span class="class-name">PaypalPayment</span> <span class="keyword">implements</span> <span class="class-name">PaymentStrategy</span> {
+    <span class="keyword">public void</span> <span class="method">pay</span>(<span class="class-name">int</span> amount) { <span class="class-name">System</span>.out.println(<span class="string">"Paid with PayPal: "</span> + amount); }
+}</pre>
+                    </div>
+                </div>
+
+                <div class="practice-item">
+                    <h4><i class="bi bi-eye"></i> 2. Observer Pattern (Behavioral)</h4>
+                    <p>Define a one-to-many dependency between objects so that when one object changes state, all its
+                        dependents are notified.</p>
+                    <div class="tip-box success">
+                        <i class="bi bi-check-circle"></i>
+                        <div>
+                            <strong>When to use:</strong> Event handling systems, UI rendering based on state changes,
+                            publish/subscribe mechanisms (like Kafka or RabbitMQ event listeners).
+                        </div>
+                    </div>
+                </div>
+
+                <div class="practice-item">
+                    <h4><i class="bi bi-bricks"></i> 3. Builder Pattern (Creational)</h4>
+                    <p>Separate the construction of a complex object from its representation, allowing the same
+                        construction process to create various representations.</p>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Java - Builder Use Case</span>
+                            <button class="copy-btn" onclick="copyCode(this)"><i class="bi bi-clipboard"></i>
+                                Copy</button>
+                        </div>
+                        <pre><span class="comment">// Very common in Spring Boot and Lombok!</span>
+<span class="class-name">User</span> user = <span class="class-name">User</span>.builder()
+    .id(<span class="number">1L</span>)
+    .firstName(<span class="string">"John"</span>)
+    .lastName(<span class="string">"Doe"</span>)
+    .email(<span class="string">"john@example.com"</span>)
+    .build();</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Code Smells Section -->
+        <section id="smells" class="section-card">
+            <div class="section-header">
+                <div class="section-icon" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);">
+                    <i class="bi bi-bug"></i>
+                </div>
+                <div>
+                    <h2 class="section-title">Code Smells</h2>
+                    <p style="color: var(--color-text-secondary);">Indicators that something might be wrong with your
+                        design</p>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="ref-card">
+                    <h4><i class="bi bi-file-earmark-break" style="color: #ef4444;"></i> God Class</h4>
+                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">A class that controls way too
+                        many other classes and handles too many responsibilities. Violates SRP.
+                        <strong>Solution:</strong> Extract classes based on behavior.
+                    </p>
+                </div>
+                <div class="ref-card">
+                    <h4><i class="bi bi-view-list" style="color: #ef4444;"></i> Long Method</h4>
+                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">A method containing too many
+                        lines of code. Hard to read and test. <strong>Solution:</strong> Extract Method to break it down
+                        into smaller named functions.</p>
+                </div>
+                <div class="ref-card">
+                    <h4><i class="bi bi-diagram-3" style="color: #ef4444;"></i> Feature Envy</h4>
+                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">A method accesses the data of
+                        another object more than its own data. <strong>Solution:</strong> Move the method to the class
+                        where the data resides.</p>
+                </div>
+                <div class="ref-card">
+                    <h4><i class="bi bi-bounding-box" style="color: #ef4444;"></i> Magic Numbers</h4>
+                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">Unexplained numbers directly
+                        hard-coded in logic. <strong>Solution:</strong> Replace with named constants or enumerations.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p style="color: var(--color-text-muted);">
+            <i class="bi bi-code-slash"></i> Built with ❤️ for developers who care
+        </p>
+        <p style="color: var(--color-text-muted); font-size: 0.875rem; margin-top: 0.5rem;">
+            Clean Code • SOLID • Best Practices 2024
+        </p>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" onclick="scrollToTop()">
+        <i class="bi bi-arrow-up"></i>
+    </button>
+
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // Copy code
+        function copyCode(btn) {
+            const pre = btn.closest('.code-block').querySelector('pre');
+            const text = pre.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
+                setTimeout(() => btn.innerHTML = originalText, 2000);
+            });
+        }
+
+        // Back to top
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show/hide back to top button
+        window.addEventListener('scroll', () => {
+            const btn = document.querySelector('.back-to-top');
+            if (window.scrollY > 500) {
+                btn.classList.add('visible');
+            } else {
+                btn.classList.remove('visible');
+            }
+        });
+
+        // Active nav link on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 150;
+                if (scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
