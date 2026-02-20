@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,6 +27,7 @@
         textarea {
             min-height: 350px;
         }
+
         /* Venn diagram styles */
         #venn-diagram {
             display: flex;
@@ -33,6 +35,7 @@
             align-items: center;
             font-family: 'Inter', sans-serif;
         }
+
         .venntooltip {
             position: absolute;
             text-align: center;
@@ -48,7 +51,9 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans p-4 md:p-8 transition-colors duration-200">
+
+<body
+    class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans p-4 md:p-8 transition-colors duration-200">
 
     <div class="max-w-7xl mx-auto">
         <header class="flex flex-col md:flex-row justify-between items-center mb-8">
@@ -58,14 +63,20 @@
                     Paste your lists below. The tool will find differences regardless of order or duplicates.
                 </p>
             </div>
-            <button id="themeToggle" class="mt-4 md:mt-0 p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Toggle Dark Mode">
+            <button id="themeToggle"
+                class="mt-4 md:mt-0 p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="Toggle Dark Mode">
                 <!-- Sun Icon -->
-                <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500 hidden" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
                 <!-- Moon Icon -->
-                <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700 dark:text-gray-300"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
             </button>
         </header>
@@ -75,111 +86,131 @@
             <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition-colors duration-200">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-2xl font-semibold text-blue-700 dark:text-blue-400">Set 1</h2>
-                    <button id="clearSet1" class="text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold py-1 px-3 rounded transition-colors duration-200">
+                    <button id="clearSet1"
+                        class="text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold py-1 px-3 rounded transition-colors duration-200">
                         Clear
                     </button>
                 </div>
-                <textarea id="set1" 
-                          class="w-full h-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                          placeholder="Paste Set 1 here (one item per line)..."></textarea>
+                <textarea id="set1"
+                    class="w-full h-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                    placeholder="Paste Set 1 here (one item per line)..."></textarea>
             </div>
             <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition-colors duration-200">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-2xl font-semibold text-indigo-700 dark:text-indigo-400">Set 2</h2>
-                    <button id="clearSet2" class="text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold py-1 px-3 rounded transition-colors duration-200">
+                    <button id="clearSet2"
+                        class="text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold py-1 px-3 rounded transition-colors duration-200">
                         Clear
                     </button>
                 </div>
-                <textarea id="set2" 
-                          class="w-full h-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                          placeholder="Paste Set 2 here (one item per line)..."></textarea>
+                <textarea id="set2"
+                    class="w-full h-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                    placeholder="Paste Set 2 here (one item per line)..."></textarea>
             </div>
         </div>
 
         <!-- Options Section -->
-        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md mb-6 flex flex-wrap gap-4 items-center justify-center transition-colors duration-200">
+        <div
+            class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md mb-6 flex flex-wrap gap-4 items-center justify-center transition-colors duration-200">
             <label class="inline-flex items-center cursor-pointer">
-                <input type="checkbox" id="caseSensitive" class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700">
+                <input type="checkbox" id="caseSensitive"
+                    class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                    checked>
                 <span class="ml-2 text-gray-700 dark:text-gray-300">Case Sensitive</span>
             </label>
             <label class="inline-flex items-center cursor-pointer">
-                <input type="checkbox" id="ignoreWhitespace" class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700" checked>
+                <input type="checkbox" id="ignoreWhitespace"
+                    class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                    checked>
                 <span class="ml-2 text-gray-700 dark:text-gray-300">Ignore Whitespace</span>
             </label>
             <label class="inline-flex items-center cursor-pointer">
-                <input type="checkbox" id="sortResults" class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700" checked>
+                <input type="checkbox" id="sortResults"
+                    class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+                    checked>
                 <span class="ml-2 text-gray-700 dark:text-gray-300">Sort Results</span>
             </label>
         </div>
 
         <!-- Control Button -->
-        <button id="compareButton" 
-                class="w-full bg-blue-600 dark:bg-blue-700 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 transition-all duration-200 ease-in-out transform hover:-translate-y-0.5 mb-8">
+        <button id="compareButton"
+            class="w-full bg-blue-600 dark:bg-blue-700 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-md hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 transition-all duration-200 ease-in-out transform hover:-translate-y-0.5 mb-8">
             Compare Sets
         </button>
 
         <!-- Venn Diagram Section -->
-        <div id="venn-container" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-8 hidden transition-colors duration-200">
-            <h2 class="text-2xl font-semibold mb-3 text-center text-gray-700 dark:text-gray-200">Venn Diagram Result</h2>
+        <div id="venn-container"
+            class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-8 hidden transition-colors duration-200">
+            <h2 class="text-2xl font-semibold mb-3 text-center text-gray-700 dark:text-gray-200">Venn Diagram Result
+            </h2>
             <div id="venn-diagram" class="w-full h-[400px]"></div>
         </div>
 
         <!-- Output Section -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Column 1: Only in Set 1 -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 transition-colors duration-200">
-                <div class="bg-red-50 dark:bg-red-900/30 p-4 border-b border-red-100 dark:border-red-900/50 flex justify-between items-center">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 transition-colors duration-200">
+                <div
+                    class="bg-red-50 dark:bg-red-900/30 p-4 border-b border-red-100 dark:border-red-900/50 flex justify-between items-center">
                     <h3 class="text-lg font-bold text-red-800 dark:text-red-200">Only in Set 1</h3>
                     <div class="flex items-center gap-2">
-                        <button id="copyOnly1" class="text-xs bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-800/50 text-red-800 dark:text-red-200 font-semibold py-1 px-3 rounded transition-colors duration-200">
+                        <button id="copyOnly1"
+                            class="text-xs bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-800/50 text-red-800 dark:text-red-200 font-semibold py-1 px-3 rounded transition-colors duration-200">
                             Copy
                         </button>
-                        <span id="countOnly1" class="bg-red-200 dark:bg-red-800/50 text-red-800 dark:text-red-200 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
+                        <span id="countOnly1"
+                            class="bg-red-200 dark:bg-red-800/50 text-red-800 dark:text-red-200 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
                     </div>
                 </div>
                 <div class="p-4 h-full relative group">
-                    <textarea id="onlyIn1"
-                              readonly
-                              class="w-full h-64 p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-200 font-mono text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900"
-                              placeholder="Items unique to Set 1..."></textarea>
+                    <textarea id="onlyIn1" readonly
+                        class="w-full h-64 p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-200 font-mono text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900"
+                        placeholder="Items unique to Set 1..."></textarea>
                 </div>
             </div>
-            
+
             <!-- Column 2: Only in Set 2 -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 transition-colors duration-200">
-                <div class="bg-amber-50 dark:bg-amber-900/30 p-4 border-b border-amber-100 dark:border-amber-900/50 flex justify-between items-center">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 transition-colors duration-200">
+                <div
+                    class="bg-amber-50 dark:bg-amber-900/30 p-4 border-b border-amber-100 dark:border-amber-900/50 flex justify-between items-center">
                     <h3 class="text-lg font-bold text-amber-800 dark:text-amber-200">Only in Set 2</h3>
                     <div class="flex items-center gap-2">
-                        <button id="copyOnly2" class="text-xs bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-800/50 text-amber-800 dark:text-amber-200 font-semibold py-1 px-3 rounded transition-colors duration-200">
+                        <button id="copyOnly2"
+                            class="text-xs bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-800/50 text-amber-800 dark:text-amber-200 font-semibold py-1 px-3 rounded transition-colors duration-200">
                             Copy
                         </button>
-                        <span id="countOnly2" class="bg-amber-200 dark:bg-amber-800/50 text-amber-800 dark:text-amber-200 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
+                        <span id="countOnly2"
+                            class="bg-amber-200 dark:bg-amber-800/50 text-amber-800 dark:text-amber-200 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
                     </div>
                 </div>
                 <div class="p-4 h-full relative group">
-                    <textarea id="onlyIn2"
-                              readonly
-                              class="w-full h-64 p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-200 font-mono text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-amber-200 dark:focus:ring-amber-900"
-                              placeholder="Items unique to Set 2..."></textarea>
+                    <textarea id="onlyIn2" readonly
+                        class="w-full h-64 p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-200 font-mono text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-amber-200 dark:focus:ring-amber-900"
+                        placeholder="Items unique to Set 2..."></textarea>
                 </div>
             </div>
-            
+
             <!-- Column 3: Common to Both -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 transition-colors duration-200">
-                <div class="bg-green-50 dark:bg-green-900/30 p-4 border-b border-green-100 dark:border-green-900/50 flex justify-between items-center">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 transition-colors duration-200">
+                <div
+                    class="bg-green-50 dark:bg-green-900/30 p-4 border-b border-green-100 dark:border-green-900/50 flex justify-between items-center">
                     <h3 class="text-lg font-bold text-green-800 dark:text-green-200">Common to Both</h3>
                     <div class="flex items-center gap-2">
-                        <button id="copyCommon" class="text-xs bg-green-100 dark:bg-green-900/50 hover:bg-green-200 dark:hover:bg-green-800/50 text-green-800 dark:text-green-200 font-semibold py-1 px-3 rounded transition-colors duration-200">
+                        <button id="copyCommon"
+                            class="text-xs bg-green-100 dark:bg-green-900/50 hover:bg-green-200 dark:hover:bg-green-800/50 text-green-800 dark:text-green-200 font-semibold py-1 px-3 rounded transition-colors duration-200">
                             Copy
                         </button>
-                        <span id="countCommon" class="bg-green-200 dark:bg-green-800/50 text-green-800 dark:text-green-200 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
+                        <span id="countCommon"
+                            class="bg-green-200 dark:bg-green-800/50 text-green-800 dark:text-green-200 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
                     </div>
                 </div>
                 <div class="p-4 h-full relative group">
-                    <textarea id="common"
-                              readonly
-                              class="w-full h-64 p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-200 font-mono text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-green-200 dark:focus:ring-green-900"
-                              placeholder="Items found in both sets..."></textarea>
+                    <textarea id="common" readonly
+                        class="w-full h-64 p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-200 font-mono text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-green-200 dark:focus:ring-green-900"
+                        placeholder="Items found in both sets..."></textarea>
                 </div>
             </div>
         </div>
@@ -203,7 +234,7 @@
             moonIcon.classList.remove('hidden');
         }
 
-        themeToggleBtn.addEventListener('click', function() {
+        themeToggleBtn.addEventListener('click', function () {
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
                 localStorage.setItem('color-theme', 'light');
@@ -311,10 +342,10 @@
             const onlyIn1 = [...s1].filter(item => !s2.has(item));
             const onlyIn2 = [...s2].filter(item => !s1.has(item));
             const common = [...s1].filter(item => s2.has(item));
-            
+
             // 5. Sort results if requested
             if (isSort) {
-                const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
+                const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
                 onlyIn1.sort(collator.compare);
                 onlyIn2.sort(collator.compare);
                 common.sort(collator.compare);
@@ -343,9 +374,9 @@
             chartDiv.innerHTML = ''; // Clear previous diagram
 
             const sets = [
-                {sets: ['Set 1'], size: size1},
-                {sets: ['Set 2'], size: size2},
-                {sets: ['Set 1', 'Set 2'], size: commonSize}
+                { sets: ['Set 1'], size: size1 },
+                { sets: ['Set 2'], size: size2 },
+                { sets: ['Set 1', 'Set 2'], size: commonSize }
             ];
 
             const chart = venn.VennDiagram()
@@ -397,7 +428,7 @@
                 .attr("class", "venntooltip");
 
             div.selectAll("g")
-                .on("mouseover", function(event, d) {
+                .on("mouseover", function (event, d) {
                     // sort all the areas relative to the current item
                     venn.sortAreas(div, d);
 
@@ -411,11 +442,11 @@
                         .style("fill-opacity", d.sets.length == 1 ? .8 : .4)
                         .style("stroke-opacity", 1);
                 })
-                .on("mousemove", function(event) {
+                .on("mousemove", function (event) {
                     tooltip.style("left", (event.pageX) + "px")
-                           .style("top", (event.pageY - 28) + "px");
+                        .style("top", (event.pageY - 28) + "px");
                 })
-                .on("mouseout", function(event, d) {
+                .on("mouseout", function (event, d) {
                     tooltip.transition().duration(400).style("opacity", 0);
                     const selection = d3.select(this).transition("tooltip").duration(400);
                     selection.select("path")
@@ -426,4 +457,5 @@
     </script>
 
 </body>
+
 </html>
