@@ -1344,6 +1344,16 @@
         <div class="tool-header">
             <h1><i class="bi bi-book"></i> English Lab</h1>
             <div class="tool-actions">
+                <select id="cefrSelector" onchange="changeCefrLevel(this.value)"
+                    style="margin-right:0.5rem; padding: 0.3rem 0.6rem; border-radius: 1rem; border: 1px solid var(--color-border); background: var(--color-bg-secondary); color: var(--color-text-primary); font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+                    <option value="All">All Levels</option>
+                    <option value="A1">A1 Beginner</option>
+                    <option value="A2">A2 Elementary</option>
+                    <option value="B1">B1 Intermediate</option>
+                    <option value="B2">B2 Upper Intermediate</option>
+                    <option value="C1">C1 Advanced</option>
+                    <option value="C2">C2 Mastery</option>
+                </select>
                 <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
                     <span class="icon-sun">☀️</span><span class="icon-moon">🌙</span>
                 </button>
@@ -1582,112 +1592,135 @@
            DATA: Vocabulary Database
            ============================================ */
         const VOCAB = {
+
+            "Kids Basics": [
+                { word: "Cat", phonetic: "/kæt/", type: "noun", def: "A small animal with fur, four legs, a tail, and claws.", example: "The cat is sleeping on the bed.", cefr: "A1" },
+                { word: "Dog", phonetic: "/dɔːɡ/", type: "noun", def: "A common animal with four legs, kept as a pet.", example: "My dog loves to play catch.", cefr: "A1" },
+                { word: "Apple", phonetic: "/ˈæp.əl/", type: "noun", def: "A hard, round fruit with green or red skin.", example: "She ate an apple for a snack.", cefr: "A1" },
+                { word: "Book", phonetic: "/bʊk/", type: "noun", def: "A set of pages bound together, for reading or writing.", example: "I read a good book yesterday.", cefr: "A1" },
+                { word: "Happy", phonetic: "/ˈhæp.i/", type: "adj", def: "Feeling or showing pleasure.", example: "He was very happy to see his friends.", cefr: "A1" },
+                { word: "Jump", phonetic: "/dʒʌmp/", type: "verb", def: "To push yourself off the ground into the air.", example: "The children like to jump on the trampoline.", cefr: "A1" },
+                { word: "Red", phonetic: "/red/", type: "adj", def: "The color of blood or tomatoes.", example: "She wore a bright red dress.", cefr: "A1" },
+                { word: "Run", phonetic: "/rʌn/", type: "verb", def: "To move quickly with your legs.", example: "We need to run to catch the bus.", cefr: "A1" },
+                { word: "Sun", phonetic: "/sʌn/", type: "noun", def: "The star that provides light and heat for the earth.", example: "The sun is shining brightly today.", cefr: "A1" },
+                { word: "Water", phonetic: "/ˈwɑː.t̬ɚ/", type: "noun", def: "A clear liquid that falls as rain and is used for drinking.", example: "Please give me a glass of water.", cefr: "A1" },
+                { word: "Bicycle", phonetic: "/ˈbaɪ.sə.kəl/", type: "noun", def: "A vehicle with two wheels that you ride by pushing pedals.", example: "He rides his bicycle to school.", cefr: "A2" },
+                { word: "Garden", phonetic: "/ˈɡɑːr.dən/", type: "noun", def: "A piece of land next to a house where plants are grown.", example: "They have a beautiful flower garden.", cefr: "A2" },
+                { word: "Teacher", phonetic: "/ˈtiː.tʃɚ/", type: "noun", def: "A person who teaches, especially in a school.", example: "The teacher explained the lesson clearly.", cefr: "A2" },
+                { word: "Window", phonetic: "/ˈwɪn.doʊ/", type: "noun", def: "An opening in a wall, usually covered with glass.", example: "Please open the window for some fresh air.", cefr: "A2" },
+                { word: "Yellow", phonetic: "/ˈjel.oʊ/", type: "adj", def: "The color of lemons or butter.", example: "The sun is yellow.", cefr: "A2" },
+                { word: "Friend", phonetic: "/frend/", type: "noun", def: "A person you know well and like a lot.", example: "She is my best friend.", cefr: "A2" },
+                { word: "School", phonetic: "/skuːl/", type: "noun", def: "A place where children go to learn.", example: "He goes to school from Monday to Friday.", cefr: "A2" },
+                { word: "Play", phonetic: "/pleɪ/", type: "verb", def: "To take part in a game or activity for fun.", example: "The kids play in the park every afternoon.", cefr: "A2" },
+                { word: "Family", phonetic: "/ˈfæm.əl.i/", type: "noun", def: "A group of parents and their children.", example: "My family is going on vacation.", cefr: "A2" },
+                { word: "Eat", phonetic: "/iːt/", type: "verb", def: "To put food into your mouth and chew and swallow it.", example: "We eat dinner at 7 PM.", cefr: "A2" }
+            ],
             "Business": [
-                { word: "Negotiate", phonetic: "/nɪˈɡoʊ.ʃi.eɪt/", type: "verb", def: "To discuss something in order to reach an agreement.", example: "We need to negotiate the terms of the contract." },
-                { word: "Revenue", phonetic: "/ˈrev.ən.uː/", type: "noun", def: "Income generated from business operations.", example: "The company's revenue increased by 20% this year." },
-                { word: "Stakeholder", phonetic: "/ˈsteɪkˌhoʊl.dɚ/", type: "noun", def: "A person with an interest or concern in something.", example: "All stakeholders were invited to the meeting." },
-                { word: "Leverage", phonetic: "/ˈlev.ɚ.ɪdʒ/", type: "verb", def: "To use something to maximum advantage.", example: "We can leverage our expertise to win this deal." },
-                { word: "Benchmark", phonetic: "/ˈbentʃ.mɑːrk/", type: "noun", def: "A standard or point of reference for evaluation.", example: "This score serves as a benchmark for future tests." },
-                { word: "Scalable", phonetic: "/ˈskeɪ.lə.bəl/", type: "adj", def: "Able to be changed in size or scale.", example: "We need a scalable solution for our growing user base." },
-                { word: "Synergy", phonetic: "/ˈsɪn.ɚ.dʒi/", type: "noun", def: "The combined power of a group working together.", example: "The merger created great synergy between the teams." },
-                { word: "Acquisition", phonetic: "/ˌæk.wɪˈzɪʃ.ən/", type: "noun", def: "The buying or obtaining of something.", example: "The acquisition of the startup was completed last month." },
-                { word: "Compliance", phonetic: "/kəmˈplaɪ.əns/", type: "noun", def: "The act of obeying rules or requests.", example: "The company must ensure compliance with regulations." },
-                { word: "Allocate", phonetic: "/ˈæl.ə.keɪt/", type: "verb", def: "To distribute resources for a particular purpose.", example: "We need to allocate more budget to marketing." },
-                { word: "Entrepreneur", phonetic: "/ˌɑːn.trə.prəˈnɜːr/", type: "noun", def: "A person who starts and runs a business.", example: "She became a successful entrepreneur at age 25." },
-                { word: "Dividend", phonetic: "/ˈdɪv.ɪ.dend/", type: "noun", def: "A share of profits paid to shareholders.", example: "Investors received a quarterly dividend." },
-                { word: "Foreclosure", phonetic: "/fɔːrˈkloʊ.ʒɚ/", type: "noun", def: "A legal process where a lender takes property due to unpaid debt.", example: "The bank initiated foreclosure proceedings." },
-                { word: "Infiltrate", phonetic: "/ˈɪn.fɪl.treɪt/", type: "verb", def: "To enter an organization gradually and secretly.", example: "The competitors tried to infiltrate the market quietly." },
-                { word: "Liquidate", phonetic: "/ˈlɪk.wɪ.deɪt/", type: "verb", def: "To convert assets into cash; to close a business.", example: "They decided to liquidate the company's assets." }
+                { word: "Negotiate", phonetic: "/nɪˈɡoʊ.ʃi.eɪt/", type: "verb", def: "To discuss something in order to reach an agreement.", example: "We need to negotiate the terms of the contract.", cefr: "B1" },
+                { word: "Revenue", phonetic: "/ˈrev.ən.uː/", type: "noun", def: "Income generated from business operations.", example: "The company's revenue increased by 20% this year.", cefr: "B2" },
+                { word: "Stakeholder", phonetic: "/ˈsteɪkˌhoʊl.dɚ/", type: "noun", def: "A person with an interest or concern in something.", example: "All stakeholders were invited to the meeting.", cefr: "C1" },
+                { word: "Leverage", phonetic: "/ˈlev.ɚ.ɪdʒ/", type: "verb", def: "To use something to maximum advantage.", example: "We can leverage our expertise to win this deal.", cefr: "C2" },
+                { word: "Benchmark", phonetic: "/ˈbentʃ.mɑːrk/", type: "noun", def: "A standard or point of reference for evaluation.", example: "This score serves as a benchmark for future tests.", cefr: "B1" },
+                { word: "Scalable", phonetic: "/ˈskeɪ.lə.bəl/", type: "adj", def: "Able to be changed in size or scale.", example: "We need a scalable solution for our growing user base.", cefr: "B2" },
+                { word: "Synergy", phonetic: "/ˈsɪn.ɚ.dʒi/", type: "noun", def: "The combined power of a group working together.", example: "The merger created great synergy between the teams.", cefr: "C1" },
+                { word: "Acquisition", phonetic: "/ˌæk.wɪˈzɪʃ.ən/", type: "noun", def: "The buying or obtaining of something.", example: "The acquisition of the startup was completed last month.", cefr: "C2" },
+                { word: "Compliance", phonetic: "/kəmˈplaɪ.əns/", type: "noun", def: "The act of obeying rules or requests.", example: "The company must ensure compliance with regulations.", cefr: "B1" },
+                { word: "Allocate", phonetic: "/ˈæl.ə.keɪt/", type: "verb", def: "To distribute resources for a particular purpose.", example: "We need to allocate more budget to marketing.", cefr: "B2" },
+                { word: "Entrepreneur", phonetic: "/ˌɑːn.trə.prəˈnɜːr/", type: "noun", def: "A person who starts and runs a business.", example: "She became a successful entrepreneur at age 25.", cefr: "C1" },
+                { word: "Dividend", phonetic: "/ˈdɪv.ɪ.dend/", type: "noun", def: "A share of profits paid to shareholders.", example: "Investors received a quarterly dividend.", cefr: "C2" },
+                { word: "Foreclosure", phonetic: "/fɔːrˈkloʊ.ʒɚ/", type: "noun", def: "A legal process where a lender takes property due to unpaid debt.", example: "The bank initiated foreclosure proceedings.", cefr: "B1" },
+                { word: "Infiltrate", phonetic: "/ˈɪn.fɪl.treɪt/", type: "verb", def: "To enter an organization gradually and secretly.", example: "The competitors tried to infiltrate the market quietly.", cefr: "B2" },
+                { word: "Liquidate", phonetic: "/ˈlɪk.wɪ.deɪt/", type: "verb", def: "To convert assets into cash; to close a business.", example: "They decided to liquidate the company's assets.", cefr: "C1" }
             ],
             "Daily Life": [
-                { word: "Procrastinate", phonetic: "/proʊˈkræs.tɪ.neɪt/", type: "verb", def: "To delay or postpone action.", example: "Stop procrastinating and finish your homework!" },
-                { word: "Commute", phonetic: "/kəˈmjuːt/", type: "verb", def: "To travel regularly between home and work.", example: "She commutes by train every day." },
-                { word: "Overwhelmed", phonetic: "/ˌoʊ.vɚˈwelmd/", type: "adj", def: "Feeling completely overcome in mind or emotion.", example: "I felt overwhelmed by all the tasks on my list." },
-                { word: "Mundane", phonetic: "/mʌnˈdeɪn/", type: "adj", def: "Lacking interest or excitement; dull.", example: "She was tired of the mundane routine." },
-                { word: "Resilient", phonetic: "/rɪˈzɪl.jənt/", type: "adj", def: "Able to recover quickly from difficulties.", example: "Children are remarkably resilient." },
-                { word: "Versatile", phonetic: "/ˈvɝː.sə.t̬əl/", type: "adj", def: "Able to adapt to many different functions.", example: "He's a versatile actor who can play any role." },
-                { word: "Spontaneous", phonetic: "/spɑːnˈteɪ.ni.əs/", type: "adj", def: "Performed without planning; impulsive.", example: "They went on a spontaneous road trip." },
-                { word: "Substantial", phonetic: "/səbˈstæn.ʃəl/", type: "adj", def: "Of considerable importance or size.", example: "She received a substantial pay raise." },
-                { word: "Inevitable", phonetic: "/ɪˈnev.ɪ.t̬ə.bəl/", type: "adj", def: "Certain to happen; unavoidable.", example: "Change is inevitable in any organization." },
-                { word: "Ambiguous", phonetic: "/æmˈbɪɡ.ju.əs/", type: "adj", def: "Open to more than one interpretation.", example: "The instructions were ambiguous and confusing." },
-                { word: "Frugal", phonetic: "/ˈfruː.ɡəl/", type: "adj", def: "Sparing with money; economical.", example: "Living frugally helped him save for a house." },
-                { word: "Clutter", phonetic: "/ˈklʌt̬.ɚ/", type: "noun", def: "A collection of things lying about in an untidy way.", example: "She cleared the clutter from her desk before working." },
-                { word: "Renovate", phonetic: "/ˈren.ə.veɪt/", type: "verb", def: "To restore or improve a building or room.", example: "They renovated their kitchen last summer." }
+                { word: "Procrastinate", phonetic: "/proʊˈkræs.tɪ.neɪt/", type: "verb", def: "To delay or postpone action.", example: "Stop procrastinating and finish your homework!", cefr: "C2" },
+                { word: "Commute", phonetic: "/kəˈmjuːt/", type: "verb", def: "To travel regularly between home and work.", example: "She commutes by train every day.", cefr: "B1" },
+                { word: "Overwhelmed", phonetic: "/ˌoʊ.vɚˈwelmd/", type: "adj", def: "Feeling completely overcome in mind or emotion.", example: "I felt overwhelmed by all the tasks on my list.", cefr: "B2" },
+                { word: "Mundane", phonetic: "/mʌnˈdeɪn/", type: "adj", def: "Lacking interest or excitement; dull.", example: "She was tired of the mundane routine.", cefr: "C1" },
+                { word: "Resilient", phonetic: "/rɪˈzɪl.jənt/", type: "adj", def: "Able to recover quickly from difficulties.", example: "Children are remarkably resilient.", cefr: "C2" },
+                { word: "Versatile", phonetic: "/ˈvɝː.sə.t̬əl/", type: "adj", def: "Able to adapt to many different functions.", example: "He's a versatile actor who can play any role.", cefr: "B1" },
+                { word: "Spontaneous", phonetic: "/spɑːnˈteɪ.ni.əs/", type: "adj", def: "Performed without planning; impulsive.", example: "They went on a spontaneous road trip.", cefr: "B2" },
+                { word: "Substantial", phonetic: "/səbˈstæn.ʃəl/", type: "adj", def: "Of considerable importance or size.", example: "She received a substantial pay raise.", cefr: "C1" },
+                { word: "Inevitable", phonetic: "/ɪˈnev.ɪ.t̬ə.bəl/", type: "adj", def: "Certain to happen; unavoidable.", example: "Change is inevitable in any organization.", cefr: "C2" },
+                { word: "Ambiguous", phonetic: "/æmˈbɪɡ.ju.əs/", type: "adj", def: "Open to more than one interpretation.", example: "The instructions were ambiguous and confusing.", cefr: "B1" },
+                { word: "Frugal", phonetic: "/ˈfruː.ɡəl/", type: "adj", def: "Sparing with money; economical.", example: "Living frugally helped him save for a house.", cefr: "B2" },
+                { word: "Clutter", phonetic: "/ˈklʌt̬.ɚ/", type: "noun", def: "A collection of things lying about in an untidy way.", example: "She cleared the clutter from her desk before working.", cefr: "C1" },
+                { word: "Renovate", phonetic: "/ˈren.ə.veɪt/", type: "verb", def: "To restore or improve a building or room.", example: "They renovated their kitchen last summer.", cefr: "C2" }
             ],
             "Academic": [
-                { word: "Hypothesis", phonetic: "/haɪˈpɑː.θə.sɪs/", type: "noun", def: "A proposed explanation for a phenomenon.", example: "The scientist tested her hypothesis with experiments." },
-                { word: "Empirical", phonetic: "/ɪmˈpɪr.ɪ.kəl/", type: "adj", def: "Based on observation or experience, not theory.", example: "The study provides empirical evidence for the claim." },
-                { word: "Paradigm", phonetic: "/ˈper.ə.daɪm/", type: "noun", def: "A typical example or pattern of something.", example: "This discovery shifted the scientific paradigm." },
-                { word: "Synthesize", phonetic: "/ˈsɪn.θə.saɪz/", type: "verb", def: "To combine different ideas into a coherent whole.", example: "She synthesized information from multiple sources." },
-                { word: "Pragmatic", phonetic: "/præɡˈmæt̬.ɪk/", type: "adj", def: "Dealing with things sensibly and realistically.", example: "We need a pragmatic approach to solve this problem." },
-                { word: "Ubiquitous", phonetic: "/juːˈbɪk.wɪ.t̬əs/", type: "adj", def: "Present, appearing, or found everywhere.", example: "Smartphones have become ubiquitous in modern society." },
-                { word: "Eloquent", phonetic: "/ˈel.ə.kwənt/", type: "adj", def: "Fluent or persuasive in speaking or writing.", example: "She gave an eloquent speech at the conference." },
-                { word: "Meticulous", phonetic: "/məˈtɪk.jə.ləs/", type: "adj", def: "Showing great attention to detail.", example: "He was meticulous in his research methodology." },
-                { word: "Profound", phonetic: "/prəˈfaʊnd/", type: "adj", def: "Very great or intense; having deep meaning.", example: "The book had a profound impact on my thinking." },
-                { word: "Mitigate", phonetic: "/ˈmɪt̬.ə.ɡeɪt/", type: "verb", def: "To make less severe or serious.", example: "Steps were taken to mitigate the environmental damage." },
-                { word: "Scrutinize", phonetic: "/ˈskruː.tɪ.naɪz/", type: "verb", def: "To examine carefully and in detail.", example: "The committee scrutinized every line of the proposal." },
-                { word: "Corroborate", phonetic: "/kəˈrɒb.ə.reɪt/", type: "verb", def: "To confirm or give support to a statement or theory.", example: "New evidence corroborated the original findings." },
-                { word: "Ambivalent", phonetic: "/æmˈbɪv.ə.lənt/", type: "adj", def: "Having mixed or contradictory feelings about something.", example: "She felt ambivalent about accepting the new job offer." },
-                { word: "Plagiarism", phonetic: "/ˈpleɪ.dʒər.ɪ.zəm/", type: "noun", def: "The practice of copying someone else's work without credit.", example: "Students are expelled for plagiarism at this university." }
+                { word: "Hypothesis", phonetic: "/haɪˈpɑː.θə.sɪs/", type: "noun", def: "A proposed explanation for a phenomenon.", example: "The scientist tested her hypothesis with experiments.", cefr: "B1" },
+                { word: "Empirical", phonetic: "/ɪmˈpɪr.ɪ.kəl/", type: "adj", def: "Based on observation or experience, not theory.", example: "The study provides empirical evidence for the claim.", cefr: "B2" },
+                { word: "Paradigm", phonetic: "/ˈper.ə.daɪm/", type: "noun", def: "A typical example or pattern of something.", example: "This discovery shifted the scientific paradigm.", cefr: "C1" },
+                { word: "Synthesize", phonetic: "/ˈsɪn.θə.saɪz/", type: "verb", def: "To combine different ideas into a coherent whole.", example: "She synthesized information from multiple sources.", cefr: "C2" },
+                { word: "Pragmatic", phonetic: "/præɡˈmæt̬.ɪk/", type: "adj", def: "Dealing with things sensibly and realistically.", example: "We need a pragmatic approach to solve this problem.", cefr: "B1" },
+                { word: "Ubiquitous", phonetic: "/juːˈbɪk.wɪ.t̬əs/", type: "adj", def: "Present, appearing, or found everywhere.", example: "Smartphones have become ubiquitous in modern society.", cefr: "B2" },
+                { word: "Eloquent", phonetic: "/ˈel.ə.kwənt/", type: "adj", def: "Fluent or persuasive in speaking or writing.", example: "She gave an eloquent speech at the conference.", cefr: "C1" },
+                { word: "Meticulous", phonetic: "/məˈtɪk.jə.ləs/", type: "adj", def: "Showing great attention to detail.", example: "He was meticulous in his research methodology.", cefr: "C2" },
+                { word: "Profound", phonetic: "/prəˈfaʊnd/", type: "adj", def: "Very great or intense; having deep meaning.", example: "The book had a profound impact on my thinking.", cefr: "B1" },
+                { word: "Mitigate", phonetic: "/ˈmɪt̬.ə.ɡeɪt/", type: "verb", def: "To make less severe or serious.", example: "Steps were taken to mitigate the environmental damage.", cefr: "B2" },
+                { word: "Scrutinize", phonetic: "/ˈskruː.tɪ.naɪz/", type: "verb", def: "To examine carefully and in detail.", example: "The committee scrutinized every line of the proposal.", cefr: "C1" },
+                { word: "Corroborate", phonetic: "/kəˈrɒb.ə.reɪt/", type: "verb", def: "To confirm or give support to a statement or theory.", example: "New evidence corroborated the original findings.", cefr: "C2" },
+                { word: "Ambivalent", phonetic: "/æmˈbɪv.ə.lənt/", type: "adj", def: "Having mixed or contradictory feelings about something.", example: "She felt ambivalent about accepting the new job offer.", cefr: "B1" },
+                { word: "Plagiarism", phonetic: "/ˈpleɪ.dʒər.ɪ.zəm/", type: "noun", def: "The practice of copying someone else's work without credit.", example: "Students are expelled for plagiarism at this university.", cefr: "B2" }
             ],
             "Idioms": [
-                { word: "Break the ice", phonetic: "", type: "idiom", def: "To do something to relieve tension or start a conversation.", example: "He told a joke to break the ice at the meeting." },
-                { word: "Hit the nail on the head", phonetic: "", type: "idiom", def: "To describe exactly what is causing a situation.", example: "You hit the nail on the head with that explanation." },
-                { word: "Piece of cake", phonetic: "", type: "idiom", def: "Something very easy to do.", example: "The test was a piece of cake!" },
-                { word: "Under the weather", phonetic: "", type: "idiom", def: "Feeling ill or unwell.", example: "I'm feeling a bit under the weather today." },
-                { word: "Cost an arm and a leg", phonetic: "", type: "idiom", def: "To be extremely expensive.", example: "That new car must have cost an arm and a leg." },
-                { word: "Burn the midnight oil", phonetic: "", type: "idiom", def: "To work or study late into the night.", example: "She burned the midnight oil to finish the project." },
-                { word: "Bite the bullet", phonetic: "", type: "idiom", def: "To endure a painful situation bravely.", example: "I decided to bite the bullet and go to the dentist." },
-                { word: "On the same page", phonetic: "", type: "idiom", def: "To agree or have the same understanding.", example: "Let's make sure we're all on the same page." },
-                { word: "The ball is in your court", phonetic: "", type: "idiom", def: "It's your turn to take action or make a decision.", example: "I've done my part, the ball is in your court now." },
-                { word: "Think outside the box", phonetic: "", type: "idiom", def: "To think creatively or unconventionally.", example: "We need to think outside the box to solve this." },
-                { word: "Beat around the bush", phonetic: "", type: "idiom", def: "To avoid coming to the main point.", example: "Stop beating around the bush and tell me what happened." },
-                { word: "Hit the sack", phonetic: "", type: "idiom", def: "To go to bed.", example: "I'm exhausted — time to hit the sack." },
-                { word: "Spill the beans", phonetic: "", type: "idiom", def: "To reveal secret information accidentally.", example: "He spilled the beans about the surprise party." },
-                { word: "Once in a blue moon", phonetic: "", type: "idiom", def: "Very rarely.", example: "We only eat out once in a blue moon." },
-                { word: "Pull someone's leg", phonetic: "", type: "idiom", def: "To joke or tease someone.", example: "Are you serious? Or are you pulling my leg?" }
+                { word: "Break the ice", phonetic: "", type: "idiom", def: "To do something to relieve tension or start a conversation.", example: "He told a joke to break the ice at the meeting.", cefr: "C1" },
+                { word: "Hit the nail on the head", phonetic: "", type: "idiom", def: "To describe exactly what is causing a situation.", example: "You hit the nail on the head with that explanation.", cefr: "C2" },
+                { word: "Piece of cake", phonetic: "", type: "idiom", def: "Something very easy to do.", example: "The test was a piece of cake!", cefr: "B1" },
+                { word: "Under the weather", phonetic: "", type: "idiom", def: "Feeling ill or unwell.", example: "I'm feeling a bit under the weather today.", cefr: "B2" },
+                { word: "Cost an arm and a leg", phonetic: "", type: "idiom", def: "To be extremely expensive.", example: "That new car must have cost an arm and a leg.", cefr: "C1" },
+                { word: "Burn the midnight oil", phonetic: "", type: "idiom", def: "To work or study late into the night.", example: "She burned the midnight oil to finish the project.", cefr: "C2" },
+                { word: "Bite the bullet", phonetic: "", type: "idiom", def: "To endure a painful situation bravely.", example: "I decided to bite the bullet and go to the dentist.", cefr: "B1" },
+                { word: "On the same page", phonetic: "", type: "idiom", def: "To agree or have the same understanding.", example: "Let's make sure we're all on the same page.", cefr: "B2" },
+                { word: "The ball is in your court", phonetic: "", type: "idiom", def: "It's your turn to take action or make a decision.", example: "I've done my part, the ball is in your court now.", cefr: "C1" },
+                { word: "Think outside the box", phonetic: "", type: "idiom", def: "To think creatively or unconventionally.", example: "We need to think outside the box to solve this.", cefr: "C2" },
+                { word: "Beat around the bush", phonetic: "", type: "idiom", def: "To avoid coming to the main point.", example: "Stop beating around the bush and tell me what happened.", cefr: "B1" },
+                { word: "Hit the sack", phonetic: "", type: "idiom", def: "To go to bed.", example: "I'm exhausted — time to hit the sack.", cefr: "B2" },
+                { word: "Spill the beans", phonetic: "", type: "idiom", def: "To reveal secret information accidentally.", example: "He spilled the beans about the surprise party.", cefr: "C1" },
+                { word: "Once in a blue moon", phonetic: "", type: "idiom", def: "Very rarely.", example: "We only eat out once in a blue moon.", cefr: "C2" },
+                { word: "Pull someone's leg", phonetic: "", type: "idiom", def: "To joke or tease someone.", example: "Are you serious? Or are you pulling my leg?", cefr: "B1" }
             ],
             "Technology": [
-                { word: "Algorithm", phonetic: "/ˈæl.ɡə.rɪ.ðəm/", type: "noun", def: "A set of rules or steps for solving a problem.", example: "The recommendation algorithm learns from user behavior." },
-                { word: "Bandwidth", phonetic: "/ˈbænd.wɪdθ/", type: "noun", def: "The capacity for data transmission in a network.", example: "Video streaming requires a lot of bandwidth." },
-                { word: "Encryption", phonetic: "/ɪnˈkrɪp.ʃən/", type: "noun", def: "Converting data into a code to prevent unauthorized access.", example: "End-to-end encryption keeps messages private." },
-                { word: "Latency", phonetic: "/ˈleɪ.tən.si/", type: "noun", def: "The delay before data transfer begins.", example: "High latency makes online gaming frustrating." },
-                { word: "Iterate", phonetic: "/ˈɪt.ə.reɪt/", type: "verb", def: "To repeat a process with the aim of improving it.", example: "The development team iterated quickly on user feedback." },
-                { word: "Deploy", phonetic: "/dɪˈplɔɪ/", type: "verb", def: "To put software into active use.", example: "We will deploy the new version next Friday." },
-                { word: "Cache", phonetic: "/kæʃ/", type: "noun", def: "Stored data for faster future access.", example: "Clearing the cache fixed the loading issue." },
-                { word: "API", phonetic: "/ˌeɪ.piːˈaɪ/", type: "noun", def: "A set of rules allowing software applications to communicate.", example: "We built the app using a weather API." },
-                { word: "Deprecated", phonetic: "/ˈdep.rɪ.keɪ.tɪd/", type: "adj", def: "An outdated feature that is no longer recommended.", example: "This function is deprecated; use the new one instead." },
-                { word: "Refactor", phonetic: "/ˌriːˈfæk.tɚ/", type: "verb", def: "To restructure existing code without changing its behavior.", example: "I need to refactor this module to improve readability." },
-                { word: "Middleware", phonetic: "/ˈmɪd.əl.weɚ/", type: "noun", def: "Software that connects different applications or services.", example: "The middleware handles authentication between services." },
-                { word: "Vulnerability", phonetic: "/ˌvʌl.nɚ.əˈbɪl.ɪ.ti/", type: "noun", def: "A weakness in a system that can be exploited.", example: "The security team patched the critical vulnerability." }
+                { word: "Algorithm", phonetic: "/ˈæl.ɡə.rɪ.ðəm/", type: "noun", def: "A set of rules or steps for solving a problem.", example: "The recommendation algorithm learns from user behavior.", cefr: "B2" },
+                { word: "Bandwidth", phonetic: "/ˈbænd.wɪdθ/", type: "noun", def: "The capacity for data transmission in a network.", example: "Video streaming requires a lot of bandwidth.", cefr: "C1" },
+                { word: "Encryption", phonetic: "/ɪnˈkrɪp.ʃən/", type: "noun", def: "Converting data into a code to prevent unauthorized access.", example: "End-to-end encryption keeps messages private.", cefr: "C2" },
+                { word: "Latency", phonetic: "/ˈleɪ.tən.si/", type: "noun", def: "The delay before data transfer begins.", example: "High latency makes online gaming frustrating.", cefr: "B1" },
+                { word: "Iterate", phonetic: "/ˈɪt.ə.reɪt/", type: "verb", def: "To repeat a process with the aim of improving it.", example: "The development team iterated quickly on user feedback.", cefr: "B2" },
+                { word: "Deploy", phonetic: "/dɪˈplɔɪ/", type: "verb", def: "To put software into active use.", example: "We will deploy the new version next Friday.", cefr: "C1" },
+                { word: "Cache", phonetic: "/kæʃ/", type: "noun", def: "Stored data for faster future access.", example: "Clearing the cache fixed the loading issue.", cefr: "C2" },
+                { word: "API", phonetic: "/ˌeɪ.piːˈaɪ/", type: "noun", def: "A set of rules allowing software applications to communicate.", example: "We built the app using a weather API.", cefr: "B1" },
+                { word: "Deprecated", phonetic: "/ˈdep.rɪ.keɪ.tɪd/", type: "adj", def: "An outdated feature that is no longer recommended.", example: "This function is deprecated; use the new one instead.", cefr: "B2" },
+                { word: "Refactor", phonetic: "/ˌriːˈfæk.tɚ/", type: "verb", def: "To restructure existing code without changing its behavior.", example: "I need to refactor this module to improve readability.", cefr: "C1" },
+                { word: "Middleware", phonetic: "/ˈmɪd.əl.weɚ/", type: "noun", def: "Software that connects different applications or services.", example: "The middleware handles authentication between services.", cefr: "C2" },
+                { word: "Vulnerability", phonetic: "/ˌvʌl.nɚ.əˈbɪl.ɪ.ti/", type: "noun", def: "A weakness in a system that can be exploited.", example: "The security team patched the critical vulnerability.", cefr: "B1" }
             ],
             "Emotions": [
-                { word: "Euphoric", phonetic: "/juːˈfɔːr.ɪk/", type: "adj", def: "Feeling intensely happy and excited.", example: "She felt euphoric after winning the competition." },
-                { word: "Melancholy", phonetic: "/ˈmel.ən.kɒl.i/", type: "noun", def: "A feeling of pensive sadness with no obvious cause.", example: "A wave of melancholy washed over him on rainy days." },
-                { word: "Anxious", phonetic: "/ˈæŋk.ʃəs/", type: "adj", def: "Worried and nervous about a future event.", example: "She was anxious about her job interview." },
-                { word: "Empathy", phonetic: "/ˈem.pə.θi/", type: "noun", def: "The ability to understand and share another's feelings.", example: "A good doctor must have empathy for patients." },
-                { word: "Grateful", phonetic: "/ˈɡreɪt.fəl/", type: "adj", def: "Feeling thankful for kindness received.", example: "I am so grateful for your help today." },
-                { word: "Nostalgic", phonetic: "/nɒˈstæl.dʒɪk/", type: "adj", def: "Wistfully longing for the past.", example: "Looking at old photos made him feel nostalgic." },
-                { word: "Envious", phonetic: "/ˈen.vi.əs/", type: "adj", def: "Feeling or showing envy.", example: "She was envious of her friend's success." },
-                { word: "Serene", phonetic: "/səˈriːn/", type: "adj", def: "Calm, peaceful, and untroubled.", example: "The lake looked serene in the early morning light." },
-                { word: "Furious", phonetic: "/ˈfjʊr.i.əs/", type: "adj", def: "Extremely angry.", example: "He was furious when he discovered the mistake." },
-                { word: "Apprehensive", phonetic: "/ˌæp.rɪˈhen.sɪv/", type: "adj", def: "Anxious or fearful about a future event.", example: "She was apprehensive about moving to a new city." },
-                { word: "Elated", phonetic: "/ɪˈleɪ.tɪd/", type: "adj", def: "Ecstatically happy.", example: "The team was elated after winning the championship." },
-                { word: "Indifferent", phonetic: "/ɪnˈdɪf.ɚ.ənt/", type: "adj", def: "Having no particular interest or concern.", example: "He seemed completely indifferent to the outcome." }
+                { word: "Euphoric", phonetic: "/juːˈfɔːr.ɪk/", type: "adj", def: "Feeling intensely happy and excited.", example: "She felt euphoric after winning the competition.", cefr: "B2" },
+                { word: "Melancholy", phonetic: "/ˈmel.ən.kɒl.i/", type: "noun", def: "A feeling of pensive sadness with no obvious cause.", example: "A wave of melancholy washed over him on rainy days.", cefr: "C1" },
+                { word: "Anxious", phonetic: "/ˈæŋk.ʃəs/", type: "adj", def: "Worried and nervous about a future event.", example: "She was anxious about her job interview.", cefr: "C2" },
+                { word: "Empathy", phonetic: "/ˈem.pə.θi/", type: "noun", def: "The ability to understand and share another's feelings.", example: "A good doctor must have empathy for patients.", cefr: "B1" },
+                { word: "Grateful", phonetic: "/ˈɡreɪt.fəl/", type: "adj", def: "Feeling thankful for kindness received.", example: "I am so grateful for your help today.", cefr: "B2" },
+                { word: "Nostalgic", phonetic: "/nɒˈstæl.dʒɪk/", type: "adj", def: "Wistfully longing for the past.", example: "Looking at old photos made him feel nostalgic.", cefr: "C1" },
+                { word: "Envious", phonetic: "/ˈen.vi.əs/", type: "adj", def: "Feeling or showing envy.", example: "She was envious of her friend's success.", cefr: "C2" },
+                { word: "Serene", phonetic: "/səˈriːn/", type: "adj", def: "Calm, peaceful, and untroubled.", example: "The lake looked serene in the early morning light.", cefr: "B1" },
+                { word: "Furious", phonetic: "/ˈfjʊr.i.əs/", type: "adj", def: "Extremely angry.", example: "He was furious when he discovered the mistake.", cefr: "B2" },
+                { word: "Apprehensive", phonetic: "/ˌæp.rɪˈhen.sɪv/", type: "adj", def: "Anxious or fearful about a future event.", example: "She was apprehensive about moving to a new city.", cefr: "C1" },
+                { word: "Elated", phonetic: "/ɪˈleɪ.tɪd/", type: "adj", def: "Ecstatically happy.", example: "The team was elated after winning the championship.", cefr: "C2" },
+                { word: "Indifferent", phonetic: "/ɪnˈdɪf.ɚ.ənt/", type: "adj", def: "Having no particular interest or concern.", example: "He seemed completely indifferent to the outcome.", cefr: "B1" }
             ],
             "Phrasal Verbs": [
-                { word: "Give up", phonetic: "", type: "phrasal verb", def: "To stop trying; to surrender.", example: "Don't give up — you're almost there!" },
-                { word: "Look into", phonetic: "", type: "phrasal verb", def: "To investigate or examine something.", example: "I'll look into the issue and get back to you." },
-                { word: "Run out of", phonetic: "", type: "phrasal verb", def: "To have no more of something left.", example: "We ran out of coffee this morning." },
-                { word: "Put off", phonetic: "", type: "phrasal verb", def: "To delay or postpone something.", example: "She kept putting off the difficult conversation." },
-                { word: "Bring up", phonetic: "", type: "phrasal verb", def: "To raise a topic; or to raise a child.", example: "He brought up an interesting point in the meeting." },
-                { word: "Come across", phonetic: "", type: "phrasal verb", def: "To find or meet by chance.", example: "I came across an old photo while cleaning my room." },
-                { word: "Turn down", phonetic: "", type: "phrasal verb", def: "To refuse or reject an offer.", example: "She turned down the job offer for a better one." },
-                { word: "Figure out", phonetic: "", type: "phrasal verb", def: "To understand or solve something.", example: "Can you figure out how to use this machine?" },
-                { word: "Catch up", phonetic: "", type: "phrasal verb", def: "To reach the same level; to update on news.", example: "Let's meet for coffee and catch up!" },
-                { word: "Break down", phonetic: "", type: "phrasal verb", def: "To stop functioning; to lose emotional control.", example: "The car broke down on the highway." },
-                { word: "Get over", phonetic: "", type: "phrasal verb", def: "To recover from an illness or difficult experience.", example: "It took her months to get over the breakup." },
-                { word: "Set up", phonetic: "", type: "phrasal verb", def: "To arrange or establish something.", example: "They set up a new office in downtown Bangkok." }
+                { word: "Give up", phonetic: "", type: "phrasal verb", def: "To stop trying; to surrender.", example: "Don't give up — you're almost there!", cefr: "B2" },
+                { word: "Look into", phonetic: "", type: "phrasal verb", def: "To investigate or examine something.", example: "I'll look into the issue and get back to you.", cefr: "C1" },
+                { word: "Run out of", phonetic: "", type: "phrasal verb", def: "To have no more of something left.", example: "We ran out of coffee this morning.", cefr: "C2" },
+                { word: "Put off", phonetic: "", type: "phrasal verb", def: "To delay or postpone something.", example: "She kept putting off the difficult conversation.", cefr: "B1" },
+                { word: "Bring up", phonetic: "", type: "phrasal verb", def: "To raise a topic; or to raise a child.", example: "He brought up an interesting point in the meeting.", cefr: "B2" },
+                { word: "Come across", phonetic: "", type: "phrasal verb", def: "To find or meet by chance.", example: "I came across an old photo while cleaning my room.", cefr: "C1" },
+                { word: "Turn down", phonetic: "", type: "phrasal verb", def: "To refuse or reject an offer.", example: "She turned down the job offer for a better one.", cefr: "C2" },
+                { word: "Figure out", phonetic: "", type: "phrasal verb", def: "To understand or solve something.", example: "Can you figure out how to use this machine?", cefr: "B1" },
+                { word: "Catch up", phonetic: "", type: "phrasal verb", def: "To reach the same level; to update on news.", example: "Let's meet for coffee and catch up!", cefr: "B2" },
+                { word: "Break down", phonetic: "", type: "phrasal verb", def: "To stop functioning; to lose emotional control.", example: "The car broke down on the highway.", cefr: "C1" },
+                { word: "Get over", phonetic: "", type: "phrasal verb", def: "To recover from an illness or difficult experience.", example: "It took her months to get over the breakup.", cefr: "C2" },
+                { word: "Set up", phonetic: "", type: "phrasal verb", def: "To arrange or establish something.", example: "They set up a new office in downtown Bangkok.", cefr: "B1" }
             ]
         };
 
@@ -1699,11 +1732,35 @@
            STATE
            ============================================ */
         let state = JSON.parse(localStorage.getItem('english-lab-state') || 'null') || {
-            xp: 0, level: 1, streak: 0, lastDate: null, learned: [], fcCategory: 'All'
+            xp: 0, level: 1, streak: 0, lastDate: null, learned: [], fcCategory: 'All', cefrLevel: 'All'
         };
+        // Ensure legacy state has cefrLevel
+        if (!state.cefrLevel) state.cefrLevel = 'All';
+
         let fcIndex = 0, fcDeck = [], quizIndex = 0, quizScore = 0, quizQuestions = [];
 
         function saveState() { localStorage.setItem('english-lab-state', JSON.stringify(state)); }
+
+        function changeCefrLevel(lvl) {
+            state.cefrLevel = lvl;
+            saveState();
+            const activeTab = document.querySelector('.mode-tab.active');
+            if (activeTab) {
+                const mode = activeTab.dataset.mode;
+                if (mode === 'flashcards') buildDeck();
+                if (mode === 'quiz') startQuiz();
+                if (mode === 'spelling') startSpellingBee();
+                if (mode === 'wordmatch') startWordMatch();
+                if (mode === 'builder') startBuilder();
+            }
+        }
+
+        function getFilteredWords(sourceWords, minRequired = 0) {
+            if (!state.cefrLevel || state.cefrLevel === 'All') return sourceWords;
+            const filtered = sourceWords.filter(w => w.cefr === state.cefrLevel);
+            return filtered.length >= minRequired ? filtered : sourceWords;
+        }
+
         function updateUI() {
             document.getElementById('xpCount').textContent = state.xp;
             document.getElementById('streakCount').textContent = state.streak;
@@ -1765,7 +1822,8 @@
            ============================================ */
         function buildDeck() {
             const cat = state.fcCategory;
-            const source = cat === 'All' ? allWords : (VOCAB[cat] || allWords);
+            let source = cat === 'All' ? allWords : (VOCAB[cat] || allWords);
+            source = getFilteredWords(source, 1);
             fcDeck = [...source].sort(() => Math.random() - 0.5);
             fcIndex = 0;
             showFlashcard();
@@ -1806,7 +1864,7 @@
            ============================================ */
         function generateQuizQuestions() {
             const qs = [];
-            const pool = [...allWords].sort(() => Math.random() - 0.5);
+            const pool = [...getFilteredWords(allWords, QUIZ_LENGTH)].sort(() => Math.random() - 0.5);
             for (let i = 0; i < QUIZ_LENGTH && i < pool.length; i++) {
                 const w = pool[i];
                 const qType = Math.random() < 0.6 ? 'mcq' : 'fill';
@@ -1978,7 +2036,7 @@
                 exercises: [
                     { q: 'I _____ (eat) sushi for dinner last night.', opts: ['eat', 'eats', 'ate', 'eaten'], answer: 'ate' },
                     { q: 'She _____ (not/come) to the party.', opts: ["didn't come", "doesn't come", "wasn't come", "don't come"], answer: "didn't come" },
-                    { q: '_____ you _____ the exam?', opts: ['Did...pass', 'Do...pass', 'Are...pass', 'Were...pass'], answer: 'Did...pass' },
+                    { q: '_____ you _____ the exam?', opts: ['Did...pass', 'Do...pass', 'Are...pass', 'Were...passing'], answer: 'Did...pass' },
                     { q: 'They _____ (buy) a new car last month.', opts: ['buy', 'buys', 'bought', 'buying'], answer: 'bought' }
                 ]
             },
@@ -1992,7 +2050,7 @@
                     { color: 'orange', text: '<strong>Usage 3:</strong> Results visible now', example: 'He <strong>has broken</strong> his leg. (He can\'t walk now.)' }
                 ],
                 exercises: [
-                    { q: 'I _____ never _____ to Australia.', opts: ['have...been', 'has...been', 'have...go', 'did...go'], answer: 'have...been' },
+                    { q: 'I _____ never _____ to Australia.', opts: ['have...been', 'has...been', 'have...gone', 'did...go'], answer: 'have...been' },
                     { q: 'She _____ (already/finish) the report.', opts: ['already finishes', 'has already finished', 'already finished', 'have already finished'], answer: 'has already finished' },
                     { q: '_____ they _____ the movie yet?', opts: ['Have...seen', 'Did...see', 'Has...seen', 'Do...see'], answer: 'Have...seen' },
                     { q: 'We _____ (live) here since 2015.', opts: ['live', 'lived', 'have lived', 'are living'], answer: 'have lived' }
@@ -2008,9 +2066,9 @@
                     { color: 'orange', text: '<strong>a vs an:</strong> Use "an" before vowel sounds', example: '<strong>an</strong> hour, <strong>a</strong> university, <strong>an</strong> honest person' }
                 ],
                 exercises: [
-                    { q: 'She is _____ engineer.', opts: ['a', 'an', 'the', '—'], answer: 'an' },
-                    { q: 'Can you pass me _____ salt?', opts: ['a', 'an', 'the', '—'], answer: 'the' },
-                    { q: '_____ children need love and care.', opts: ['A', 'An', 'The', '—'], answer: '—' },
+                    { q: 'She is _____ engineer.', opts: ['a', 'an', 'the', 'no article'], answer: 'an' },
+                    { q: 'Can you pass me _____ salt?', opts: ['a', 'an', 'the', 'no article'], answer: 'the' },
+                    { q: '_____ children need love and care.', opts: ['A', 'An', 'The', 'No article'], answer: 'No article' },
                     { q: 'He bought _____ new car. _____ car is red.', opts: ['a...The', 'the...A', 'a...A', 'the...The'], answer: 'a...The' }
                 ]
             },
@@ -2106,8 +2164,8 @@
                 exercises: [
                     { q: '"I live in Bangkok." → She said she _____ in Bangkok.', opts: ['lives', 'lived', 'is living', 'has lived'], answer: 'lived' },
                     { q: '"We will help you." → They said they _____ help me.', opts: ['will', 'would', 'can', 'could'], answer: 'would' },
-                    { q: '"Are you coming?" → She asked _____ I was coming.', opts: ['that', 'what', 'if', 'which'], answer: 'if' },
-                    { q: '"Finish your work!" → He told me _____ my work.', opts: ['finish', 'finishing', 'to finish', 'finished'], answer: 'to finish' }
+                    { q: '"Are you coming?" → She asked _____ I was coming.', opts: ['that', 'what', 'if', 'when'], answer: 'if' },
+                    { q: '"Finish your work!" → He told me _____ my work.', opts: ['finish', 'to finished', 'to finish', 'finished'], answer: 'to finish' }
                 ]
             }
         ];
@@ -2199,7 +2257,7 @@
         const SPELL_LENGTH = 10;
 
         function startSpellingBee() {
-            spellDeck = [...allWords].filter(w => !w.word.includes(' ')).sort(() => Math.random() - 0.5).slice(0, SPELL_LENGTH);
+            spellDeck = [...getFilteredWords(allWords.filter(w => !w.word.includes(' ')), SPELL_LENGTH)].sort(() => Math.random() - 0.5).slice(0, SPELL_LENGTH);
             spellIdx = 0; spellCorrect = 0; spellStreak = 0;
             document.getElementById('spellResults').style.display = 'none';
             document.getElementById('spellInput').style.display = '';
@@ -2298,7 +2356,7 @@
             clearInterval(matchTimerInterval);
             matchSeconds = 0; matchDone = 0; matchSelected = null;
             document.getElementById('matchResult').textContent = '';
-            const pool = [...allWords].filter(w => !w.word.includes(' ')).sort(() => Math.random() - 0.5).slice(0, 6);
+            const pool = [...getFilteredWords(allWords.filter(w => !w.word.includes(' ')), 6)].sort(() => Math.random() - 0.5).slice(0, 6);
             matchPairs = pool;
             document.getElementById('matchScore').textContent = `Matches: 0/${pool.length}`;
             document.getElementById('matchTimer').textContent = '⏱ 0s';
@@ -2372,7 +2430,7 @@
         const BUILDER_LENGTH = 5;
 
         function startBuilder() {
-            builderDeck = [...allWords].filter(w => w.example && w.example.split(' ').length > 3).sort(() => Math.random() - 0.5).slice(0, BUILDER_LENGTH);
+            builderDeck = [...getFilteredWords(allWords.filter(w => w.example && w.example.split(' ').length > 3), BUILDER_LENGTH)].sort(() => Math.random() - 0.5).slice(0, BUILDER_LENGTH);
             builderIdx = 0; builderCorrect = 0; builderStreak = 0;
             document.getElementById('builderResults').style.display = 'none';
             document.getElementById('builderTarget').parentElement.style.display = 'block';
@@ -2518,6 +2576,10 @@
             const saved = localStorage.getItem('phs-theme');
             if (saved) document.documentElement.setAttribute('data-theme', saved);
             else if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark');
+
+            // CEFR State init
+            const cefrSelector = document.getElementById('cefrSelector');
+            if (cefrSelector) cefrSelector.value = state.cefrLevel || 'All';
 
             // Mode tabs
             document.querySelectorAll('.mode-tab').forEach(tab => {
